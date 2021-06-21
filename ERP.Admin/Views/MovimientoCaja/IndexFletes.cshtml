@@ -1,0 +1,289 @@
+﻿@model IEnumerable<ERP.Admin.Models.MovimientoCaja>
+@{
+    ViewBag.Title = "Registro de Caja";
+    ViewBag.Description = "Caja";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+@{ 
+    string FechEmis = "";
+    string IdTrMCPR = "";
+    string TDIdMoviCaja = "";
+    string TDChkMoviCaja = "";
+
+    int NroTr = 0;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+            </div>
+            <div class="row">
+                <div class="col-xs-12 col-md-12">
+                    <div class="widget">
+                        <div class="widget-body">
+                            <div class="table-toolbar">
+                                <a class="btn btn-danger" onclick="FnOpenListCompCompra()">
+                                    VINCULAR
+                                </a>
+                            </div>
+                            <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                                <thead>
+                                    <tr role="row">
+                                        <th style="display: none;">
+                                            ID_MOVI_CAJA
+                                        </th>
+                                        <th></th>
+                                        <th style="text-align: center;">
+                                            FECHA
+                                        </th>
+                                        <th style="text-align: center;">
+                                            DOCUMENTO
+                                        </th>
+                                        <th style="text-align: center;">
+                                            DESCRIPCION
+                                        </th>
+                                        <th>
+                                            IMPORTE
+                                        </th>
+                                    </tr>
+                                </thead>
+
+                                <tbody id="tBodyMoviCajaPendRegu">
+                                    @foreach (var item in Model)
+                                    {
+                                        NroTr++;
+                                        IdTrMCPR = "IdTrMCPR" + NroTr;
+                                        TDIdMoviCaja = "TDIdMoviCaja" + IdTrMCPR;
+                                        TDChkMoviCaja= "TDChkMoviCaja" + IdTrMCPR;
+                                        FechEmis = Convert.ToDateTime(item.f_movimiento).ToString("dd/MM/yyyy");
+                                        <tr id="@IdTrMCPR">
+                                            <td id="@TDIdMoviCaja" style="display: none;">
+                                                @item.id_movimiento_caja
+                                            </td>
+                                            <td id="@TDChkMoviCaja" class="input-xs">
+                                                @Html.Bootstrap().CheckBox("form-field-checkbox").Text("").HtmlAttributes(new { @class = "colored-success" })
+                                            </td>
+                                            <td class="input-xs" style="text-align: center;">
+                                                @FechEmis
+                                            </td>
+                                            <td class="input-xs" style="text-align: center;">
+                                                @item.descripcion_comprobante_tipo @item.nro_documento
+                                            </td>
+                                            <td class="input-xs">
+                                                @item.descripcion
+                                            </td>
+                                            <td class="input-xs" style="text-align: right;">
+                                                @item.monto
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalLisCompCompra' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentLisCompCompra'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script>
+        var ArraIdMoviCaja = new Array();
+        $(document).ready(function () {
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+            Inicia();
+        });
+
+        function FnOpenListCompCompra() {
+            FnLlenaArrayMoviCaja();
+            if (ArraIdMoviCaja.length > 0) {
+                var pCallBy = "VincularFlete";
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ViewListaComprobanteCompra", "ComprobanteCompra")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        CallBy: pCallBy
+                    }),
+                    dataType: 'html',
+                    success: function (response) {
+                        $('#myModalContentLisCompCompra').html(response);
+                        $('#myModalLisCompCompra').modal(options);
+                        $('#myModalLisCompCompra').modal('show');
+                    },
+                    error: function (request, status, error) {
+                        sweetAlert("", request.responseText, "error");
+                    }
+                });
+            }
+            else {
+                sweetAlert("", "DEBE DE SELECCIONAR FLETES PARA LA VINCULACIÓN CON EL COMPROBANTE DE COMPRA", "error");
+            }
+        }
+
+        function FnVincularFlete(FkCompComp) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveComprobanteFlete", "MovimientoCaja")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    FkCompComp: FkCompComp, ArraIdMoviCaja: ArraIdMoviCaja
+                }),
+                dataType: 'json',
+                success: function (response) {
+                    if (response == "0") {
+                        sweetAlert("", "ERROR DE CÓDIGO", "error");
+                    } else if (response == "-1") {
+                        sweetAlert("", "ERROR AL ASIGNAR FLETE", "error");
+                    } else {
+                        swal({
+                            title: "",
+                            text: "FLETE ASIGNADO SATISFACTORIAMENTE",
+                            type: "success",
+                            confirmButtonColor: "#93D1EC",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: true,
+                            closeOnCancel: false
+                        },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                    }
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        };
+
+        function FnLlenaArrayMoviCaja() {
+            ArraIdMoviCaja = [];
+            var IdxIdMC = 0;
+            var tableMC = document.getElementById('tBodyMoviCajaPendRegu');
+            var cantRowsMC = tableMC.rows.length;
+            var newTr = "";
+            var IdMoviCaja = "";
+            if (cantRowsMC > 0) {
+                for (var i = 0; i < cantRowsMC; i++) {
+                    newTr = tableMC.rows[i].id;
+                    if (newTr.trim() != "") {
+                        var ObjChk = document.getElementById("TDChkMoviCaja" + newTr).children;
+                        ObjChk = ObjChk[0].children;//Se obtiene el Label
+                        ObjChk = ObjChk[0].children;//Se obtene el check
+                        if (ObjChk[0].checked) {
+                            IdMoviCaja = document.getElementById("TDIdMoviCaja" + newTr).innerHTML;
+                            ArraIdMoviCaja[IdxIdMC] = IdMoviCaja.trim();
+                            IdxIdMC++;
+                        }
+                    }
+                }
+            }
+        }
+        function Inicia() {
+            oTable = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 10, 15, 20, 100, -1],
+                    [5, 10, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 10,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    { "bSortable": false },
+                    null,
+                    null,
+                    null,
+                    null,
+                ],
+                "aaSorting": [[0, "desc"]]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+            var isEditing = null;
+        }
+    </script>
+}

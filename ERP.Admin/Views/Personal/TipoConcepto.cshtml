@@ -1,0 +1,144 @@
+﻿@{
+    ViewBag.Title = "Registro de Tipo de conceptos";
+    ViewBag.Description = "tipo conceptos";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.TipoConceptoErp>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    @*<a id="NewRegistro" class="btn btn-primary" style="width: 60px">
+            Nuevo
+        </a>*@
+                    <a href="#" onclick="return Exporter.export(editabledatatable2, 'TiposConceptos.xls', 'TiposConceptos')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable2">
+                    <thead>
+                        <tr role="row">
+                            <th style="text-align: center;font-size:11px">
+                                ID
+                            </th>
+                            <th style="text-align: center;font-size:11px">
+                                DESCRIPCION
+                            </th>
+                            <th style="text-align: center;font-size:11px">
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            var identidad = "TrTrab" + item.IDTIPOCONCEPTO;
+
+                            <tr>
+                                <td id="@identidad" style="font-size: 11px;text-align: center">
+                                    @Html.DisplayFor(modelItem => item.IDTIPOCONCEPTO)
+                                </td>
+                                <td class="input-xs" style="font-size: 11px">
+                                    @Html.DisplayFor(modelItem => item.DESCRIPCION)
+                                </td>
+                                
+                                <td class="input-xs" style="font-size: 11px"></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:400px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+            Inicia();
+
+
+        });
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable2').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable2')));
+            var isEditing = null;
+
+        }
+    </script>
+}

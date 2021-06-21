@@ -1,0 +1,285 @@
+﻿@model IEnumerable<ERP.Admin.Models.Movimiento>
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+
+</script>
+@{
+    string FechActu = DateTime.Now.ToString("dd/MM/yyyy");
+
+    string CodiProd = ViewBag.Producto.cod_producto;
+    string NombProd = ViewBag.Producto.nom_producto;
+    string DescMarc = ViewBag.Producto.descripcion_producto_marca;
+
+    string strFechEmis = "";
+    string strComprobante = "";
+    string strCantIngr = "";
+    string strCostUnitIngr = "";
+    string strCostTotaIngr = "";
+    string strCantSali = "";
+    string strCostUnitSald = "";
+    string strCostTotaSali = "";
+    string strUltiCostUnit = "";
+    string strCostTotaSaldNew = "";
+
+    decimal CantIngr = 0;
+    decimal CantSali = 0;
+    decimal SaldoKardex = 0;
+    decimal CostUnitIngr = 0;
+    decimal CostTotaIngr = 0;
+    decimal CostTotaSali = 0;
+    decimal CostUnitSald = 0;
+    decimal CostTotaSaldNew = 0;
+
+    decimal CostTotaSaldAnte = 0;
+    decimal SaldAnte = 0;
+    decimal UltiCostUnit = 0;
+    decimal CostTotaSalo = 0;
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="editabledataKardex" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr style="text-align: center; border: none;">
+                            <th colspan="12" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">CÓDIGO DE LA EXISTENCIA: @CodiProd</th>
+                        </tr>
+                        <tr style="text-align: center; border: none;">
+                            <th colspan="12" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">DESCRIPIÓN: @NombProd</th>
+                        </tr>
+                        <tr style="text-align: center; border: none;">
+                            <th colspan="12" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">MARCA: @DescMarc</th>
+                        </tr>
+                        <tr role="row">
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                FECHA
+                            </th>
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COMPROBANTE
+                            </th>
+                            <th colspan="3" style="text-align: center; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                ENTRADA
+                            </th>
+                            <th colspan="3" style="text-align: center; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                SALIDA
+                            </th>
+                            <th colspan="3" style="text-align: center; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                SALDO
+                            </th>
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                MOTIVO
+                            </th>
+                        </tr>
+                        <tr role="row">
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                CANTIDAD
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COSTO UNITARIO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COSTO TOTAL
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                CANTIDAD
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COSTO UNITARIO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COSTO TOTAL
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                CANTIDAD
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COSTO UNITARIO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COSTO TOTAL
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            CostUnitIngr = 0;
+                            CostTotaIngr = 0;
+                            CostTotaSali = 0;
+                            SaldAnte = SaldoKardex;
+                            if (item.descripcion_movimiento_tipo.Equals("INVENTARIO"))
+                            {
+                                SaldAnte = 0;
+                                SaldoKardex = 0;
+                            }
+                            if (item.ingreso_salida == "INGRESO")
+                            {
+                                strFechEmis = item.f_emision_ingreso.ToString("yyyy/MM/dd");
+                                strComprobante = item.tipo_comprobante_ingreso + ": " + item.nro_comprobante_ingreso;
+                                CantSali = 0;
+                                strCantSali = "";
+                                CantIngr = item.cantidad;
+                                if (item.fk_tipo_moneda == 2)
+                                {
+                                    item.precio_ingreso = item.precio_ingreso * item.tipo_cambio;
+                                    item.precio_ingreso = Math.Round(item.precio_ingreso / Convert.ToDecimal(1.18), 2);
+                                }
+                                CostUnitIngr = item.precio_ingreso;
+                                CostTotaIngr = CantIngr * CostUnitIngr;
+                                strCantIngr = CantIngr.ToString();
+                                strCostUnitIngr = CostUnitIngr.ToString();
+                                strCostTotaIngr = CostTotaIngr.ToString();
+                                CostTotaSalo = CostTotaSaldAnte + (CantIngr * CostUnitIngr);
+                                //strCostUnitSald = CostTotaSald;
+                                UltiCostUnit = Math.Round(CostTotaSalo / (SaldoKardex + CantIngr), 2);
+                                strUltiCostUnit = "";
+                                strCostTotaSali = "";
+                            }
+                            else
+                            {
+                                strFechEmis = item.f_emision_salida.ToString("yyyy/MM/dd");
+                                strComprobante = item.tipo_comprobante_salida + ": " + item.nro_comprobante_salida;
+                                CantIngr = 0;
+                                strCantIngr = "";
+                                strCostUnitIngr = "";
+                                strCostTotaIngr = "";
+                                CantSali = item.cantidad;
+                                CostTotaSali = UltiCostUnit * item.cantidad;
+                                strCantSali = CantSali.ToString();
+                                strUltiCostUnit = UltiCostUnit.ToString();
+                                strCostTotaSali = CostTotaSali.ToString();
+                            }
+                            SaldoKardex = SaldoKardex + CantIngr - CantSali;
+                            if (SaldoKardex > 0)
+                            {
+                                CostUnitSald = Math.Round(CostTotaIngr / SaldoKardex, 2);
+                            }
+                            if (item.descripcion_movimiento_tipo.Equals("INVENTARIO"))
+                            {
+                                strComprobante = "";
+                                CostTotaSaldNew = CostTotaIngr;
+                            }
+                            else
+                            {
+                                CostTotaSaldNew = UltiCostUnit * SaldoKardex;
+                            }
+                            strCostUnitSald = CostUnitSald.ToString();
+                            //CostTotaSaldNew = CostTotaSaldAnte + CostTotaIngr - CostTotaSali;
+                            strCostTotaSaldNew = CostTotaSaldNew.ToString();
+                            //CostTotaSald =
+                            //PrecCost =
+                            <tr>
+                                <td class="input-xs">
+                                    @strFechEmis
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @strComprobante
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strCantIngr
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strCostUnitIngr
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strCostTotaIngr
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strCantSali
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strUltiCostUnit
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strCostTotaSali
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @SaldoKardex
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @UltiCostUnit
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strCostTotaSaldNew
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.descripcion_movimiento_tipo
+                                </td>
+                            </tr>
+                            CostTotaSaldAnte = CostTotaSaldNew;
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinnerKardex" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    var arrGuiaRemiDeta = new Array();
+    $(document).ready(function () {
+        //IniciaTblExistencia();
+        $("#spinnerKardex").hide();
+        //Inicia();
+        $('#spinnerKardex').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function IniciaTblExistencia() {
+        //Datatable Initiating
+        oTable = $('#editabledataKardex').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, 100, -1],
+                [5, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 20,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledataKardex')));
+        var isEditing = null;
+
+    }
+</script>

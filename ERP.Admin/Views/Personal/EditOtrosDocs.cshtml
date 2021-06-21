@@ -1,0 +1,89 @@
+﻿@using ERP.Admin.Models
+@{
+    var _entidadp = (PersonalOtrosDocumentosErp)ViewBag.OtrosDocExist;
+    int IDPERSONALOTROSDOCs = 0;
+    string IDCODIGOGENERALs = "";
+    int IDOTROSDOCs = 0;
+    string DOCUMENTO_ADJUNTOs = "";
+    string ESTADOs = "";
+    string DOCUMENTOs = "";
+    if (_entidadp != null)
+    {
+        IDPERSONALOTROSDOCs = _entidadp.IDPERSONALOTROSDOC;
+        IDCODIGOGENERALs = _entidadp.IDCODIGOGENERAL;
+        IDOTROSDOCs = _entidadp.IDOTROSDOC;
+        DOCUMENTO_ADJUNTOs = _entidadp.DOCUMENTO_ADJUNTO;
+        ESTADOs = _entidadp.ESTADO;
+        DOCUMENTOs = _entidadp.DOCUMENTO;
+    }
+}
+
+@Html.Hidden("IDPERSONALOTROSDOCx", @IDPERSONALOTROSDOCs)
+@Html.Hidden("IDCODIGOGENERALx", @IDCODIGOGENERALs)
+@Html.Hidden("IDOTROSDOCx", @IDOTROSDOCs)
+@Html.Hidden("DOCUMENTO_ADJUNTOx", @DOCUMENTO_ADJUNTOs)
+@Html.Hidden("ESTADOx", @ESTADOs)
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Registro de otros documentos</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Tipo <sup>*</sup></label>
+                                <div class="col-sm-8" style="">
+                                    @Html.DropDownList("IDOTROSDOCP", new SelectList(ViewBag.OtrosDocs, "IDOTROSDOC", "DESCRIPCION"), new { @class = "form-control dropdown - menu" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Adjunto </label>
+                                <div class="col-sm-8" style="">
+                                    <input type="text" id="lblNombArcho" style="margin-top:15px; background-color: transparent; border: none;display:none" readonly="readonly" />
+                                    <input type="file" name="FileUpload3" id="FileUpload3" onChange="Handlechange3();" style="margin-top:5px;" accept=".png , .jpg, .pdf, .doc, .docx" />
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarOtros").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" style="color:white" id="btnCancelotros" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}

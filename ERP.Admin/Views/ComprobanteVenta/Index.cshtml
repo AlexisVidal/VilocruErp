@@ -1,0 +1,629 @@
+﻿@{
+    ViewBag.Title = "Registro de Comprobante de Venta";
+    ViewBag.Description = "Comprobante de Venta";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                @*Tipo Comprobante:
+                    @Html.DropDownList("cmbCompVent_FilterTipo", new SelectList(ViewBag.TiposFilter, "id_comprobante_tipo", "descripcion", selectedValue: "-1"), new { id = "cmbCompVent_FilterTipo" })*@
+                <span class="widget-caption">Listado </span>
+                Estado:
+                @Html.DropDownList("cmbCompVent_FilterEstado", new SelectList(ViewBag.EstadosFilter, "estado", "Nestado", selectedValue: "-1"), new { id = "cmbCompVent_FilterEstado" })
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="DivTblCompVenta"></div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalCompVenta' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:99%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentCompVenta'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPedido' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:100%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPedido'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalDistCantidad' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:40%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentDistCantidad'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPrecVenta' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPrecVenta'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalNotaEntrega' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:70%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNotaEntrega'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalCliente' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentCliente'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalNotaCredito' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:90%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNotaCredito'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalNotaDebito' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:90%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNotaDebito'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalCtasPorCobrar' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:99%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentCtasPorCobrar'></div>
+        </div>
+    </div>
+</div>
+@*<div id='myModalCtasPorCobrar' class='modal fade in' role="dialog">
+        <div class="modal-dialog" style="width:60%; height:auto">
+            <div class="modal-content">
+                <div id='myModalContentCtasPorCobrar'></div>
+            </div>
+        </div>
+    </div>*@
+<div id='myModalPagoCtasPorCobrar' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagoCtasPorCobrar'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalListNotaCredito' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentListNotaCredito'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).ready(function () {
+
+
+
+
+
+            loadDivTblCompVenta();
+            //ValidaStockMinimo();
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+            $("#cmbCompVent_FilterEstado").change(function () {
+                //var optTipo = $("#cmbCompVent_FilterTipo").val();
+                //if (optTipo) {
+
+                //}
+                loadDivTblCompVenta();
+            });
+        });
+
+        function ValidaStockMinimo() {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetJson_AlmacenStockMinimo", "AlmacenStock")',
+			    contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    var dataLen = response.length;
+                    if (dataLen > 0) {
+                        $("#btnWarningStocMinimo").click();
+                    }
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+		    });
+        }
+
+        function loadDivTblCompVenta() {
+            var CallBy = "ComprobanteVenta";
+            var EstaFilt = $("#cmbCompVent_FilterEstado").val();
+            var url = "../ComprobanteVenta/ListIndex?EstaFilt=" + EstaFilt + "&CallBy=" + CallBy;
+            $('#DivTblCompVenta').html('');
+            $('#DivTblCompVenta').load(url);
+        }
+
+        $(document).on('click', '.revertir', function () {
+            var tableRow = $(this).closest("tr");
+            IdCompVent = tableRow.find("td:eq(0)").text();
+            IdCompVent = IdCompVent.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "ComprobanteVentaRevertir";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCompVent: IdCompVent, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCompVenta').html(response);
+                    $('#myModalCompVenta').modal(options);
+                    $('#myModalCompVenta').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.nota_credito', function () {
+            var tableRow = $(this).closest("tr");
+            IdCompVent = tableRow.find("td:eq(0)").text();
+            IdCompVent = IdCompVent.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "ComprobanteVentaNC";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Create", "NotaCredito")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCompVent: IdCompVent, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNotaCredito').html(response);
+                    $('#myModalNotaCredito').modal(options);
+                    $('#myModalNotaCredito').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+        $(document).on('click', '.nota_debito', function () {
+            var tableRow = $(this).closest("tr");
+            IdCompVent = tableRow.find("td:eq(0)").text();
+            IdCompVent = IdCompVent.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "ComprobanteVentaNC";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Create", "NotaDebito")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCompVent: IdCompVent, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNotaDebito').html(response);
+                    $('#myModalNotaDebito').modal(options);
+                    $('#myModalNotaDebito').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+
+
+        @*$(document).on('click', '.ver', function () {
+            var tableRow = $(this).closest("tr");
+            IdCompVent = tableRow.find("td:eq(0)").text();
+            IdCompVent = IdCompVent.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "ComprobanteVentaVer";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCompVent: IdCompVent, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCompVenta').html(response);
+                    $('#myModalCompVenta').modal(options);
+                    $('#myModalCompVenta').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });*@
+
+        //$(document).on('click', '.anular', function () {
+        //    var tableRow = $(this).closest("tr");
+        //    var IdCompVent = tableRow.find("td:eq(0)").text();
+        //    IdCompVent = IdCompVent.trim();
+        //    swal({
+        //        //html: true,
+        //        title: 'ANULAR',
+        //        text: "¿Seguro de Anular Comprobante?",
+        //        type: 'warning',
+        //        showCancelButton: true,
+        //        confirmButtonColor: '#3085d6',
+        //        cancelButtonColor: '#d33',
+        //        confirmButtonText: 'Si!',
+        //        cancelButtonText: 'No!'
+        //    },
+        //        function (isConfirm) {
+        //            if (isConfirm) {
+        //                SaveAnularComprobanteVenta(IdCompVent)
+        //            }
+        //        });
+        //});
+
+        function FnAnularCV(IdCompVent, strFEmis) {
+            //var tableRow = $(this).closest("tr");
+            //var IdCompVent = tableRow.find("td:eq(0)").text();
+            //IdCompVent = IdCompVent.trim();
+            swal({
+                //html: true,
+                title: 'ANULAR',
+                text: "¿Seguro de Anular Comprobante?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si!',
+                cancelButtonText: 'No!'
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        SaveAnularComprobanteVenta(IdCompVent, strFEmis)
+                    }
+                });
+        }
+
+        function FnNotaEntrega(FkVent) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("ViewNotaEntrega", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: { FkVent: FkVent },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNotaEntrega').html(response);
+                    $('#myModalNotaEntrega').modal(options);
+                    $('#myModalNotaEntrega').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        }
+
+        @*$(document).on('click', '.imprimir_ne', function () {
+            var tableRow = $(this).closest("tr");
+            var FkVent = tableRow.find("td:eq(0)").text();
+            FkVent = FkVent.trim();
+            var url = '@Url.Action("PrintNotaEntrega", "ComprobanteVenta")?FkVent=' + FkVent;
+            window.open(url, "_blank")
+        });*@
+
+        function FnPrinterNotaEntrega(FkVent) {
+            var url = '@Url.Action("PrintNotaEntrega", "ComprobanteVenta")?FkVent=' + FkVent;
+            window.open(url, "_blank")
+        }
+
+
+        function SaveAnularComprobanteVenta(IdCompVent, strFEmis) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("FnSaveAnularComprobanteVenta", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdCompVent: IdCompVent, FEmis : strFEmis
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    if (data.flgRpta == "0") {
+                        sweetAlert("", "ERROR DE CÓDIGO", "error");
+                    }
+                    else if (data.flgRpta == "-1") {
+                        sweetAlert("", "ERROR AL INTENTAR ANULAR COMPROBANTE", "error");
+                    }
+                    else if (data.flgRpta == "-2") {
+                        sweetAlert("", "NO ES POSIBLE ELIMIR COMPROBANTE, SE HA SUPERA EL LÍMITE DE TIEMPO ESPECIFICADO POR SUNAT", "error");
+                    }else if (data.flgRpta == "-3") {
+                        sweetAlert("", data.msgRpta, "error");
+                    } else {
+                        swal({
+                            title: 'Exito!',
+                            text: 'EL COMPROBANTE SE ANULÓ SATISFACTORIAMENTE',
+                            type: 'success',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ok'
+                        },
+                            function (isConfirm) {
+                                if (isConfirm) {
+                                    location.reload();
+                                }
+                            });
+                    }
+                },
+                error: function (request) {
+                    sweetAlert("", request.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                    }
+                }
+            });
+            return false;
+        }
+
+        @*$(document).on('click', '.finalizar', function () {
+            var tableRow = $(this).closest("tr");
+            var IdCompComp = tableRow.find("td:eq(0)").text();
+            IdCompComp = IdCompComp.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveFilnalizarComprobanteCompra", "ComprobanteCompra")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdCompComp: IdCompComp
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: 'Exito!',
+                        text: data,
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ok'
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.ver', function () {
+            var tableRow = $(this).closest("tr");
+            IdCompVent = tableRow.find("td:eq(0)").text();
+            IdCompVent = IdCompVent.trim();
+            CallBy = 'ComprobanteVentaVer';
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCompVent: IdCompVent, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCompVenta').html(response);
+                    $('#myModalCompVenta').modal(options);
+                    $('#myModalCompVenta').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });*@
+
+        function FnListaCliente(pCallBy) {
+            var optcomp = $("#cmbCompVentNew_FkCompTipo").val();
+            var tipocli = 1;
+            console.log(optcomp);
+            //if (parseInt(optcomp)===0) {
+            //    sweetAlert("", "Seleccione comprobante!", "error");
+            //    return false;
+            //}
+            //if (parseInt(optcomp) === 3) {
+            //    tipocli = 2;
+            //}
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaClientes", "ComprobanteVenta")',
+               @*url: '@Url.Action("ListaClientes2", "ComprobanteVenta")',*@
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy,
+                    tipocliente: tipocli
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCliente').html(response);
+                    $('#myModalCliente').modal(options);
+                    $('#myModalCliente').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        }
+
+        function FnListaPedidoFacturar(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ViewPedidoFacturar", "Pedido")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentPedido').html(response);
+                    $('#myModalPedido').modal(options);
+                    $('#myModalPedido').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        }
+
+        function FnListaPrecioVenta(pCallBy) {
+            var opttipos = $("#cmbTipoProduc").val();
+            console.log("opttipos: " + opttipos);
+            var options = { "backdrop": "static", keyboard: false };
+            if (opttipos === "ZZ") {
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaServicioVenta", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentPrecVenta').html(response);
+                    $('#myModalPrecVenta').modal(options);
+                    $('#myModalPrecVenta').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            } else {
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaProductoVenta2", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentPrecVenta').html(response);
+                    $('#myModalPrecVenta').modal(options);
+                    $('#myModalPrecVenta').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            }
+        }
+
+
+
+    </script>
+}

@@ -1,0 +1,176 @@
+﻿@using ERP.Admin.Models
+@model IEnumerable<UsuarioModulo>
+@{
+    int NroTr = 0;
+    string TDChkUsuaModu = "";
+    string IdTRUsuaModu = "";
+    string TDFkModu = "";
+    string TDFkMenu = "";
+    var _entidadp = (UsuarioErp)ViewBag.Usuario;
+    string FkUsua = "";
+    string dnis = "";
+    string nombress = "";
+    string apellido_paternos = "";
+    string apellido_maternos = "";
+    if (_entidadp != null)
+    {
+        FkUsua = _entidadp.IDUSUARIO;
+        dnis = _entidadp.IDCODIGOGENERAL;
+        nombress = _entidadp.NOMBRES;
+        apellido_paternos = _entidadp.A_PATERNO;
+        apellido_maternos = _entidadp.A_MATERNO;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("HiddUsuaModu_FkUsua", FkUsua)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">PERMISOS: @dnis - @nombress @apellido_paternos @apellido_maternos</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="col-md-12">
+                            <div class="table-scrollable">
+                                <table class="table table-striped table-bordered table-hover" id="TblLoteSele">
+                                    <thead>
+                                        <tr style="text-align: center;">
+                                            <th style="text-align: center; vertical-align: middle;"><b></b></th>
+                                            <th style="text-align: center; vertical-align: middle;"><b>MENU</b></th>
+                                            <th style="text-align: center; vertical-align: middle;"><b>MODULO</b></th>
+                                            <th style="text-align: center; vertical-align: middle;"><b>FK_MENU</b></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyUsuaPerm">
+                                        @if (Model != null)
+                                        {
+                                            foreach (var oneModu in Model)
+                                            {
+                                                NroTr++;
+                                                IdTRUsuaModu = "IdTRUsuaPerm" + NroTr;
+                                                TDChkUsuaModu = "TDChkUsuaModu" + IdTRUsuaModu;
+                                                TDFkModu = "TDFkModu" + IdTRUsuaModu;
+                                                TDFkMenu =  "TDFkMenu" + IdTRUsuaModu;
+                                        <tr id="@IdTRUsuaModu">
+                                            <td id="@TDChkUsuaModu" style='text-align: center; height: 20px; font-size:11px;'>
+                                                @if (@oneModu.IDUSUARIO != "0")
+                                                {
+                                                    @Html.Bootstrap().CheckBox("chkSeleModu").Text("").IsChecked(true).HtmlAttributes(new { @class = "colored-success" })
+                                                }
+                                                else
+                                                {
+                                                    @Html.Bootstrap().CheckBox("chkSeleModu").Text("").IsChecked(false).HtmlAttributes(new { @class = "colored-success" })
+                                                }
+                                            </td>
+                                            <td style='text-align: left; height: 20px; font-size:11px; vertical-align: middle;'>@oneModu.menu</td>
+                                            <td style='text-align: left; height: 20px; font-size:11px; vertical-align: middle;'>@oneModu.descripcion</td>
+                                            <td id="@TDFkMenu" style='text-align: left; height: 20px; font-size:11px; vertical-align: middle;'>@oneModu.id_modulo_menu</td>
+                                            <td id="@TDFkModu" style='display: none'>@oneModu.id_modulo</td>
+                                        </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="horizontal-space"></div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6" style="text-align:center;vertical-align:middle;">
+                                @Html.Bootstrap().Button().Text("Guardar").Color(BootstrapColors.Success).HtmlAttributes(new { onclick = "FnAsignarPermisos()" })
+                            </div>
+                            <div class="col-md-6" style="text-align:center;vertical-align:middle;">
+                                <button class="btn btn-danger" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var ArraUsuaModu = "";
+    $(document).ready(function () {
+    });
+
+    function FnAsignarPermisos() {
+        FnLlenaArrayPermisos();
+        var FkUsua = $("#HiddUsuaModu_FkUsua").val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("SaveAsignarPermisos", "Usuario")',
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({ FkUsua: FkUsua, ArraUsuaModu: ArraUsuaModu }),
+            dataType: 'json',
+            traditional: true,
+            success: function (data) {
+                if (data == "0") {
+                    sweetAlert("ERROR", "ERROR DE CÓDIGO", "error");
+                } else if (data == "-1") {
+                    sweetAlert("ERROR", "ERROR AL INTENTAR ACTUALIZAR PERMISOS", "error");
+                } else {
+                    //sweetAlert("", "PERMISOS ACTUALIZADOS SATISFACTORIAMENTE", "success");
+                    //window.location.reload();
+                    swal({
+                        title: "",
+                        text: "PERMISOS ACTUALIZADOS SATISFACTORIAMENTE",
+                        type: "success",
+                        confirmButtonColor: "#93D1EC",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: true,
+                        closeOnCancel: false
+                    }).then( function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                }
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+        });
+    }
+
+    function FnLlenaArrayPermisos() {
+        debugger;
+        ArraUsuaModu = [];
+        var IdxUM = 0;
+        var table = document.getElementById('tBodyUsuaPerm');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var objChk = "";
+        var FkModu = "";
+        var FlgAsig = "";
+        var FkMenu = "";
+        for (var i = 0; i < cantRows; i++) {
+            newTr = table.rows[i].id;
+            var row = document.getElementById(newTr);
+            if (newTr.trim() != "") {
+                FkMenu = document.getElementById('TDFkMenu' + newTr).innerHTML;
+                FkModu = document.getElementById('TDFkModu' + newTr).innerHTML;
+                objChk = document.getElementById("TDChkUsuaModu" + newTr).children;
+                objChk = objChk[0].children;//Se obtiene el Label
+                objChk = objChk[0].children;//Se obtene el check
+                if (objChk[0].checked) {
+                    FlgAsig = "1";
+                }
+                else {
+                    FlgAsig = "0";
+                }
+                ArraUsuaModu[IdxUM] = new Array(2);
+                ArraUsuaModu[IdxUM][0] = FkModu.trim();
+                ArraUsuaModu[IdxUM][1] = FlgAsig.trim();
+                ArraUsuaModu[IdxUM][2] = FkMenu.trim();
+
+                IdxUM++;
+            }
+        }
+    }
+</script>

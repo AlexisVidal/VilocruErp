@@ -1,0 +1,53 @@
+﻿@using ERP.Admin.Models
+@using System.Web.UI.WebControls
+@model IEnumerable<ModuloMenusErp>
+@{
+    int NroTr = 0;
+    string TDChkUsuaModu = "";
+    string IdTRUsuaModu = "";
+    string TDFkModu = "";
+    var _entidadp = (UsuarioErp)ViewBag.Usuario;
+    string FkUsua = "";
+    string dnis = "";
+    string nombress = "";
+    string apellido_paternos = "";
+    string apellido_maternos = "";
+    if (_entidadp != null)
+    {
+        FkUsua = _entidadp.IDUSUARIO;
+        dnis = _entidadp.IDCODIGOGENERAL;
+        nombress = _entidadp.NOMBRES;
+        apellido_paternos = _entidadp.A_PATERNO;
+        apellido_maternos = _entidadp.A_MATERNO;
+    }
+}
+<link href="~/Content/jstree/dist/themes/default/style.min.css" rel="stylesheet" />
+
+@Html.Hidden("HiddUsuaModu_FkUsua", FkUsua)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">PERMISOS: @dnis - @nombress @apellido_paternos @apellido_maternos</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    <div id="jstree">
+                        @(Html.TreeView(Model)
+                              .EmptyContent("root")
+                              .Children(m => m.Childs)
+                              .HtmlAttributes(new { id = "tree" })
+                              .ChildrenHtmlAttributes(new { @class = "subItem" })
+                              .ItemText(m => m.menu)
+                              .ItemTemplate(
+                                        @<text>
+                                            <a href="@item.menu" desc="@item.descripcion">@item.menu</a>
+                                        </text>)
+                        )
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

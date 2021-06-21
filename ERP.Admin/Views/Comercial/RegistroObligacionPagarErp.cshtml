@@ -1,0 +1,277 @@
+﻿@using ERP.Admin.Models
+@{
+    var _obliga = (List<ObligacionPagarErp>)ViewBag.Obliga;
+    int id_obligacion_pagar = 0;
+    int fk_comprobante_tipos = 0;
+    int fk_obligacion_tipos = 0;
+    int fk_proveedors = 0;
+    int diass = 0;
+    string IDUSUARIOs = "";
+    string IDMONEDAs = "";
+    string documentos = "";
+
+    string f_emisions = "";
+    string f_vencimientos = "";
+
+
+    decimal montoss = 0;
+    string f_registros = "";
+
+    string monedas = "";
+
+    string razon_socials = "";
+    string observacions = "";
+    decimal cuota_inicial = 0;
+    int dias = 0;
+    decimal montos = 0;
+    int nro_letra = 0;
+    int nro_letras = 0;
+    string num_cuota = "";
+    decimal saldos = 0;
+    decimal interes = 0;
+    decimal monto_cuota = 0;
+
+    if (_obliga != null && _obliga.Any())
+    {
+        id_obligacion_pagar = _obliga[0].id_obligacion_pagar;
+        fk_comprobante_tipos = _obliga[0].fk_comprobante_tipo;
+        fk_obligacion_tipos = _obliga[0].fk_obligacion_tipo;
+        fk_proveedors = _obliga[0].fk_proveedor;
+        IDUSUARIOs = _obliga[0].IDUSUARIO;
+        IDMONEDAs = _obliga[0].IDMONEDA;
+        documentos = _obliga[0].documento_referencia;
+
+        f_emisions = _obliga[0].fecha_emision.ToString("dd/MM/yyyy");
+        f_vencimientos = _obliga[0].fecha_vencimiento.ToString("dd/MM/yyyy");
+        if (f_vencimientos.Equals("01/01/1901"))
+        {
+            f_vencimientos = "";
+        }
+        montos = _obliga[0].monto;
+        f_registros = _obliga[0].fecha_registro.ToString("dd/MM/yyyy");
+        monedas = _obliga[0].moneda;
+        razon_socials = _obliga[0].razon_social;
+        observacions = _obliga[0].observacion;
+
+        cuota_inicial = _obliga[0].cuota_inicial;
+        diass = _obliga[0].dias;
+        nro_letra = _obliga[0].nro_letra;
+        nro_letras = _obliga[0].nro_letras;
+        num_cuota = _obliga[0].num_cuota;
+        saldos = _obliga[0].saldo;
+        interes = _obliga[0].interes;
+        monto_cuota = _obliga[0].monto_cuota;
+    }
+}
+
+@Html.Hidden("id_obligacion_pagarx", @id_obligacion_pagar)
+@Html.Hidden("fk_comprobante_tiposx", @fk_comprobante_tipos)
+@Html.Hidden("fk_obligacion_tiposx", @fk_obligacion_tipos)
+@Html.Hidden("fk_proveedorsx", @fk_proveedors)
+@Html.Hidden("IDUSUARIOsx", @IDUSUARIOs)
+@Html.Hidden("IDMONEDAsx", @IDMONEDAs)
+@Html.Hidden("documentosx", @documentos)
+@Html.Hidden("diasx", @diass)
+
+@Html.Hidden("f_emisionsx", @f_emisions)
+@Html.Hidden("f_vencimientosx", @f_vencimientos)
+@Html.Hidden("montosx", @montos)
+@Html.Hidden("f_registrosx", @f_registros)
+@Html.Hidden("monedasx", @monedas)
+@Html.Hidden("razon_socialsx", @razon_socials)
+@Html.Hidden("observacionsx", @observacions)
+
+@Html.Hidden("nro_letrax", @nro_letra)
+@Html.Hidden("nro_letrasx", @nro_letras)
+@Html.Hidden("num_cuotax", @num_cuota)
+@Html.Hidden("saldosx", @saldos)
+@Html.Hidden("cuota_inicialx", @cuota_inicial)
+@Html.Hidden("interesx", @interes)
+@Html.Hidden("diassx", @diass)
+@Html.Hidden("monto_cuotax", @monto_cuota)
+
+
+@Html.Hidden("sfecha_operacion", "")
+@Html.Hidden("sfecha_vencimiento", "")
+@Html.Hidden("stipoobligacion", "1")
+@Html.Hidden("stipocronograma", "1")            @*1 normal 2 habiles mensual*@
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de obligaciones</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0">Proveedor </label>
+                                <div class="col-md-4" style="width:280px;font-size:10px">
+                                    @Html.Bootstrap().DropDownList("cmbfk_empresa", new SelectList(ViewBag.Empresas, "id_empresa", "razon_social")).HtmlAttributes(new { @style = "width:240px;font-size:10px !important" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0;width:25px;padding-left:0">Oblig. </label>
+                                <div class="col-md-4" style="width:180px">
+                                    @Html.Bootstrap().DropDownList("cmbfk_obligacion_tipo", new SelectList(ViewBag.ObligacionTipo, "id_obligacion_tipo", "descripcion")).Size(InputSize.Small).HtmlAttributes(new { @style = "width:140px;font-size:10px", @onchange = "FnCheckTipo()" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0;width:50px;padding-left:0">Emision </label>
+                                <div class="col-md-3" style="width:170px">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerIni' id='txtEmision' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+
+                                    </div>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; padding-top: 8px;margin-right:0">Monto </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtMonto").HtmlAttributes(new { @type = "number", @step = "0.01", @min = "0.00", @max = "9999999999.99" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px;padding-right:0;width:30px">Tipo</label>
+                                <div class="col-md-2" style="width:165px">
+                                    @Html.Bootstrap().DropDownList("cmbfk_tipo", new SelectList(ViewBag.Tipos, "id_tipo_check", "descripcion")).HtmlAttributes(new { @style = "width:150px !important;font-size:10px", @onchange = "FnChangeTipoCronograma2()" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px;padding-right:0">Tipo Doc. </label>
+                                <div class="col-md-4" style="width:190px">
+                                    @Html.Bootstrap().DropDownList("cmbfk_comprobantetipo", new SelectList(ViewBag.ComprobanteTipo, "id_comprobante_tipo", "descripcion")).HtmlAttributes(new { @style = "width:160px !important;font-size:10px", @onchange = "FnCheckFactura()" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0;width:40px">Doc. </label>
+                                <div class="col-md-1" style="width:115px">
+                                    @Html.Bootstrap().TextBox("txtDocumento").HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @class = "form-control input-sm", @style = "width:100px" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0">Moneda </label>
+                                <div class="col-md-2" style="width:190px;margin-left:0">
+                                    @Html.Bootstrap().DropDownList("cmbidmoneda", new SelectList(ViewBag.Monedas, "IDMONEDA", "descripcion")).HtmlAttributes(new { @style = "width:175px;font-size:10px" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row" id="div1" name="div1">
+                            <div class="form-group" style="margin: 1px">
+
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0;width:60px">Cuotas </label>
+                                <div class="col-md-2" style="width:100px;padding-right:0">
+                                    @Html.Bootstrap().TextBox("txtNro_letras").HtmlAttributes(new { @type = "number", @step = "1", @min = "1", @max = "9999999999" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0;width:60px">Interes </label>
+                                <div class="col-md-3" style="width:100px">
+                                    @Html.Bootstrap().TextBox("txtInteres").HtmlAttributes(new { @type = "number", @step = "0.1", @min = "0.1", @max = "9999999999", @style = "border-radius:4px !important" })
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; padding-top: 8px;width:40px ">Dias </label>
+                                <div class="col-md-2" style="width:80px;padding-right:5px">
+                                    @Html.Bootstrap().TextBox("txtDias").HtmlAttributes(new { @type = "number", @step = "1", @min = "1", @max = "9999999999" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                @*<div class="col-md-2" style="width:105px;padding-left:0;margin-top:6px;padding-right:0">
+                                        <label><input type="checkbox" id="chkHabiles" name="chkHabiles" onchange="FnChangeTipoCronograma(this)"><span class="text"></span>D. Habil</label>
+                                    </div>*@
+
+
+
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px;width:80px;padding-left:0;padding-right:0">Cuota Inicial </label>
+                                <div class="col-md-3" style="padding-left:2px;width:130px">
+                                    @Html.Bootstrap().TextBox("txtMontoCuotaInicial").HtmlAttributes(new { @type = "number", @step = "0.01", @min = "0.00", @max = "9999999999.99", @style = "border-radius:4px !important" })
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px;width:60px">Cuota </label>
+                                <div class="col-md-3" style="padding-left:2px;width:130px">
+                                    @Html.Bootstrap().TextBox("txtMontoCuota").HtmlAttributes(new { @type = "number", @step = "0.01", @min = "0.00", @max = "9999999999.99", @style = "border-radius:4px !important" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="div2" name="div2">
+                            <div class="form-group" style="margin: 1px;text-align:center">
+                                <button type="button" class="btn btn-default btn-sm" onclick="GeneraLetras()" style="margin-top:3px">
+                                    <span class="glyphicon glyphicon-plus"></span> Generar
+                                </button>
+                            </div>
+                        </div>
+                        @*<div class="row">
+                                <div class="form-group" style="margin: 1px">
+                                    <label class="col-sm-2 control-label" style="text-align: left; padding-top: 8px; padding-right: 0">Obs. </label>
+                                    <div class="col-md-9">
+                                        @Html.Bootstrap().TextArea("txtObservacion").Rows(3).HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @class = "input-sm", @style = "width:426px" })
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                </div>
+                            </div>*@
+                        <div class="row" id="div11" name="div11" style="margin: 1px;text-align:center;margin-bottom:20px; height:22em;">
+                            <div class="form-group" style="margin: 1px;text-align:center">
+                                <table id="letrastables" class="pure-table pure-table-bordered table-sm" style="margin: 0 auto;height:20em;display:inline-block;overflow-y:scroll">
+                                    <thead>
+                                        <tr>
+                                            <th style="display:none">id</th>
+                                            <th>#</th>
+                                            <th>Nro Letra</th>
+                                            <th>Importe</th>
+                                            <th>Vencimiento</th>
+                                            <th>Fecha Pago</th>
+
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="letrastablesbody" style="">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4" style="text-align: right; vertical-align: middle; width: 80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarEntidad").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <link href="~/assets/css/pure-min.css" rel="stylesheet" />
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/mindmup-editabletable.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+    <style>
+        .select2-container {
+            font-size: 10px;
+        }
+    </style>
+}
+

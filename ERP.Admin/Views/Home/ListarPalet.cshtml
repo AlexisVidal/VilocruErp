@@ -1,0 +1,159 @@
+﻿@{
+    ViewBag.Title = "Listado de palets";
+    ViewBag.Description = "palets";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.PalletsGrupales>
+
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="editabledatatable_new" href="javascript:void(0);" class="btn btn-default">
+                        Nuevo registro
+                    </a>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th>
+                                @Html.DisplayNameFor(model => model.Id)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Fecha)
+                            </th>
+                            <th>
+                                @Html.Label("Tipo Proceso")
+                            </th>
+                            <th style="display: none;">
+                                @Html.DisplayNameFor(model => model.IdProducto)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Producto)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Formato)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Empaque)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Bultos)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Peso)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Camara)
+                            </th>
+                            <th style="display: none;">
+                                @Html.DisplayNameFor(model => model.Fk_Usuario)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Responsable)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Estado)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Ubicacion)
+                            </th>
+                            <th style="display: none;">
+                                @Html.DisplayNameFor(model => model.FkProductoFinal)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Id)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Fecha)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Proceso)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.HiddenFor(modelItem => item.IdProducto)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Producto)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Formato)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Empaque)
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.Bultos)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Peso)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Camara)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.HiddenFor(modelItem => item.Fk_Usuario)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Responsable)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Estado)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Ubicacion)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.HiddenFor(modelItem => item.FkProductoFinal)
+                                </td>
+                                <td>
+                                    @Html.ActionLink("Reimprimir", "QrGenerado", new { id = item.Id })
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script>
+        InitiateEditableDataTable.init();
+    </script>
+    
+}

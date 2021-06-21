@@ -1,0 +1,53 @@
+﻿@using ERP.Admin.Models;
+@{
+    ViewBag.Title = "Registro de Salidas";
+    ViewBag.Description = "salidas";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    string Fecham = "";
+    List<AlmacenMovimientoErp> listamov = (List<AlmacenMovimientoErp>)ViewBag.ListAlmaMov;
+    string almacen = "";
+    string fecha = "";
+    if (listamov != null)
+    {
+        almacen = listamov[0].nombre;
+        fecha = listamov[0].fecha.ToShortDateString();
+    }
+}
+
+@using System
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de Guia de Remision</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row" style="margin-bottom: 5px">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px;font-weight:bold">Almacen</label>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:auto;font-weight:normal">@almacen</label>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px;font-weight:bold">Fecha</label>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:auto;font-weight:normal">@fecha</label>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 5px">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px;font-weight:bold">Almacen</label>
+                                <div class="col-md-6">
+                                    <input type="text" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

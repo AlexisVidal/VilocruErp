@@ -1,0 +1,168 @@
+﻿@{ 
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+@model IEnumerable<ERP.Admin.Models.AlmacenStock>
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+    
+</script>
+@{ 
+    string NombAlma = ViewBag.Almacen.nombre;
+    string UbicAlma = ViewBag.Almacen.ubicacion;
+    string FechActu = DateTime.Now.ToString("dd/MM/yyyy");
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Existencias </span>
+                <a href="#" onclick="return Exporter.export(editabledataExistencias, 'INVENTARIO.xls', 'EXISTENCIAS')">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+                @*@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @id = "btnExpoPDF", @onclick = "return Exporter.export(editabledataExistencias, 'INVENTARIO.xls', 'EXISTENCIAS')" }).Shiny().Size(ButtonSize.Small).IconOnly().IconPrepend(FontAwesome.Download)*@
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table" id="editabledataExistencias" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                    <thead>
+                                        <tr style="text-align: center;border: none;">
+                                            <th colspan="8" style="text-align:center;height:20px;border: 0px solid black;font-size:11px;padding-right:20px">REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FISICAS</th>
+                                        </tr>
+                                        <tr style="text-align: center; border: none;">
+                                            <th colspan="8" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">FECHA: @FechActu</th>
+                                        </tr>
+                                        <tr style="text-align: center; border: none;">
+                                            <th colspan="8" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">ALMACÉN: @NombAlma</th>
+                                        </tr>
+                                        <tr style="text-align: center; border: none;">
+                                            <th colspan="8" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">DIECCIÓN: @UbicAlma</th>
+                                        </tr>
+                                        <tr role="row">
+                                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                CODIGO PROD.
+                                            </th>
+                                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                CODIGO SKU
+                                            </th>
+                                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                PRODUCTO
+                                            </th>
+                                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                MARCA
+                                            </th>
+                                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                LINEA
+                                            </th>
+                                            <th style="width: 100px; font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                STOCK
+                                            </th>
+                                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                ...
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td class="input-xs">
+                                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                                </td>
+                                                <td class="input-xs">
+                                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                                </td>
+                                                <td class="input-xs" style="text-align: left;">
+                                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                                </td>
+                                                <td class="input-xs" style="text-align: left;">
+                                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                                </td>
+                                                <td class="input-xs" style="text-align: left;">
+                                                    @Html.DisplayFor(modelItem => item.producto_linea)
+                                                </td>
+                                                <td class="input-xs" style="text-align: right;">
+                                                    @Html.DisplayFor(modelItem => item.existencia)
+                                                </td>
+                                                <td class="input-xs" style="text-align: center;">
+                                                    <a href="#" class="btn btn-success btn-xs" onclick="FnKadex('@item.fk_almacen', '@item.fk_producto')"><i class="fa fa-cubes"></i> KARDEX</a>
+                                                    <a href="#" class="btn btn-info btn-xs" onclick="FnStockMinimo('@item.id_almacen_stock', '@item.pto_limite')" title="Especificar stock mínimo"><i class="fa fa-edit"></i> </a>
+                                                    <a href="#" class="btn btn-primary btn-xs" onclick="FnCreaRequCompra('@item.fk_producto')" title="Generar Requerimiento de Compra"><i class="fa fa-file-word-o"></i> </a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerExistencia" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    var arrGuiaRemiDeta = new Array();
+    $(document).ready(function () {
+        IniciaTblExistencia();
+        $("#spinnerExistencia").hide();
+        //Inicia();
+        $('#spinnerExistencia').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function IniciaTblExistencia() {
+        //Datatable Initiating
+        oTable = $('#editabledataExistencias').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, 100, -1],
+                [5, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 20,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    "print"
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            }
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledataExistencias')));
+        var isEditing = null;
+
+    }
+</script>

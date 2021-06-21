@@ -1,0 +1,126 @@
+﻿@using ERP.Admin.Models
+@{
+    var _proveedor = (Proveedor)ViewBag.Proveedor;
+    int id_proveedor = 0;
+    int fk_empresas = 0;
+    string rucs = "";
+    string razon_socials = "";
+    string direccions = "";
+    string contactos = "";
+    string telefonos = "";
+    string nro_cuentas = "";
+    string cod_proveedors = "";
+    if (_proveedor != null)
+    {
+        id_proveedor = _proveedor.id_proveedor;
+        fk_empresas = _proveedor.fk_empresa;
+        rucs = _proveedor.ruc;
+        razon_socials = _proveedor.razon_social;
+        direccions = _proveedor.direccion;
+        contactos = _proveedor.contacto;
+        telefonos = _proveedor.telefono;
+        nro_cuentas = _proveedor.nro_cuenta;
+        cod_proveedors = _proveedor.cod_proveedor;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_proveedorx", @id_proveedor)
+@Html.Hidden("fk_empresasx", @fk_empresas)
+@Html.Hidden("rucsx", @rucs)
+@Html.Hidden("razon_socialsx", @razon_socials)
+@Html.Hidden("direccionsx", @direccions)
+@Html.Hidden("contactosx", @contactos)
+@Html.Hidden("telefonosx", @telefonos)
+@Html.Hidden("nro_cuentasx", @nro_cuentas)
+@Html.Hidden("cod_proveedorsx", @cod_proveedors)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de proveedor</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">RUC <sup>*</sup></label>
+                                <div class="col-md-3" style="width:150px">
+                                    <input data-mask="99999999999" class="form-control" placeholder="Ruc" id="ruc" type="text">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Razon Social <sup>*</sup></label>
+                                <div class="col-md-3" style="width:350px">
+                                    @Html.Bootstrap().TextBox("razon_social").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Razon Social")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Direccion <sup>*</sup></label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextBox("direccion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Direccion legal")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Vendedor <sup>*</sup></label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextBox("contacto").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Contacto")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Telefono <sup>*</sup></label>
+                                <div class="col-md-3" style="width:150px">
+                                    <input class="form-control" placeholder="Telefono" id="telefono" type="text">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Nro. Cuenta <sup>*</sup></label>
+                                <div class="col-md-3" style="width:350px">
+                                    @Html.Bootstrap().TextBox("nro_cuenta").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Nro. Cuenta")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+}
+
+
+
+

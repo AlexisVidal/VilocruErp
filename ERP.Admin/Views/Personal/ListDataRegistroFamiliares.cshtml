@@ -1,0 +1,98 @@
+﻿@{ 
+    string urlink = (string)ViewBag.UrlLink;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table table-striped table-hover table-bordered" id="editabledataRegiDerec" style="text-align: center;font-size:10px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                NOMBRES
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                VINCULO
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                F. NACIMIENTO
+                            </th>
+                            <th style="display:none">
+
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                DOCUMENTO VINCULANTE
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                TELEFONO
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                ADJUNTO
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                ESTADO
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string fechanac = @item.fecha_nacimiento.ToString("dd/MM/yyyy");
+                            string urlinktr = @urlink+"/" + @item.documento_adjunto;
+                        <tr>
+                            <td style="display:none">
+                                @item.IDPERSONALFAMILIAR
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                @item.CODIGOGENERAL
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                @item.NOMBRES
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                @item.vinculo
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                @fechanac
+                            </td>
+                            <td style="display:none">
+                                @item.IDDOCVINC
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                @item.DOCVINC
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                @item.TELEFONO
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                <a href="@urlinktr" target="_blank" >@item.documento_adjunto</a>
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                @item.NEstado
+                            </td>
+                            <td class="input-xs" style="font-size: 10px; text-align: center;width:10%">
+                                @if (item.NEstado != "BAJA")
+                                {
+                                    <button class="btn btn-sm btn-primary editafam" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+                                    <button class="btn btn-sm btn-danger bajafam" style="padding: 2px; font-size: small; margin-top: -5px">Baja</button>
+                                }
+
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,174 @@
+﻿<script type="text/javascript">
+
+</script>
+@{
+    string FechMovi = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+
+    int IdCaja = ViewBag.IdCaja;
+}
+@Html.Hidden("HiddMoviCaja_FkCaja", IdCaja)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Movimiento de Caja</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Tipo <sup>*</sup></label>
+                                <div class="col-md-4">
+                                    @Html.DropDownList("cmbMoviCaja_Tipo", new SelectList(new List<Object> { new { value = "1", text = "INGRESO" }, new { value = "2", text = "EGRESO" }, new { value = "3", text = "EGRESO POR PAGO DE FLETE" } }, "value", "text", 1), new { id = "cmbMoviCaja_Tipo" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right;">Fecha <sup>*</sup></label>
+                                <div class="col-md-3">
+                                    <input class="form-control" id="txtMoviCaja_FMovi" type="text" value="@FechMovi" readonly>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Comprobante</label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().DropDownList("cmbMoviCaja_FkCompTipo", new SelectList(ViewBag.ComprobanteTipo, "id_comprobante_tipo", "descripcion")).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Nro</label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtMoviCaja_Docu").HtmlAttributes(new { @autocomplete = "off" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Monto <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtMoviCaja_Monto").HtmlAttributes(new { type = "number", style = "text-align: right;" }).Size(InputSize.Small)
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Descripción <sup>*</sup></label>
+                                <div class="col-md-9">
+                                    <textarea rows="2" id="txtMoviCaja_Desc" onblur="InputToUpper(this);" style="width: 100%; text-transform: uppercase;" maxlength="200"></textarea>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("btnSaveMoviCaja").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnGuardarMoviCaja()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerMoviCajaCreate" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    var arrVentDeta = new Array();
+    $(document).ready(function () {
+        $("#spinnerMoviCajaCreate").hide();
+        //Inicia();
+        $('#spinnerMoviCajaCreate').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnGuardarMoviCaja() {
+        var FkCaja = $("#HiddMoviCaja_FkCaja").val();
+        var FkCompTipo = $("#cmbMoviCaja_FkCompTipo").val();
+        var MoviNroDocu = $("#txtMoviCaja_Docu").val();
+        var MoviDesc = $("#txtMoviCaja_Desc").val();
+        var MoviMont = $("#txtMoviCaja_Monto").val();
+        var MoviTipo = $("#cmbMoviCaja_Tipo").val();
+        var flgError = 0;
+        if (MoviMont == "") {
+            sweetAlert("", "Monto no válido", "error");
+            flgError = 1;
+        } else if (parseFloat(MoviMont) == 0) {
+            sweetAlert("", "Monto no válido", "error");
+            flgError = 1;
+        } else if (MoviDesc.trim() == "") {
+            sweetAlert("", "Ingrese descripción", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveMovimientoCaja", "Caja")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    FkCaja: FkCaja, FkCompTipo: FkCompTipo, MoviNroDocu: MoviNroDocu, MoviDesc: MoviDesc, MoviMont: MoviMont, MoviTipo: MoviTipo
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerMoviCajaCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    if (parseInt(MoviTipo) == 3 && MoviNroDocu.trim() != "") {
+                        for (var j = 0; j < 2; j++) {
+                            FnPrinterTickeEgreso(data.IdMovi);
+                        }
+                        location.reload();
+                    } else {
+                        swal({
+                            title: "Exito!",
+                            text: data.msgRpta,
+                            type: "success",
+                            confirmButtonText: "Ok",
+                            closeOnConfirm: false,
+                            closeOnCancel: false
+                        },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                    }
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerMoviCajaCreate').length > 0) {
+                        $('#spinnerMoviCajaCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    function FnPrinterTickeEgreso(IdMovi) {
+        //DescTipoComp = document.getElementById('cmbCompVentNew_FkCompTipo')[document.getElementById('cmbCompVentNew_FkCompTipo').selectedIndex].innerHTML;
+        //NroCompVent = $("#txtCompCompNew_NroComp").val();
+        //DniRuc = $("#txtVentNew_DniRucClie").val();
+        //NombClie = $("#txtVentNew_NombRazoSocialClie").val();
+        //DireClie = $("#txtVentNew_DireClie").val();
+        //EfecReci = $("#txtCompCompNew_EfecReci").val();
+        //Vuel = document.getElementById('lblVuelto').innerHTML;
+        var url = '@Url.Action("PrintMovimientoCaja", "Caja")?IdMovi=' + IdMovi;
+        window.open(url, "_blank")
+    }
+</script>

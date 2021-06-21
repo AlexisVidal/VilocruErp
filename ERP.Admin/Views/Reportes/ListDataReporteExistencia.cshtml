@@ -1,0 +1,64 @@
+﻿@model IEnumerable<ERP.Admin.Models.AlmacenStock>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="tableDataReportExist" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                CODIGO PROD.
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                CODIGO SKU
+                            </th>
+                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                PRODUCTO
+                            </th>
+                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                MARCA
+                            </th>
+                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                SUB-FAMILIA
+                            </th>
+                            <th style="width: 100px; font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                PTO LÍMITE
+                            </th>
+                            <th style="width: 100px; font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                STOCK
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_subfamilia)
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Html.DisplayFor(modelItem => item.pto_limite)
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Html.DisplayFor(modelItem => item.existencia)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

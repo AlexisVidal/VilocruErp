@@ -1,0 +1,487 @@
+﻿@{
+    ViewBag.Title = "Registro de Empresas";
+    ViewBag.Description = "empresas";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+    var fkempresatemp = 0;
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.Empresa>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="NewRegistro" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'Proveedores.xls', 'Proveedores')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size:11px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_empresa)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ruc)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.razon_social)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.direccion)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.email)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.contacto)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.telefono)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NEstado)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string estatu = item.estado;
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_empresa)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ruc)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.direccion)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.email)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.contacto)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.telefono)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="width:auto; text-align: center; font-size: 10px; padding-right: 0;padding-left: 0">
+                                    @if (estatu == "1")
+                                    {
+                                        <button class="btn btn-sm btn-primary edita" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+                                        <button class="btn btn-sm btn-danger elimina" style="padding: 2px; font-size: small; margin-top: -5px">Anular</button>
+                                    }
+                                    <button class="btn btn-sm btn-success cuentas" style="padding:2px;font-size:small;margin-top:0">Cuentas</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:750px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalNewCuenta' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:850px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNewCuenta'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        var id_empresa = 0;
+        $('#myModalNewCuenta').on('hide.bs.modal',
+            function(e) {
+                window.location.reload();
+                fkempresatemp = 0;
+            });
+        $('#myModalNewCuenta').on('shown.bs.modal',
+            function (e) {
+
+
+                loadDivTblCuentas();
+            });
+
+        function loadDivTblCuentas() {
+            debugger;
+            //var fkempresax = $("#_fkempresax").val();
+            var url = "../Comercial/GetCuentasEmpresa?fk_empresa=" + fkempresatemp;
+            $('#DivTblCuentas').html('');
+            $('#DivTblCuentas').load(url);
+        }
+
+        $('#myModalNew').on('hide.bs.modal',
+            function(e) {
+                window.location.reload();
+            });
+        $('#myModalNew').on('shown.bs.modal',
+            function(e) {
+                var idx = $("#id_empresax").val();
+                var rucssx = $("#rucsx").val();
+                var razon_socialssx = $("#razon_socialsx").val();
+                var direccionssx = $("#direccionsx").val();
+                var emailsxx = $("#emailsx").val();
+                var contactosxx = $("#contactosx").val();
+                var telefonosxx = $("#telefonosx").val();
+
+                if (idx != "0") {
+                    $("#ruc").val(rucssx);
+                    $("#razon_social").val(razon_socialssx);
+                    $("#direccion").val(direccionssx);
+                    $("#email").val(emailsxx);
+                    $("#contacto").val(contactosxx);
+                    $("#telefono").val(telefonosxx);
+                }
+
+                $("#GuardarEmpresa").click(function() {
+                    debugger;
+                    var tipocliente = $("#cmbRegEmp_Tipo").val();
+                    tipocliente = parseInt(tipocliente);
+                    var ruc = $("#ruc").val();
+                    
+                    var id_empresa_save = 0;
+                    
+                    var razon_social = $("#razon_social").val();
+                    var direccion = $("#direccion").val();
+                    var email = $("#email").val();
+                    var contacto = $("#contacto").val();
+                    var telefono = $("#telefono").val();
+                    var tipo = $("#tipox").val();
+                    if (ruc === '' || razon_social === '') {
+                        sweetAlert("", "Datos Incompletos", "error");
+                        $("#ruc").focus();
+                        return false;
+                    }
+                    var tamanio = ruc.length;
+                    if (tipocliente === 0) {
+                        sweetAlert("", "Seleccione el tipo de cliente!", "error");
+                        return false;
+                    } else if (tipocliente === 1) { //natural
+                        if (parseInt(tamanio) < 8 || parseInt(tamanio) > 8) {
+                            sweetAlert("", "Numero de DNI incorrecto!", "error");
+                            return false;
+                        }
+                    } else if (tipocliente === 2) {   // juridico
+                        if (parseInt(tamanio) < 11 || parseInt(tamanio) > 11) {
+                            sweetAlert("", "Numero de RUC incorrecto!", "error");
+                            return false;
+                        }
+                    }
+                    id_empresa_save = parseInt($("#id_empresax").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaEmpresa", "Empresa")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_empresa: id_empresa_save,
+                            ruc: ruc,
+                            razon_social: razon_social,
+                            direccion: direccion,
+                            email: email,
+                            contacto: contacto,
+                            telefono: telefono, 
+                            tipo: tipo,
+                            tipocliente: tipocliente
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_empresa = data;
+                            if (parseInt(id_empresa, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Empresa se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_empresa = 0;
+                            }
+                        }
+                    });
+                });
+                $("#ruc").blur(function() {
+                    var rucx = $("#ruc").val();
+                    var lengthd = 0;
+                    try {
+                        lengthd = rucx.length;
+                    } catch (e) {
+
+                    }
+                    if (rucx != "" && (lengthd > 0 && lengthd == 11)) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetEmpresaRucAsync", "Empresa")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ rucc: rucx }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(response) {
+                                console.log("esta ruc: " + JSON.stringify(response));
+                                var respuesta = parseInt(response, 10);
+                                if (respuesta == 1) {
+                                    console.log("dentro if ");
+                                    swal("", "RUC ya registrado", "error");
+                                    $("#ruc").val('');
+                                    $(this).focus();
+                                }
+                            },
+                            error: function(request, status, error) {
+                                alert(request.responseText);
+                            }
+                        });
+                    }
+                });
+            });
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+        $(document).on('click',
+            '.cuentas',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_empresa = tableRow.find("td:eq(0)").text();
+                id_empresa = id_empresa.trim();
+                fkempresatemp = id_empresa;
+                console.log("idgeneral: " + id_empresa);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroEmpresaCuenta", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_empresa: id_empresa },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNewCuenta').html(response);
+                        $('#myModalNewCuenta').modal(options);
+                        $('#myModalNewCuenta').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+                return false;
+            });
+
+        $(document).on('click',
+            '.edita',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_empresa = tableRow.find("td:eq(0)").text();
+                id_empresa = id_empresa.trim();
+                console.log("idgeneral: " + id_empresa);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroEmpresa", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_empresa: id_empresa },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNew').html(response);
+                        $('#myModalNew').modal(options);
+                        $('#myModalNew').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+                return false;
+            });
+        $(document).on('click',
+            '.elimina',
+            function() {
+                debugger;
+                var tableRow = $(this).closest("tr");
+                var id_empresa_save = tableRow.find("td:eq(0)").text();
+                id_empresa_save = id_empresa_save.trim();
+                var statux = tableRow.find("td:eq(7)").text();
+                statux = statux.trim();
+                console.log("status: " + statux);
+                var options = { "backdrop": "static", keyboard: false };
+                if (statux == "ACTIVO") {
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("EliminaEmpresa", "Empresa")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_empresa: id_empresa_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_empresa = data;
+                            if (parseInt(id_empresa, 10) > 0) {
+                                swal({
+                                        title: 'Exito!',
+                                        text: 'Empresa se desactivó correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    },
+                                    function() {
+
+                                    })
+                                console.log("salirs");
+                                //$("#btnCancel").click();
+                                window.location.reload();
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_empresa = 0;
+                            }
+                        }
+                    });
+                }
+
+                return false;
+            });
+
+        $("#NewRegistro").click(function() {
+            //debugger;
+            id_empresa = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroEmpresa", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_empresa: id_empresa, tipo :'C' },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+        $(document).ready(function() {
+                Inicia();
+                try {
+                    if (ClieDire === null || ClieDire === '') {
+                        try {
+                            ClieDire = ClieDire2;
+                        } catch (e) {
+                            ClieDire = '';
+                        }
+                    }
+                } catch (e) {
+                    ClieDire = '';
+                }
+            }
+        );
+
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                }
+            });
+
+
+        }
+    </script>
+
+}
+
+

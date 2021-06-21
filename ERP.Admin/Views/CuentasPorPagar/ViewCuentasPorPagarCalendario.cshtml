@@ -1,0 +1,223 @@
+﻿@{
+    ViewBag.Title = "Cuentas Por Pagar";
+    ViewBag.Description = "Cuentas Por Pagar";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+
+<div class="row">
+    <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+        <div class="widget flat">
+            <div class="widget-header bordered-bottom bordered-orange">
+                <i class="widget-icon glyphicon glyphicon-plus orange"></i>
+                <span class="widget-caption">RESUMEN</span>
+            </div><!--Widget Header-->
+            <div class="widget-body">
+                <div id='external-events'>
+                    <div class='external-event' style="border-left: 8px solid #e75b8d !important;">
+                        <span style=" color: #e75b8d;"><b><u>CUOTAS VENCIDAS</u></b></span><br /><br />
+                        <span><b>Nro Cuotas: </b></span><span id="SpanNroCuotVenc"></span><br />
+                        <span><b>Total Soles: </b></span><span id="SpanTotaSoleCuotVenc"></span><br />
+                        <span><b>Total Dolares: </b></span><span id="SpanTotaDolaCuotVenc"></span><br />
+                    </div>
+                    <div class='external-event' style="border-left: 8px solid #ffce55 !important;">
+                        <span style=" color: #C6A254;"><b><u>CUOTAS POR VENCER</u><sub> (DENTRO DE LOS 8 DÍAS SIGUIENTES)</sub></b></span><br /><br />
+                        <span><b>Nro Cuotas: </b></span><span id="SpanNroCuotVencInpInterv"></span><br />
+                        <span><b>Total Soles: </b></span><span id="SpanTotaSoleCuotVencInpInterv"></span><br />
+                        <span><b>Total Dolares: </b></span><span id="SpanTotaDolaCuotVencInpInterv"></span><br />
+                    </div>
+                    <div class='external-event' style="border-left: 8px solid #a0d468 !important;">
+                        <span style=" color: #78A228;"><b><u>CUOTAS POR VENCER</u><sub> (DESPUES DE LOS 8 DÍAS SIGUIENTES)</sub></b></span><br /><br />
+                        <span><b>Nro Cuotas: </b></span><span id="SpanNroCuotVencOupInterv"></span><br />
+                        <span><b>Total Soles: </b></span><span id="SpanTotaSoleCuotVencOupInterv"></span><br />
+                        <span><b>Total Dolares: </b></span><span id="SpanTotaDolaCuotVencOupInterv"></span><br />
+                    </div>
+                    <div class='external-event'>
+                        <span><b>Primera Cuota: </b></span><span id="SpanFechPrimCuot"></span><br />
+                    </div>
+                    <div class='external-event'>
+                        <span><b>Última Cuota: </b></span><span id="SpanFechUltiCuot"></span><br />
+                    </div>
+                    @*<p>
+                        <label>
+                            <input type="checkbox" id='drop-remove' checked="checked">
+                            <span class="text">Remove After Drop</span>
+                        </label>
+                    </p>*@
+                </div>
+            </div><!--Widget Body-->
+        </div>
+    </div>
+    <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+        <div class="widget flat">
+            <div class="widget-header bordered-bottom bordered-sky">
+                <i class="widget-icon fa fa-calendar sky"></i>
+                <span class="widget-caption">Calendario</span>
+            </div><!--Widget Header-->
+            <div class="widget-body">
+                <div id='calendar'></div>
+            </div><!--Widget Body-->
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <script src='~/assets/js/fullcalendar/moment.min.js'></script>
+    <script src='~/assets/js/fullcalendar/jquery-ui.custom.min.js'></script>
+    <script src='~/assets/js/fullcalendar/fullcalendar.min.js'></script>
+    <script>
+        var jsonCPPPendientes = "";
+        $(document).ready(function () {
+            var intNroCuotVenc = 0;
+            var decTotaSoleCuotVenc = 0;
+            var decTotaDolaCuotVenc = 0;
+            var intNroCuotVencInpInterv = 0;
+            var decTotaSoleCuotVencInpInterv = 0;
+            var decTotaDolaCuotVencInpInterv = 0;
+            var intNroCuotVencOupInterv = 0;
+            var decTotaSoleCuotVencOupInterv = 0;
+            var decTotaDolaCuotVencOupInterv = 0;
+            jsonCPPPendientes = @Html.Raw(Json.Encode(ViewBag.CuentasPorPagarPendientes));
+
+            /* initialize the external events
+            -----------------------------------------------------------------*/
+            $('#external-events .external-event').each(function () {
+
+                // store data so the calendar knows to render an event upon drop
+                $(this).data('event', {
+                    title: $.trim($(this).text()), // use the element's text as the event title
+                    stick: true // maintain when user navigates (see docs on the renderEvent method)
+                });
+
+                // make the event draggable using jQuery UI
+                $(this).draggable({
+                    zIndex: 999,
+                    revert: true,      // will cause the event to go back to its
+                    revertDuration: 0  //  original position after the drag
+                });
+
+            });
+            /* initialize the external events
+            -----------------------------------------------------------------*/
+            $('#calendar .calendar').each(function () {
+
+                // store data so the calendar knows to render an event upon drop
+                $(this).data('event', {
+                    title: $.trim($(this).text()), // use the element's text as the event title
+                    stick: true, // maintain when user navigates (see docs on the renderEvent method)
+                });
+
+                // make the event draggable using jQuery UI
+                $(this).draggable({
+                    zIndex: 999,
+                    revert: true,      // will cause the event to go back to its
+                    revertDuration: 0  //  original position after the drag
+                });
+                alert("Si");
+
+            });
+            /* initialize the calendar
+            -----------------------------------------------------------------*/
+            var date = new Date();
+            
+            var arraCPP = new Array();
+            var strTitle = "";
+            var strBordeColor = "";
+            var SaldoCPP = 0;
+            var IdTipoMoneCCP = 0;
+            var strFechPrimCuot = "";
+            var strFechUltiCuot = "";
+
+            for (j = 0; j < jsonCPPPendientes.length; j++) {
+                SaldoCPP = jsonCPPPendientes[j].saldo;
+                IdTipoMoneCCP = jsonCPPPendientes[j].id_tipo_moneda;
+                var varDateText = jsonCPPPendientes[j].f_vencimiento;
+                var varDate = new Date(parseInt(varDateText.replace("/Date(", "").replace(")/")));
+                var d = varDate.getDate();
+                var m = varDate.getMonth();
+                var y = varDate.getFullYear();
+
+                var timeDiff = varDate.getTime() - date.getTime();
+                var diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
+                if (diffDays <= 0) {
+                    strBordeColor = '#e75b8d';
+                    intNroCuotVenc = intNroCuotVenc + 1;
+                    if (parseInt(IdTipoMoneCCP) == 1) {
+                        decTotaSoleCuotVenc = parseFloat(decTotaSoleCuotVenc) + parseFloat(SaldoCPP);
+                    } else {
+                        decTotaDolaCuotVenc = parseFloat(decTotaDolaCuotVenc) + parseFloat(SaldoCPP);
+                    }
+                } else if (diffDays <= 8) {
+                    strBordeColor = '#ffce55';
+                    intNroCuotVencInpInterv = intNroCuotVencInpInterv + 1;
+                    if (parseInt(IdTipoMoneCCP) == 1) {
+                        decTotaSoleCuotVencInpInterv = parseFloat(decTotaSoleCuotVencInpInterv) + parseFloat(SaldoCPP);
+                    } else {
+                        decTotaDolaCuotVencInpInterv = parseFloat(decTotaDolaCuotVencInpInterv) + parseFloat(SaldoCPP);
+                    }
+                } else {
+                    strBordeColor = '#a0d468';
+                    intNroCuotVencOupInterv = intNroCuotVencOupInterv + 1;
+                    if (parseInt(IdTipoMoneCCP) == 1) {
+                        decTotaSoleCuotVencOupInterv = parseFloat(decTotaSoleCuotVencOupInterv) + parseFloat(SaldoCPP);
+                    }
+                    else {
+                        decTotaDolaCuotVencOupInterv = parseFloat(decTotaDolaCuotVencOupInterv) + parseFloat(SaldoCPP);
+                    }
+                }
+
+                strTitle = jsonCPPPendientes[j].descripcion_comprobante_tipo.toString() + ": " + jsonCPPPendientes[j].nro_comprobante.toString() + "\n" +
+                    //jsonCPPPendientes[j].razon_social.toString() + "\n" + 
+                    "MONEDA: " + jsonCPPPendientes[j].descripcion_tipo_moneda.toString() + "\n" +
+                    "MONTO: " + SaldoCPP.toString() + "\n";
+                arraCPP[j] = { 'title': strTitle, 'start': new Date(y, m, d, 17, 0), borderColor: strBordeColor };
+
+                if (j == 0) {
+                    var mf = parseInt(m) + 1;
+                    if (d < 10) { d = '0' + d }
+                    if (mf < 10) { mf = '0' + mf }
+                    strFechPrimCuot = d + '/' + mf + '/' + y;
+                }
+                if (j == jsonCPPPendientes.length - 1) {
+                    var mf = parseInt(m) + 1;
+                    if (d < 10) { d = '0' + d }
+                    if (mf < 10) { mf = '0' + mf }
+                    strFechUltiCuot = d + '/' + mf + '/' + y;
+                }
+                
+            }
+            
+            $('#calendar').fullCalendar({
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: ''
+                    //right: 'month,agendaWeek,agendaDay'
+                },
+                //editable: true,
+                //droppable: true, // this allows things to be dropped onto the calendar
+                displayEventTime: false,
+                drop: function () {
+                    // is the "remove after drop" checkbox checked?
+                    //if ($('#drop-remove').is(':checked')) {
+                        // if so, remove the element from the "Draggable Events" list
+                        $(this).remove();
+                    //}
+                },
+            });
+            $("#calendar").fullCalendar('addEventSource', arraCPP)
+
+            //Lenamos el resumen
+            document.getElementById('SpanNroCuotVenc').innerHTML = intNroCuotVenc;
+            document.getElementById('SpanTotaSoleCuotVenc').innerHTML = decTotaSoleCuotVenc.toFixed(2);
+            document.getElementById('SpanTotaDolaCuotVenc').innerHTML = decTotaDolaCuotVenc.toFixed(2);
+            document.getElementById('SpanNroCuotVencInpInterv').innerHTML = intNroCuotVencInpInterv;
+            document.getElementById('SpanTotaSoleCuotVencInpInterv').innerHTML = decTotaSoleCuotVencInpInterv.toFixed(2);
+            document.getElementById('SpanTotaDolaCuotVencInpInterv').innerHTML = decTotaDolaCuotVencInpInterv.toFixed(2);
+            document.getElementById('SpanNroCuotVencOupInterv').innerHTML = intNroCuotVencOupInterv;
+            document.getElementById('SpanTotaSoleCuotVencOupInterv').innerHTML = decTotaSoleCuotVencOupInterv.toFixed(2);
+            document.getElementById('SpanTotaDolaCuotVencOupInterv').innerHTML = decTotaDolaCuotVencOupInterv.toFixed(2);
+            document.getElementById('SpanFechPrimCuot').innerHTML = strFechPrimCuot;
+            document.getElementById('SpanFechUltiCuot').innerHTML = strFechUltiCuot;
+        });
+    </script>
+}

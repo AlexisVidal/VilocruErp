@@ -1,0 +1,199 @@
+﻿@model IEnumerable<ERP.Admin.Models.ComprobanteVentaCobro>
+@{
+    string FechEmis = "";
+    string strClie = "";
+}
+@{ 
+    string CallBy =ViewBag.CallBy;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="table-toolbar">
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id_COMPROBANTE_VENTA
+                            </th>
+                            <th>
+                                Tipo
+                            </th>
+                            <th>
+                                Nro
+                            </th>
+                            <th>
+                                F. Emisión
+                            </th>
+                            <th>
+                                Nro Venta
+                            </th>
+                            <th>
+                                Cliente
+                            </th>
+                            <th>
+                                Importe
+                            </th>
+                            <th>
+                                Crédito
+                            </th>
+                            <th>
+                                Saldo
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+
+                            if (!item.id_cliente_natural.Equals(0))
+                            {
+                                strClie = item.dni_cliente_natural + " - " + item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                            }
+                            else if (!item.id_cliente_juridico.Equals(0))
+                            {
+                                strClie = item.ruc_empresa_cliente_juridico + " " + item.razon_social;
+                            }
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_comprobante_venta_cobro)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_comprobante_tipo)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.nro_comprobante)
+                                </td>
+                                <td class="input-xs">
+                                    @FechEmis
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.n_venta)
+                                </td>
+                                <td class="input-xs">
+                                    @strClie
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.total_bruto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.monto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.saldo)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.estado)
+                                </td>
+                                <td>
+                                    @if (item.flg_cronograma == "0")
+                                    {
+                                        <a href="#" class="btn btn-warning btn-xs cronograma" title="Establecer Cronograma de Pago"><i class="fa fa-recycle"></i> Cronograma</a>
+                                    }
+                                    else if(item.saldo > 0)
+                                    {
+                                        <a href="#" class="btn btn-info btn-xs pago"><i class="fa fa-money"></i> Cobrar</a>
+                                        <a href='#' class='btn btn-info btn-xs' onclick="ExportarPDf('@item.id_comprobante_venta', '@strClie')"><i class='fa fa-binoculars'></i>PDF</a>
+                                    }
+                                    @*<a href="#" class="btn btn-default btn-xs ver"><i class="fa fa-search"></i> Ver</a>*@
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    $("#btnNewCompVenta").click(function () {
+        //debugger;
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Create", "ComprobanteVenta")',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentCompVenta').html(response);
+                $('#myModalCompVenta').modal(options);
+                $('#myModalCompVenta').modal('show');
+            },
+            error: function (request, status, error) {
+                sweetAlert("", request.responseText, "error");
+            }
+        });
+    });
+
+    function ExportarPDf(IdCompVent, NombClie) {
+
+        var url = '@Url.Action("PrintCronogramaCPC", "CuentasPorCobrar")?IdCompVent=' + IdCompVent + '&NombClie=' + NombClie;
+        window.open(url, "_blank")
+    }
+
+    //InitiateEditableDataTable.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+        var isEditing = null;
+    }
+</script>

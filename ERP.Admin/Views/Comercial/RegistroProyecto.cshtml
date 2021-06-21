@@ -1,0 +1,208 @@
+﻿@using ERP.Admin.Models
+@{
+    var _proyectos = (ProyectoErp)ViewBag.Proyecto;
+    int id_proyecto = 0;
+    int fk_empresas = 0;
+    string codigos = "";
+    string razon_socials = "";
+    string descripcions = "";
+    string observacions = "";
+    string inicios = "";
+    string fins = "";
+    decimal montos = 0;
+    string IDUSUARIOs = "";
+    string IDMONEDAs = "";
+    string MONEDAs = "";
+    int fk_servicios = 0;
+    string servicios = "";
+
+
+
+    if (_proyectos != null)
+    {
+        id_proyecto = _proyectos.id_proyecto;
+        codigos = _proyectos.codigo;
+        fk_empresas = _proyectos.fk_empresa;
+        razon_socials = _proyectos.razon_social;
+        descripcions = _proyectos.descripcion;
+        observacions = _proyectos.observacion;
+        inicios = _proyectos.inicio.ToString("dd/MM/yyyy");
+        fins = _proyectos.fin.ToString("dd/MM/yyyy");
+        montos = _proyectos.monto;
+        IDUSUARIOs = _proyectos.IDUSUARIO;
+        MONEDAs = _proyectos.MONEDA;
+        IDMONEDAs = _proyectos.IDMONEDA;
+        fk_servicios = _proyectos.fk_servicio;
+        servicios = _proyectos.servicio;
+    }
+
+
+    var _serviciosproyecto = (List<ProyectoServicioErp>)ViewBag.ServicioProyecto;
+
+}
+
+@Html.Hidden("id_proyectox", @id_proyecto)
+@Html.Hidden("codigosx", @codigos)
+@Html.Hidden("fk_empresasx", @fk_empresas)
+@Html.Hidden("razon_socialsx", @razon_socials)
+@Html.Hidden("descripcionsx", @descripcions)
+@Html.Hidden("observacionsx", @observacions)
+@Html.Hidden("iniciosx", @inicios)
+@Html.Hidden("finsx", @fins)
+@Html.Hidden("montosx", @montos)
+@Html.Hidden("IDUSUARIOsx", @IDUSUARIOs)
+@Html.Hidden("MONEDAsx", @MONEDAs)
+@Html.Hidden("IDMONEDAsx", @IDMONEDAs)
+@Html.Hidden("fk_serviciosx", @fk_servicios)
+@Html.Hidden("serviciosx", @servicios)
+
+@Html.Hidden("sfecha_ini", "")
+@Html.Hidden("sfecha_fin", "")
+
+@Html.Hidden("_serviciosproyecto", @_serviciosproyecto)
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom: 0; font-size: 11px !important">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de proyecto</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row" style="font-size: 11px !important">
+                            <div class="form-group" style="margin:1px">
+                                <label class="col-sm-2 control-label input-sm" style="text-align: left; padding-top: 8px;padding-right:0">Descripcion </label>
+                                <div class="col-md-10" style="">
+                                    @Html.Bootstrap().TextBox("txtDescripcion").HtmlAttributes(new {@style="; font-size: 11px", @class = "form-control input-sm", @onkeyup = "InputToUpper(this)" }).Placeholder("Descripcion")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row"style="font-size: 11px !important">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-2 control-label input-sm" style="text-align: left; padding-top: 8px;padding-right:0">Servicio </label>
+                                <div class="col-md-4" style="width:410px">
+                                    @Html.Bootstrap().DropDownList("cmbfk_servicio", new SelectList(ViewBag.Servicios, "id_servicio", "descripcion")).HtmlAttributes(new {@class="input-sm", @style = "width:390px !important; font-size: 11px;" }).Size(InputSize.XSmall)
+                                </div>
+                                <div class="col-md-1" style="width: 45px; margin-top: -4px;padding-left:0">
+                                    @Html.Bootstrap().Button().Text("").Id("btnAddProd").Color(BootstrapColors.Primary).IconPrepend(FontAwesome.Plus).Size(ButtonSize.Small).HtmlAttributes(new { @title = "", @onclick = "AddTRDetalle()", @style = "margin-top: 5px;" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin: 1px">
+                                <div class="col-md-12">
+                                    <table class="table table-striped table-hover table-bordered" id="tblProyDeta" style="font-size:11px">
+                                        <thead>
+                                            <tr role="row">
+                                                <th style="width: 15%; font-size: 11px;display:none">
+                                                    iddetalle
+                                                </th>
+                                                <th style="width: 15%; font-size: 11px; display: none">
+                                                    idservicio
+                                                </th>
+                                                <th style="width: 75%; text-align: left; font-size: 11px">
+                                                    SERVICIO
+                                                </th>
+                                                <th style="width: 10%; text-align: center; font-size: 11px">
+                                                    ...
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tBodyProyDeta"></tbody>
+                                    </table>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin: 1px; font-size: 11px;">
+                                <label class="col-sm-2 control-label" style="text-align: left; padding-top: 8px; padding-right: 0; font-size: 11px;">Cliente </label>
+                                <div class="col-md-4">
+                                    @Html.Bootstrap().DropDownList("cmbfk_empresa", new SelectList(ViewBag.Empresas, "id_empresa", "razon_social")).Size(InputSize.Small)
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-2 control-label" style="text-align: left; padding-top: 8px; padding-right: 0; font-size: 11px;">Moneda <sup>*</sup></label>
+                                <div class="col-md-4">
+                                    @Html.Bootstrap().DropDownList("cmbidmoneda", new SelectList(ViewBag.Monedas, "IDMONEDA", "descripcion", selectedValue: ViewBag.FkCompTipoNotaCredito)).HtmlAttributes(new { @style = "width:216px; font-size: 11px" }).Size(InputSize.Small)
+
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; padding-top: 8px; margin-left: 68px; font-size: 11px;">Monto </label>
+                                <div class="col-md-3">
+                                    @Html.Bootstrap().TextBox("txtMonto").HtmlAttributes(new {@style="; font-size: 11px", @onkeyup = "InputToUpper(this)", @type = "number", @step = "0.01", @min = "0.00", @max = "9999999999.99" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-2 control-label" style="text-align: left; padding-top: 8px; padding-right: 0; font-size: 11px;">Inicio <sup>*</sup></label>
+                                <div class="col-md-4" style="">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerIni' id='txtInicio' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+                                    </div>
+
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-left: 0; margin-left: 17px; font-size: 11px;">Fin <sup>*</sup></label>
+                                <div class="col-md-4" style="">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerFini' id='txtFin' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-2 control-label" style="text-align: left; padding-top: 8px; padding-right: 0; font-size: 11px;">Obs. </label>
+                                <div class="col-md-9">
+                                    @Html.Bootstrap().TextArea("txtObservacion").Rows(2).HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @class = "form-control input-sm", @style = "width:426px; font-size: 11px" })
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 10px">
+                            <div class="col-md-4" style="text-align: right; vertical-align: middle; width: 80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarProyecto").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            
+        });
+
+
+    </script>
+}

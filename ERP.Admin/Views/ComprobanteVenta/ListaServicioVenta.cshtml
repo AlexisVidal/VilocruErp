@@ -1,0 +1,252 @@
+﻿@model IEnumerable<ERP.Admin.Models.ProyectoErp>
+<script type="text/javascript">
+    $(document).ready(function () {
+        FnInitFormListaProducto();
+    });
+    function FnInitFormListaProducto() {
+        var CallByListProd = $("#hiddListPrecVent_CallBy").val();
+        if (CallByListProd == "SolicitudTrasladoCreate") {
+            document.getElementById("THDescripcion").style.display = "";
+            document.getElementById("THPrecUnidad").style.display = "none";
+            var table = document.getElementById('tBodyListProducto');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        document.getElementById("TDDescMarc" + newTr).style.display = "";
+                        document.getElementById("TDDescSubFami" + newTr).style.display = "";
+                        document.getElementById("TDPrec" + newTr).style.display = "none";
+                    }
+                }
+            }
+        }
+    }
+</script>
+@{
+    string CallBy = ViewBag.CallBy;
+    string TRListPrecVent = "";
+    string TDFkProd = "";
+    string TDFkEmpre = "";
+    string TDRazon = "";
+    string TDCodiProd = "";
+    string TDCodiSku = "";
+    string TDNombProd = "";
+    string TDDescMarc = "";
+    string TDDescSubFami = "";
+    string TDPrec = "";
+    string TDFkTipoAfecIgv = "";
+    string TDFlgAfecIgv = "";
+    string TDPorcIgv = "";
+}
+@Html.Hidden("hiddListPrecVent_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editpreciotable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_proyecto)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.codigo)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_empresa)
+                            </th>
+                            <th id="THRazon">
+                                @Html.DisplayNameFor(model => model.razon_social)
+                            </th>
+                            <th id="THDescripcion">
+                                @Html.DisplayNameFor(model => model.descripcion)
+                            </th>
+                            <th id="THPrecUnidad">
+                                @Html.DisplayNameFor(model => model.monto)
+                            </th>
+                            <th style="display:none">
+                                @Html.Raw("flag_afecto_igv")
+                            </th>
+                            <th style="width: 100px;">...</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tBodyListProducto">
+                        @foreach (var item in Model)
+                        {
+                            TRListPrecVent = "TRListPrecVent" + item.id_proyecto;
+                            TDFkProd = "TDFkProd" + TRListPrecVent;
+                            TDCodiProd = "TDCodiProd" + TRListPrecVent;
+                            TDFkEmpre = "TDFkEmpre" + TRListPrecVent;
+                            TDRazon = "TDRazon"+ TRListPrecVent;
+                            TDNombProd = "TDNombProd" + TRListPrecVent;
+                            TDPrec = "TDPrec" + TRListPrecVent;
+                            TDFkTipoAfecIgv = "TDFkTipoAfecIgv" + TRListPrecVent;
+                            TDFlgAfecIgv = "TDFlgAfecIgv" + TRListPrecVent;
+                            TDPorcIgv = "TDPorcIgv" + TRListPrecVent;
+                        <tr id="@TRListPrecVent">
+                            <td id="@TDFkProd" style="display:none">
+                                @Html.DisplayFor(modelItem => item.id_proyecto)
+                            </td>
+                            <td id="@TDCodiProd" class="input-xs">
+                                @Html.DisplayFor(modelItem => item.codigo)
+                            </td>
+                            <td id="@TDFkEmpre" style="display:none">
+                                @Html.DisplayFor(modelItem => item.fk_empresa)
+                            </td>
+                            <td id="@TDRazon" class="input-xs">
+                                @Html.DisplayFor(modelItem => item.razon_social)
+                            </td>
+                            <td id="@TDNombProd" class="input-xs">
+                                @Html.DisplayFor(modelItem => item.descripcion)
+                            </td>
+                            <td id="@TDPrec" style="text-align:right">
+                                @Html.DisplayFor(modelItem => item.monto)
+                            </td>
+                            <td id="@TDFlgAfecIgv" style="display:none">
+                                @Html.Raw("1")
+                            </td>
+                            <td style="text-align: center;">
+                                <button class="btn btn-success .shiny" style="padding:0;font-size:small;margin-top:-5px" onclick="FnAddVenta('@TRListPrecVent')">AGREGAR</button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="horizontal-space"></div>
+            <div class="row">
+                <div class="col-md-2" style="float: right;">
+                    <button class="btn bg-blue shiny" type="button" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var id_producto = 0;
+
+    function FnAddVenta(newTr) {
+        //debugger;
+        var CallBy = $("#hiddListPrecVent_CallBy").val();
+
+        var arrVentDeta = [];
+        var FkProd = "";
+        var CodiProd = "";
+        var FkEmpre = "";
+        var Razon = "";
+        var NombProd = "";
+        var Prec = "";
+        var FlgAfecIgv = "";
+        var rptaExiste = 0;
+        var tipobien = "ZZ";
+        FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+        CodiProd = document.getElementById("TDCodiProd" + newTr).innerHTML;
+        FkEmpre = document.getElementById("TDFkEmpre" + newTr).innerHTML;
+        Razon = document.getElementById("TDRazon" + newTr).innerHTML;
+        NombProd = document.getElementById("TDNombProd" + newTr).innerHTML;
+        Prec = document.getElementById("TDPrec" + newTr).innerHTML;
+        FlgAfecIgv = document.getElementById("TDFlgAfecIgv" + newTr).innerHTML;
+
+        arrVentDeta[0] = FkProd.trim();
+        arrVentDeta[1] = CodiProd.trim();
+        arrVentDeta[2] = FkEmpre.trim();
+        arrVentDeta[3] = NombProd.trim();
+        arrVentDeta[4] = Prec.trim();
+        arrVentDeta[5] = FlgAfecIgv.trim();
+        arrVentDeta[6] = "ZZ";
+
+        if (CallBy == "ComprobanteVentaCreate") {
+            rptaExiste = FnValidaExisteProducto2(FkProd, tipobien);
+            if (rptaExiste == 0) {
+                FnAgregaNeProductoVentaDetalle(arrVentDeta);
+            }
+            else if (rptaExiste == 1) {
+                sweetAlert("", "Producto ya se encuentra agregado", "error");
+            }
+            else if (rptaExiste == 2) {
+                sweetAlert("", "Todos los items debe ser de un solo tipo!", "error");
+            }
+        }
+        else if (CallBy == "SolicitudTrasladoCreate") {
+            rptaExiste = FnValidaExisteProducto(FkProd);
+            if (rptaExiste == 0) {
+                FnAgregaNeProductoSolicitudTraslado(FkProd, CodiProd, CodiSku, NombProd, DescMarc, DescSubFami);
+            }
+            else {
+                sweetAlert("", "Producto ya se encuentra agregado", "error");
+            }
+        }
+        else if (CallBy == "ReporteKardex") {
+            FnAddDataRepoKardexProducto(FkProd, NombProd);
+            $('#myModalPrecVenta').modal('hide');
+        }//
+        else if (CallBy == "ReporteProdExistencia") {
+            FnAddDataRepoKardexProdExistencia(FkProd, NombProd);
+            $('#myModalPrecVenta').modal('hide');
+        }
+    }
+
+    $(document).ready(function () {
+            IniciaPrecioTable();
+    });
+
+    //Initiateeditpreciotable.init();
+    function IniciaPrecioTable() {
+        //Datatable Initiating
+        oTable = $('#editpreciotable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>
+
+

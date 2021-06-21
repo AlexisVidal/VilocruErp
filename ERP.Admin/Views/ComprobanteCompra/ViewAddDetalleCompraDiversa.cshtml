@@ -1,0 +1,54 @@
+﻿<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Descripción </label>
+                                <div class="col-md-10">
+                                    @Html.Bootstrap().TextBox("txtAddDeta_Desc").HtmlAttributes(new { style = "text-transform: uppercase;" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Cantidad </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtAddDeta_Cant").HtmlAttributes(new { type = "number", style = "text-align: right;" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Precio </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtAddDeta_Prec").HtmlAttributes(new { type = "number", style = "text-align: right;" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Agregar").Color(BootstrapColors.Warning).Shiny().HtmlAttributes(new { @onclick = "FnAprobarOrdeCompra()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    function FnAprobarOrdeCompra() {
+        var DetaDesc = $("#txtAddDeta_Desc").val();
+        var DetaCant = $("#txtAddDeta_Cant").val();
+        var DetaPrec = $("#txtAddDeta_Prec").val();
+        AddTRDetalleCompraDiversa(DetaDesc, DetaCant, DetaPrec);
+        $("#txtAddDeta_Desc").val("");
+        $("#txtAddDeta_Cant").val(0);
+        $("#txtAddDeta_Prec").val(0);
+        $("#txtAddDeta_Desc").focus();
+    }
+</script>

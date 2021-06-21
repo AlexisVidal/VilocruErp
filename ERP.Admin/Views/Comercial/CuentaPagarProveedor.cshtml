@@ -1,0 +1,927 @@
+﻿@{
+    ViewBag.Title = "Registro de Cuentas por pagar proveedores";
+    ViewBag.Description = "cuentas";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.CuentaPagarProveedorErp>
+@{
+    decimal saldos = (decimal)ViewBag.DeudaSoles;
+    decimal saldod = (decimal)ViewBag.DeudaDolar;
+    decimal saldoe = (decimal)ViewBag.DeudaEuros;
+}
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <div class="col-sm-1" style="width:80px;padding-left:0;padding-right:0">
+                        ESTADO:
+                    </div>
+                    <div class="col-sm-1" style="width:160px;padding-left:0;">
+                        @Html.DropDownList("cmb_estado", new SelectList(new List<Object> {
+                           new { value = "0", text = "" },
+                           new { value = "1", text = "PAGADOS" },
+                           new { value = "2", text = "POR PAGAR" },
+                           new { value = "3", text = "TODOS" }
+                       }, "value", "text", 0), new { id = "cmb_estado", @style = "margin-top:1px", @class = "form-control" })
+                    </div>
+                    <a id="BloquePago" class="btn btn-danger" style="width:140px">
+                        Pago en bloque
+                    </a>
+                    <a id="NewRegistro" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'CuentasPorPagarProveedores.xls', 'CuentasPorPagarProveedores')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="row" style="text-align: right">
+                    <div class="col-md-12">
+                        <h5 style="">
+                            <label style="font-weight: 600">Saldo Soles : @saldos.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Dolares : @saldod.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Euros : @saldoe.ToString("N")</label>
+                        </h5>
+                    </div>
+                </div>
+                <div id="DivTbl" onload="hidespinner()" style="margin:30px"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPagos' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagos'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPagosR' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:400px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagosR'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalNewBloque' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNewBloque'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        var id_cuentas_por_pagar = 0;
+
+        var NroTrCDD = 1;
+
+        function FnDeleteDetalle(obj) {
+            var IdTRsele = obj.parentElement.parentElement.id;
+            var tr = $("#" + IdTRsele);
+            tr.remove();
+
+        }
+
+        $('#myModalNewBloque').on('hide.bs.modal',
+            function (e) {
+                window.location.reload();
+            });
+        $("#myModalNewBloque").on('shown.bs.modal',
+            function (e) {
+                $("#GuardarPagoBloque").click(function() {
+                    debugger;
+
+                    var id_save = 0;
+                    var txtNroOperacionPago = $("#txtNroOperacionPagoBloque").val();
+                    var IndArr = 0;
+                    arrCuentasP = [];
+                    var i = 1;
+                    var t = document.getElementById('editabledatatable2');
+                    $("#editabledatatable2 tbody tr").each(function () {
+                        var val1 = $(t.rows[i].cells[0]).text();
+                        console.log(val1);
+                        i++;
+                        arrCuentasP[IndArr] = new Array(1);
+                        arrCuentasP[IndArr][0] = val1.trim();
+                        IndArr++;
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaPagoProveedorBloque", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            nro_operacion: txtNroOperacionPago,
+                            cuentasporpagar: arrCuentasP
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_cuentas_por_pagar_proveedor_pago = data;
+                            if (parseInt(id_cuentas_por_pagar_proveedor_pago, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente ' + id_cuentas_por_pagar_proveedor_pago + ' pagos!',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_cuentas_por_pagar_proveedor_pago = 0;
+                            }
+                        }
+                    });
+
+                });
+        });
+
+
+
+        $('#myModalPagos').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+        $("#myModalPagos").on('shown.bs.modal',
+            function(e) {
+                $(document).ready(function() {
+                    //debugger;
+                    var muestradetalle = $("#muestrabtn");
+                    muestradetalle.click();
+                });
+
+            });
+
+        function EliminaPago(idpago) {
+            //debugger;
+            id_save = idpago.trim();
+            id_save = parseInt(id_save);
+
+            swal({
+                title: '¿Está seguro?',
+                text: "Se va a eliminar el registro!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Si!'
+            }).then((result) => {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminaPagoCtaProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_cuentas_por_pagar_proveedor_pago: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function(data) {
+                        console.log(data);
+                        id_cuentas_por_pagar_proveedor_pago = data;
+                        if (parseInt(id_cuentas_por_pagar_proveedor_pago, 10) > 0) {
+                            swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                console.log("salirs");
+                                window.location.reload();
+                            });
+
+                        } else {
+                            sweetAlert("", "No se pudo eliminar!", "error");
+                            id_cuentas_por_pagar_proveedor_pago = 0;
+                        }
+                    }
+                });
+                },
+                function(dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+        };
+
+
+        function setName(jsonData) {
+            debugger;
+            var lengt = jsonData.length;
+            if (lengt > 0) {
+                for (var i = 0; i < lengt; i++) {
+                    var id = jsonData[i].id_cuentas_por_pagar_proveedor_pago;
+                    var nrooperacion = jsonData[i].nro_operacion_pago;
+                    var montopago = jsonData[i].monto_pago;
+                    var fpago = jsonData[i].sfpago;
+
+                    var IdTr = "IdTr" + id;
+                    var TdIdPago = "TdIdPago" + IdTr;
+                    var row = $("<tr id='" +
+                        IdTr +
+                        "'>" +
+                        "<td id='" +
+                        TdIdPago +
+                        "' class='input-xs' style='display: none;'>" +
+                        id +
+                        "</td>" +
+                        "<td style='text-align: left; vertical-align: middle;'>" +
+                        nrooperacion +
+                        "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" +
+                        montopago.toFixed(2) +
+                        "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" +
+                        fpago +
+                        "</td>" +
+                        "<td class='input-xs'><button type='button' class='btn btn-sm btn-danger' onclick=EliminaPago('" +
+                        id +
+                        "') data-toggle='tooltip' title='Eliminar Registro'  style='padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px'><i class='glyphicon glyphicon-erase'></i></button></td>" +
+                        "</tr>");
+                    $("#detallepagos").append(row);
+
+
+                }
+            }
+            //document.getElementById("ldetalle").innerHTML = jsonData[0].IDMONEDA;
+        };
+
+        $('#myModalPagosR').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+        $('#myModalPagosR').on('shown.bs.modal',
+            function(e) {
+
+                $(document).ready(function () {
+                    var isdetraccion = $("#detraccionafectas").val();
+                    if (isdetraccion === '0') {
+                        $('#chkdetra').prop('disabled', true);
+                    } else {
+                        $('#chkdetra').prop('disabled', false);
+                    }
+
+                    $('.date-pickerIniPago').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_pago').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                });
+
+                $("#GuardarPago").click(function() {
+                    debugger;
+
+                    var id_save = 0;
+                    //var id_cuentas_por_pagar = $("#id_cuentas_por_pagarx").val();
+                    var fecha_pago = $("#sfecha_pago").val();
+                    var txtNroOperacionPago = $("#txtNroOperacionPago").val();
+                    var txtMontoPago = $("#txtMontoPago").val();
+                    var detraccion_estados = document.getElementById("chkdetra").checked;
+                    var tipo = '2';
+                    if (detraccion_estados === true) {
+                        tipo = '1';
+                    }
+                    if (fecha_pago === '') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDescripcion").focus();
+                        return false;
+                    }
+                    if (txtMontoPago === '' || txtMontoPago === '0') {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    var fk_cuentas_por_pagar = parseInt($("#id_cuentas_por_pagarx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaPagoProveedor", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_cuentas_por_pagar: fk_cuentas_por_pagar,
+                            f_pago: fecha_pago,
+                            nro_operacion: txtNroOperacionPago,
+                            monto: txtMontoPago,
+                            tipo: tipo
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_cuentas_por_pagar_proveedor_pago = data;
+                            if (parseInt(id_cuentas_por_pagar_proveedor_pago, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_cuentas_por_pagar_proveedor_pago = 0;
+                            }
+                        }
+                    });
+
+                });
+            });
+        function FnActivaDetraccion(obj) {
+            if (obj.checked == false) {
+                $('#txtMontoPago').val("0");
+                $('#txtMontoPago').prop('disabled', false);
+            }
+            else {
+                var montodetrax = $('#montodetraccions').val();
+                montodetrax = parseFloat(montodetrax);
+                $('#txtMontoPago').val(montodetrax.toFixed(2));
+                $('#txtMontoPago').prop('disabled', true);
+            }
+        }
+        $('#myModalNew').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+
+        function FnCheckFactura() {
+                    debugger;
+                    var fk_empresa = $("#cmbfk_empresa").val();
+                    fk_empresa = parseInt(fk_empresa, 10);
+                    var fk_comprobantetipo = $("#cmbfk_comprobantetipo").val();
+                    fk_comprobantetipo = parseInt(fk_comprobantetipo, 10);
+                    var docx = $("#txtDocumento").val();
+                    var lengthd = 0;
+                    try {
+                        lengthd = docx.length;
+                    } catch (e) {
+
+                    }
+                    if (docx != "" && lengthd > 0 && fk_comprobantetipo > 0 && fk_empresa > 0) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetFacturaExist", "Comercial")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ doc: docx, fk_comprobantetipo: fk_comprobantetipo, fk_empresa: fk_empresa }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(response) {
+                                console.log("found: " + JSON.stringify(response));
+                                var found = parseInt(JSON.stringify(response), 10);
+                                if (found > 0) {
+                                    swal("", "El documento ya ha sido registrado anteriormente!", "error");
+                                    $("#txtDocumento").val('');
+                                }
+                            },
+                            error: function(request, status, error) {
+                                alert(request.responseText);
+                            }
+                        });
+                    }
+                }
+        $('#myModalNew').on('shown.bs.modal',
+            function(e) {
+
+                $("#txtDocumento").blur(function () {
+                    
+                    FnCheckFactura();
+                });
+
+                
+
+
+                $(document).ready(function() {
+                    //debugger;
+                    $('#cmbfk_empresa').select2();
+                    $('.date-pickerIni').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_operacion').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+
+                    $('.date-pickerFini').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_vencimiento').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+
+                });
+
+                var idx = $("#id_cuentas_por_pagar_proveedorx").val();
+                var fk_comprobante_tiposxx = $("#fk_comprobante_tiposx").val();
+                var fk_proveedorsxx = $("#fk_proveedorsx").val();
+                var IDUSUARIOsxx = $("#IDUSUARIOsx").val();
+                var IDMONEDAsxx = $("#IDMONEDAsx").val();
+                var documentosxx = $("#documentosx").val();
+                var afecta_detraccionsxx = $("#afecta_detraccionsx").val();
+                var monto_detraccionsxx = $("#monto_detraccionsx").val();
+                var detraccion_estadosxx = $("#detraccion_estadosx").val();
+                var f_emisionsxx = $("#f_emisionsx").val();
+                var f_vencimientosxx = $("#f_vencimientosx").val();
+                var montosxx = $("#montosx").val();
+                var f_registrosxx = $("#f_registrosx").val();
+                var monedasxx = $("#monedasx").val();
+                var razon_socialsxx = $("#razon_socialsx").val();
+                var observacionsxx = $("#observacionsx").val();
+
+
+                if (idx != "0") {
+                    $("#cmbfk_empresa").val(fk_proveedorsxx).trigger('change');
+                    $("#cmbfk_comprobantetipo").val(fk_comprobante_tiposxx);
+                    $("#txtDocumento").val(documentosxx);
+                    $("#cmbidmoneda").val(IDMONEDAsxx);
+                    $("#txtMonto").val(montosxx);
+                    $("#cmb_AfectaDetraccion").val(afecta_detraccionsxx);
+                    $("#txtMontoDetraccion").val(monto_detraccionsxx);
+                    $("#txtOperacion").val(f_emisionsxx);
+                    $("#sfecha_operacion").val(f_emisionsxx);
+                    $("#txtFin").val(f_vencimientosxx);
+                    $("#sfecha_vencimiento").val(f_vencimientosxx);
+                    $("#txtObservacion").val(observacionsxx);
+                    if (detraccion_estadosxx.trim === "1") {
+                        document.getElementById("chkpago").checked = true;
+                    } else {
+                        document.getElementById("chkpago").checked = false;
+                    }
+                }
+
+                $("#GuardarEntidad").click(function() {
+                    debugger;
+                    var id_save = 0;
+                    var cmbfk_empresa = $("#cmbfk_empresa").val();
+                    var cmbfk_comprobantetipo = $("#cmbfk_comprobantetipo").val();
+                    var txtDocumento = $("#txtDocumento").val();
+                    var cmbidmoneda = $("#cmbidmoneda").val();
+                    var txtMonto = $("#txtMonto").val();
+                    var sfecha_operacion = $("#sfecha_operacion").val();
+                    var sfecha_vencimiento = $("#sfecha_vencimiento").val();
+                    var cmb_AfectaDetraccion = $("#cmb_AfectaDetraccion").val();
+                    var txtMontoDetraccion = $("#txtMontoDetraccion").val();
+                    var txtObservacion = $("#txtObservacion").val();
+                    var detraccion_estados = document.getElementById("chkpago").checked;
+                    if (detraccion_estados === true) {
+                        detraccion_estados = '1';
+                    } else {
+                        detraccion_estados = '0';
+                    }
+
+                    if (txtMontoDetraccion === '') {
+                        txtMontoDetraccion = 0;
+                    } else {
+                        txtMontoDetraccion = parseFloat(txtMontoDetraccion);
+                    }
+
+
+                    if (cmbfk_empresa === '') {
+                        cmbfk_empresa = 0;
+                    }
+
+
+                    if (cmbfk_empresa === '' ||
+                        cmbfk_comprobantetipo === '' ||
+                        sfecha_operacion === '' ||
+                        cmbidmoneda === '' ||
+                        txtDocumento === '') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDescripcion").focus();
+                        return false;
+                    }
+                    if (txtMonto === '' || txtMonto === '0') {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+                    if (txtMontoDetraccion === 0 && cmb_AfectaDetraccion === '1') {
+                        debugger;
+                        swal("", "Debe ingresar monto de detraccion", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+                    if (txtMontoDetraccion === 0 && cmb_AfectaDetraccion !== '0') {
+                        swal("", "Debe ingresar un monto de detracción!", "error");
+                        $("#txtMontoDetraccion").focus();
+                        return false;
+                    }
+                    if (sfecha_vencimiento === '') {
+                        sfecha_vencimiento = '01/01/1901';
+                    }
+
+                    if (detraccion_estados === '1' && txtMontoDetraccion === 0 && cmb_AfectaDetraccion === '0') {
+                        swal("", "Debe seleccionar detracción e ingresar monto!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+                    if (detraccion_estados === '1' && txtMontoDetraccion === 0 && cmb_AfectaDetraccion === '1') {
+                        swal("", "Debe ingresar monto de detracción!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    id_save = parseInt($("#id_cuentas_por_pagar_proveedorx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaCtaPagarProveedor", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_empresa: cmbfk_empresa,
+                            fk_comprobantetipo: cmbfk_comprobantetipo,
+                            documento: txtDocumento,
+                            IDMONEDA: cmbidmoneda,
+                            monto: txtMonto,
+                            f_emision: sfecha_operacion,
+                            f_vencimiento: sfecha_vencimiento,
+                            afectaDetraccion: cmb_AfectaDetraccion,
+                            montoDetraccion: txtMontoDetraccion,
+                            observacion: txtObservacion,
+                            detraccion_estados: detraccion_estados
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_cuentas_por_pagar_proveedor = data;
+                            if (parseInt(id_cuentas_por_pagar_proveedor, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_cuentas_por_pagar_proveedor = 0;
+                            }
+                        }
+                    });
+
+                });
+
+
+
+
+            });
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).on('click',
+            '.detalles',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_cuentas_por_pagar_proveedor = tableRow.find("td:eq(0)").text();
+                id_cuentas_por_pagar_proveedor = id_cuentas_por_pagar_proveedor.trim();
+                console.log("idgeneral: " + id_cuentas_por_pagar_proveedor);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("DetalleCtaProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_cuentas_por_pagar_proveedor: id_cuentas_por_pagar_proveedor },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentPagos').html(response);
+                        $('#myModalPagos').modal(options);
+                        $('#myModalPagos').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+
+        $(document).on('click',
+            '.edita',
+            function() {
+                debugger;
+                var tableRow = $(this).closest("tr");
+                id_cuentas_por_pagar = tableRow.find("td:eq(0)").text();
+                id_cuentas_por_pagar = id_cuentas_por_pagar.trim();
+                console.log("idgeneral: " + id_cuentas_por_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroCuentaPagarProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_cuentas_por_pagar: id_cuentas_por_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNew').html(response);
+                        $('#myModalNew').modal(options);
+                        $('#myModalNew').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.agregar',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_cuentas_por_pagar = tableRow.find("td:eq(0)").text();
+                id_cuentas_por_pagar = id_cuentas_por_pagar.trim();
+                console.log("idgeneral: " + id_cuentas_por_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroPagoProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_cuentas_por_pagar: id_cuentas_por_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentPagosR').html(response);
+                        $('#myModalPagosR').modal(options);
+                        $('#myModalPagosR').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.elimina',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                var id_save = tableRow.find("td:eq(0)").text();
+                id_save = id_save.trim();
+
+                var monto = tableRow.find("td:eq(8)").text();
+                monto = parseFloat(monto);
+
+                var saldo = tableRow.find("td:eq(12)").text();
+                saldo = parseFloat(saldo);
+                if (saldo < monto) {
+                    swal("", "Existen pagos activos. Elimine primero los pagos!", "error");
+                    return false;
+                }
+
+                swal({
+                    title: '¿Está seguro?',
+                    text: "Se va a eliminar el registro!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Si!'
+                }).then((result) => {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("EliminaCtaProveedor", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_cuentas_por_pagar: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_cuentas_por_pagar_pago = data;
+                            if (parseInt(id_cuentas_por_pagar_pago, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    window.location.reload();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo eliminar!", "error");
+                                id_cuentas_por_pagar_pago = 0;
+                            }
+                        }
+                    });
+                    },
+                    function(dismiss) {
+                        if (dismiss === 'cancel' || dismiss === 'close') {
+                            // ignore
+                        }
+                    });
+            });
+        $("#BloquePago").click(function () {
+            debugger;
+            var id = "";
+            arrCuentas = [];
+            var IndArr = 0;
+
+            $("#DivTbl input[type=checkbox]:checked").each(function () {
+                var row = $(this).closest("tr")[0];
+                id = row.cells[0].innerHTML;
+                arrCuentas[IndArr] = new Array(1);
+                //arrCuentas[IndArr][0] = IndArr;
+                arrCuentas[IndArr][0] = id.trim();
+                IndArr++;
+
+            });
+            if (arrCuentas.length > 0) {
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("PagoBloqueCuentaPagarProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data:
+                        JSON.stringify({
+                            arrCuentas: arrCuentas
+                        }),
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNewBloque').html(response);
+                        $('#myModalNewBloque').modal(options);
+                        $('#myModalNewBloque').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            } else {
+                swal("", "Debe seleccionar una cuenta!", "error");
+            }
+            //Display selected Row data in Alert Box.
+            //alert(arrCuentas.length);
+            return false;
+        });
+        $("#NewRegistro").click(function() {
+            // debugger;
+            id_cuentas_por_pagar = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroCuentaPagarProveedor", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_cuentas_por_pagar: id_cuentas_por_pagar },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            //Inicia();
+            $("#cmb_estado").change(function () {
+                loadDivTblRegistros();
+            });
+        });
+        function loadDivTblRegistros() {
+            var CallBy = "Asistencia";
+            var EstaFilt = $("#cmb_estado").val();
+            var url = "../Comercial/ListRegistros?EstaFilt=" + EstaFilt;
+            $('#DivTbl').html('');
+            $('#DivTbl').load(url);
+        }
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+                "scrollY": "auto",
+                "scrollCollapse": true
+
+            });
+
+
+        }
+    </script>
+
+}
+
+
+

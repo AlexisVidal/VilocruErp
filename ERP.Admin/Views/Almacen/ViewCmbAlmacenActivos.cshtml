@@ -1,0 +1,63 @@
+﻿<script type="text/javascript">
+</script>
+@{
+    string strTitle = "";
+    string CallBy = ViewBag.CallBy;
+
+    int? IdEntidad = ViewBag.IdEntidad;
+    if (IdEntidad == null)
+    {
+        IdEntidad = 0;
+    }
+    if (CallBy.Equals("GuiaRemisionFinalizar"))
+    {
+        strTitle = "Seleccione Almacén de recepción de los productos";
+    }
+}
+@Html.Hidden("txtAlmaSele_CallBy", CallBy)
+@Html.Hidden("txtAlmaSele_IdEnti", IdEntidad)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">@strTitle</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <div class="col-md-11">
+                                    Almacén: 
+                                    @Html.Bootstrap().DropDownList("cmbAlmaSele_IdAlma", new SelectList(ViewBag.Almacen, "id_almacen", "nombre")).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Aceptar").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnAceptarAlmacen()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function FnAceptarAlmacen() {
+        var IdAlma = $("#cmbAlmaSele_IdAlma").val();
+        var CallBy = $("#txtAlmaSele_CallBy").val();
+        var IdEnti = $("#txtAlmaSele_IdEnti").val();
+        if (CallBy.trim() == "GuiaRemisionFinalizar") {
+            FnGuiaREmisionFinalizar(IdEnti, IdAlma);
+        }
+    }
+</script>

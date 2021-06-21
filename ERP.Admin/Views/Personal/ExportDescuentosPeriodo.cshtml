@@ -1,0 +1,21 @@
+﻿
+@{
+    ViewBag.Title = ViewBag.Printer;
+}
+
+@if (ViewBag.Codigo != "")
+{
+    <iframe src="@Url.Action("GetPDF","Caja", new {codigo = ViewBag.Codigo })" width="90%" height="900px"></iframe>
+}
+else
+{
+        <div style="text-align:center;align-content:center">
+            <label style="text-align:center;align-content:center">
+                <span>
+                    <center>
+                        No existe información para mostrar!
+                    </center>
+                </span>
+            </label>
+        </div>
+}

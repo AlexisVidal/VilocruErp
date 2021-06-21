@@ -1,0 +1,469 @@
+﻿@{
+    ViewBag.Title = "Registro de Marcas Sub Familias";
+    ViewBag.Description = "productomarcasubfamilias";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.ProductoMarcaSubFamilia>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="NewRegistro" class="btn btn-danger">
+                        Nuevo registro
+                    </a>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row"   >
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_producto_marca_subfamilia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_marca)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_subfamilia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_familia)
+                            </th>
+                            
+                            <th>
+                                @Html.DisplayNameFor(model => model.descripcion_producto_marca)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.codigo_familia)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.descripcion_producto_familia)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.codigo_producto_subfamilia)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.descripcion_producto_subfamilia)
+                            </th>
+                            
+                            <th>
+                                @Html.DisplayNameFor(model => model.NEstado)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_producto_marca_subfamilia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_marca)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_subfamilia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_familia)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.codigo_familia)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_familia)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.codigo_producto_subfamilia)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_subfamilia)
+                                </td>
+                                
+                                
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary edita" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+                                    @if (item.NEstado == "ACTIVO")
+                                    {
+                                        <button class="btn btn-sm btn-danger elimina" style="padding: 2px; font-size: small; margin-top: -5px">Desactivar</button><br />
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-warning activa" style="padding: 2px; font-size: small; margin-top: -5px">Activar</button><br />
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:450px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/assets/css/jqueryui/jquery-ui.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+
+    <script src="~/assets/js/jqueryui/jquery-ui.js"></script>
+    <script src="~/assets/js/validation/bootstrapValidator.js"></script>
+
+    <script>
+        var id_producto_subfamilia = 0;
+        $(document).ready(function () {
+
+        });
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+        $("#NewRegistro").click(function () {
+            //debugger;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Registro", "ProductoMarcaSubFamilia")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_save: id_producto_subfamilia },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+
+        $('#myModalNew').on('hide.bs.modal', function (e) {
+            window.location.reload();
+        });
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+
+            $(document).ready(function () {
+                var marcaax = "0";
+                try {
+                    marcaax = $("#txtValBus_familia").val();
+                    console.log("marcaax: " + marcaax);
+                }
+                catch (e) {
+
+                }
+                if (marcaax != "0") {
+                    LlenaSubFamilias(marcaax);
+                }
+
+
+                $("#txtValBus_familia").change(function () {
+                    var opcion = $(this).val();
+                    console.log("opcion: " + opcion);
+                    LlenaSubFamilias(opcion);
+                });
+
+            });
+            function LlenaSubFamilias(opcion) {
+
+                $.ajax({
+                    type: 'POST',
+                    //url: "Filter_ZonaEmbarque",
+                    url: '@Url.Action("Filter_ProductoSubFamiliaAsync", "ProductoMarcaSubFamilia")',
+                    data: JSON.stringify({ id: opcion }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#txtValBus_subfamilia option').remove();
+                        var dataLen = response.length;
+                        $('#txtValBus_subfamilia').append('<option value=""></option>');
+                        for (i = 0; i < dataLen; i++) {
+                            $('#txtValBus_subfamilia').append('<option value="' + response[i].id_producto_subfamilia + '">' + response[i].descripcion + '</option>');
+                        }
+                    }
+                });
+            }
+
+            var idx = $("#id_producto_marca_subfamiliax").val();
+            var fk_producto_marcasxx = $("#fk_producto_marcasx").val();
+            var fk_producto_subfamiliasxx = $("#fk_producto_subfamiliasx").val();
+            var fk_producto_familiasxx = $("#fk_producto_familiasx").val();
+
+            if (idx != "0") {
+                $("#txtValBus_marca").val(fk_producto_marcasxx);
+                $("#txtValBus_familia").val(fk_producto_familiasxx);
+                $("#txtValBus_subfamilia").val(fk_producto_subfamiliasxx);
+            }
+
+            $("#Guardar").click(function () {
+                var id_save = 0;
+                var fkproductomarca = $("#txtValBus_marca").val();
+                var fkproductomarcasubfamilia = $("#txtValBus_subfamilia").val();
+                if (fkproductomarca === '' && fkproductomarcasubfamilia === '') {
+                    sweetAlert("", "Datos Incompletos", "error");
+                    $("#txtValBus_marca").focus();
+                    return false;
+                }
+                id_save = parseInt($("#id_producto_marca_subfamiliax").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Guarda", "ProductoMarcaSubFamilia")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_producto_marca_subfamilia: id_save, fk_producto_marca: fkproductomarca, fk_producto_subfamilia: fkproductomarcasubfamilia
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto_subfamilia = data;
+                            if (parseInt(id_producto_subfamilia, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Marca SubFamilia se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                })
+                                console.log("salirs");
+                                $("#btnCancel").click();
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto_subfamilia = 0;
+                            }
+                        }
+                    });
+            });
+        });
+
+        $(document).on('click', '.edita', function () {
+                    debugger;
+                    var tableRow = $(this).closest("tr");
+                    //console.log("thiscloses: " + JSON.stringify(tableRow));
+                    id_producto_subfamilia = tableRow.find("td:eq(0)").text();
+                    console.log("id_producto_subfamilia: " + id_producto_subfamilia);
+                    id_producto_subfamilia = id_producto_subfamilia.trim();
+                    console.log("idgeneral: " + id_producto_subfamilia);
+                    var options = { "backdrop": "static", keyboard: false };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("Registro", "ProductoMarcaSubFamilia")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { id_save: id_producto_subfamilia },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentNew').html(response);
+                            $('#myModalNew').modal(options);
+                            $('#myModalNew').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+        $(document).on('click', '.elimina', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    var id_save = tableRow.find("td:eq(0)").text();
+                    id_save = id_save.trim();
+                    var statux = tableRow.find("td:eq(9)").text();
+                    statux = statux.trim();
+                    console.log("status: " + statux);
+                    var options = { "backdrop": "static", keyboard: false };
+                    if (statux == "ACTIVO") {
+                        $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Elimina", "ProductoMarcaSubFamilia")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto_subfamilia = data;
+                            if (parseInt(id_producto_subfamilia, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'SubFamilia se desactivó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                    })
+                                console.log("salirs");
+                                //$("#btnCancel").click();
+                                window.location.reload();
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto_subfamilia = 0;
+                            }
+                        }
+                    });
+                    }
+
+                    return false;
+                });
+        $(document).on('click', '.activa', function () {
+            //debugger;
+            var tableRow = $(this).closest("tr");
+            var id_save = tableRow.find("td:eq(0)").text();
+            id_save = id_save.trim();
+            var statux = tableRow.find("td:eq(9)").text();
+            statux = statux.trim();
+            console.log("status: " + statux);
+            var options = { "backdrop": "static", keyboard: false };
+            if (statux == "INACTIVO") {
+                $.ajax({
+                    type: 'POST',
+                    //url: "SaveTraslado",
+                    url: '@Url.Action("Elimina", "ProductoMarcaSubFamilia")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_save: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (data) {
+                        console.log(data);
+                        id_producto_subfamilia = data;
+                        if (parseInt(id_producto_subfamilia, 10) > 0) {
+                            swal({
+                                title: 'Exito!',
+                                text: 'SubFamilia se activó correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                            }, function () {
+
+                            })
+                            console.log("salirs");
+                            window.location.reload();
+                        } else {
+                            sweetAlert("", "No se pudo registrar!", "error");
+                            id_producto_subfamilia = 0;
+                        }
+                    }
+                });
+            }
+
+            return false;
+        });
+
+
+        $(document).ready(function () {
+            Inicia();
+        });
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                        //,
+                        //{
+                        //    "sExtends": "collection",
+                        //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                        //    "aButtons": ["csv", "xls", "pdf"]
+                        //}
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+            var isEditing = null;
+
+
+        }
+    </script>
+
+}

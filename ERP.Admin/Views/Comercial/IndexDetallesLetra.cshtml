@@ -1,0 +1,122 @@
+﻿@using ERP.Admin.Models
+@model IEnumerable<ERP.Admin.Models.LetrasPorPagarErp>
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@{
+    LetrasPorPagarErp idletra = new LetrasPorPagarErp();
+    int idletraporpagar = (int)ViewBag.IdLetra;
+}
+
+@Html.Hidden("sfecha_pago", "")
+<div class="row"  id="divtoPrint">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Detalle de Letra </span>
+                <button type="button" class="btn btn-default btn-sm PrintDiv" style="margin-top:3px;margin-right:20px">
+                    <span class="glyphicon glyphicon-plus"></span> Imprimir
+                </button>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    <div class="row">
+                        <div class="col-sm-3"><b>RUC:</b></div>
+                        <div class="col-sm-9">@Model.Select(x => x.ruc).FirstOrDefault()</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3"><b>RAZON SOCIAL:</b></div>
+                        <div class="col-sm-9">@Model.Select(x => x.razon_social).FirstOrDefault()</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3"><b>DOC. REFERENCIA:</b></div>
+                        <div class="col-sm-1">@Model.Select(x => x.comprobante_tipo).FirstOrDefault()</div>
+                        <div class="col-sm-7">@Model.Select(x => x.documento_referencia).FirstOrDefault()</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3"><b>MONEDA:</b></div>
+                        <div class="col-sm-1">@Model.Select(x => x.NOMBRE_CORTO).FirstOrDefault()</div>
+                        <div class="col-sm-3">@Model.Select(x => x.moneda).FirstOrDefault()</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3"><b>MONTO:</b></div>
+                        <div class="col-sm-1">@Model.Select(x => x.monto).FirstOrDefault().ToString("N")</div>
+                        <div class="col-sm-3" style="text-align:right"><b>SALDO:</b></div>
+                        <div class="col-sm-2">@Model.Select(x => x.saldo).FirstOrDefault().ToString("N")</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3"><b>EMISION:</b></div>
+                        <div class="col-sm-1">@Model.Select(x => x.f_emision).FirstOrDefault().ToString("dd/MM/yyyy")</div>
+                        <div class="col-sm-3" style="text-align:right"><b>NRO LETRAS:</b></div>
+                        <div class="col-sm-1">@Model.Select(x => x.nro_letras).FirstOrDefault()</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3"><b>VENCIMIENTO:</b></div>
+                        <div class="col-sm-1">@Model.Select(x => x.f_vencimiento).FirstOrDefault().ToString("dd/MM/yyyy")</div>
+                        <div class="col-sm-3" style="text-align:right"><b>MONTO LETRAS:</b></div>
+                        <div class="col-sm-1">@Model.Select(x => x.monto_detalle).FirstOrDefault().ToString("N")</div>
+                    </div>
+                    <div class="row" style="margin-top:15px">
+                        <table id="letrastables" class="pure-table pure-table-bordered table-sm" style="margin: 0 auto;">
+                            <thead>
+                                <tr>
+                                    <th style="display:none">id</th>
+                                    <th>#</th>
+                                    <th>Nro Letra</th>
+                                    <th>Importe</th>
+                                    <th>Vencimiento</th>
+                                    <th>Fecha Pago</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody id="letrastablesbody" style="height:400px;overflow:auto">
+                                @foreach (var item in Model)
+                                {
+
+                                    <tr>
+                                        <td style="display:none">@item.id_letras_por_pagar_proveedor_detalle</td>
+                                        <td>@item.nro_letra</td>
+                                        <td>@item.letra_numero</td>
+                                        <td>@item.monto_detalle.ToString("N")</td>
+                                        <td>@item.dfecha</td>
+                                        <td>
+                                            @item.dfecha_pago
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="row" style="margin-bottom:5px;margin-top:10px">
+                        <div class="col-md-12" style="text-align: center; vertical-align: middle;">
+                            <button class="btn btn-md bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).off('click', '.PrintDiv').on('click', '.PrintDiv', function () {
+        $("#divtoPrint").printThis({
+            debug: true,              
+            importCSS: true,             
+            importStyle: true,         
+            printContainer: false,       
+            loadCSS: ["../vilocrusac/assets/css/dataTables.bootstrap.css"
+                , "../vilocrusac/assets/css/pure-min.css"
+                , "../vilocrusac/assets/css/dataTables.bootstrap.css"
+                , "../vilocrusac/assets/css/beyond.css"], 
+            pageTitle: "My Modal",             
+            removeInline: true,        
+            printDelay: 333,            
+            header: null,             
+            formValues: true          
+            }); 
+        });
+
+</script>

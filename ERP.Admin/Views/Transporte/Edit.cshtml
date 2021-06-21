@@ -1,0 +1,105 @@
+﻿@model ERP.Admin.Models.Transporte
+<script type="text/javascript">
+</script>
+@Html.Hidden("txtTranEdit_IdTran", Model.id_transporte)
+@Html.Hidden("txtTranEdit_EstaTran", Model.estado)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Transporte > Editar</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-5 control-label" style="text-align: right; ">Nombres <sup>*</sup></label>
+                                <div class="col-md-7">
+                                    @Html.Bootstrap().TextBox("txtTranEdit_NroPlac").Value(Model.n_placa).Placeholder("Nro Placa").HtmlAttributes(new { style = "text-transform: uppercase", @maxlength = "10" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("btnSaveEditTransporte").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnGuardarEditTransporte()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerTranCreate" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#spinnerTranCreate").hide();
+        //Inicia();
+        $('#spinnerTranCreate').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnGuardarEditTransporte() {
+        var IdTran = $("#txtTranEdit_IdTran").val();
+        var NroPlac = $("#txtTranEdit_NroPlac").val();
+        var EstaTran = $("#txtTranEdit_EstaTran").val();
+        var flgError = 0;
+        if (NroPlac.trim() == "") {
+            sweetAlert("", "Ingrese Nro Placa", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveEditTransporte", "Transporte")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdTran: IdTran, NroPlac: NroPlac, EstaTran: EstaTran
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerTranCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: 'Exito!',
+                        text: data,
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'Ok'
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerTranCreate').length > 0) {
+                        $('#spinnerTranCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+</script>

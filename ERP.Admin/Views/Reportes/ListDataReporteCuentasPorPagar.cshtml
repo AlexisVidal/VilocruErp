@@ -1,0 +1,100 @@
+﻿@model IEnumerable<ERP.Admin.Models.CuentasPorPagar>
+@{
+    string strFechEmis = "";
+    string strBrut = "";
+    string strTotaAmort = "";
+    string strSaldo = "";
+
+    decimal Saldo = 0;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="tableDataReportCtasPagar" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                TIPO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DOCUMENTO
+                            </th>
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                FECHA
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                RUC
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                NOMBRE
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                IMPORTE
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                AMORTIZADO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                SALDO
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            strFechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                            strBrut = item.total_bruto.ToString("#,##0.00");
+                            strTotaAmort = item.monto_pago.ToString("#,##0.00");
+                            Saldo = item.total_bruto - item.monto_pago;
+                            strSaldo = Saldo.ToString("#,##0.00");
+                            <tr>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.descripcion_comprobante_tipo
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.nro_comprobante
+                                </td>
+                                <td class="input-xs">
+                                    @strFechEmis
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.ruc
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.razon_social
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strBrut
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strTotaAmort
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strSaldo
+                                </td>
+                            </tr>
+                        }
+                        @*<tr>
+                                <td colspan="5" style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    TOTAL
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaNeto.ToString("#,##0.00")
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaIgv.ToString("#,##0.00")
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaBruto.ToString("#,##0.00")
+                                </td>
+                            </tr>*@
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>

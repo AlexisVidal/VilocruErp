@@ -1,0 +1,129 @@
+﻿@using ERP.Admin.Models
+@{
+
+}
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de inventario</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row" style="margin-bottom: 5px">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:110px">F. Compra <sup>*</sup></label>
+                                <div class="col-md-3" style="width: 180px">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerFecha' id='txtFecha' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-top: 10px">
+                            <div class="col-md-6"> <h5 class="card-title">Productos</h5></div>
+                            <div class="col-md-6" style="text-align: right; margin-top: 5px; padding-right: 17px">
+                                @Html.Bootstrap().Button().Text("Agregar").Color(BootstrapColors.Primary).IconPrepend(FontAwesome.ShoppingCart).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnListaProducto('CompCreate')" })
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom: 5px">
+                            <div class="form-group" style="margin: 1px">
+                                <div class="col-md-12">
+                                    <table class="table table-striped table-hover table-bordered" id="tblCompDeta" style="font-size:10px">
+                                        <thead>
+                                            <tr role="row">
+                                                <th style=" font-size: 10px;display:none">
+                                                    id_compra_detalle
+                                                </th>
+
+                                                <th style="font-size: 10px; display: none">
+                                                    fk_producto
+                                                </th>
+                                                <th style="width: 70px; text-align: center; font-size: 10px">
+                                                    CODIGO
+                                                </th>
+                                                <th style="width: 70px; text-align: center; font-size: 10px">
+                                                    SKU
+                                                </th>
+                                                <th style="width: 200px; text-align: center; font-size: 10px">
+                                                    DESCRIPCION
+                                                </th>
+                                                <th style="width: 70px; text-align: center; font-size: 10px">
+                                                    MARCA
+                                                </th>
+                                                <th style="width: 70px; text-align: center; font-size: 10px">
+                                                    FAMILIA
+                                                </th>
+                                                <th style="width: 70px; text-align: center; font-size: 10px">
+                                                    CANT.
+                                                </th>
+                                                <th style="width: 70px; text-align: center; font-size: 10px;display:none">
+                                                    PRECIO
+                                                </th>
+                                                <th style="width: 70px; text-align: center; font-size: 10px;display:none">
+                                                    TOTAL
+                                                </th>
+                                                <th style="width: 40px; text-align: center; font-size: 10px">
+                                                    ...
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tBodyCompDeta"></tbody>
+                                    </table>
+                                    <table class="table table-striped table-hover table-bordered" id="tblTotalOrdeComp">
+                                        <thead>
+                                            <tr role="row">
+                                                <td style="width: 85%; text-align: right;">
+                                                    TOTAL
+                                                </td>
+                                                <td id="TDTotalOrdeComp" colspan="2" style="width: 15%; text-align: right;">0.00</td>
+
+                                            </tr>
+                                        </thead>
+                                    </table>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarEntidad").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" id="btnCancel" style="color:white" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}
+

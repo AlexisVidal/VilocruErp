@@ -1,0 +1,952 @@
+﻿@{
+    ViewBag.Title = "Registro de Precio de Venta";
+    ViewBag.Description = "producto";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+@using X.PagedList.Mvc;
+@using X.PagedList;
+@using System
+@model IEnumerable<ERP.Admin.Models.Producto>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="NewRegistro" class="btn btn-danger">
+                        Generación Masiva
+                    </a>
+
+                </div>
+                <table class="table table-striped table-hover table-bordered">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_producto)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_proveedor)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_marca)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_subfamilia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_familia)
+                            </th>
+
+                            <th>
+                                @Html.DisplayNameFor(model => model.cod_producto)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.codigo_sku)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.nom_producto)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.descripcion_producto_marca)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.codigo_producto_familia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.descripcion_producto_familia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.codigo_producto_subfamilia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.descripcion_producto_subfamilia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.embalaje)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.preciocomprafinal)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_producto_precio_venta)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.precio_unidad_precio_venta)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.precio_mayor_precio_venta)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.precio_especial_precio_venta)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.image_url)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.image_url)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NEstado)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_precio_compra)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_tipo_moneda)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.tipo_cambio_precio_venta)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.descripcion_tipo_moneda)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_producto)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_proveedor)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_marca)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_subfamilia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_familia)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.codigo_producto_familia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_familia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.codigo_producto_subfamilia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_subfamilia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.embalaje)
+                                </td>
+                                <td style="text-align:right">
+                                    @Html.DisplayFor(modelItem => item.preciocomprafinal)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_producto_precio_venta)
+                                </td>
+                                <td style="text-align:right">
+                                    @Html.DisplayFor(modelItem => item.precio_unidad_precio_venta)
+                                </td>
+                                <td style="text-align:right">
+                                    @Html.DisplayFor(modelItem => item.precio_mayor_precio_venta)
+                                </td>
+                                <td style="text-align:right">
+                                    @Html.DisplayFor(modelItem => item.precio_especial_precio_venta)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.image_url)
+                                </td>
+                                <td style="display:none">
+                                    @if (item.image_url.ToString() != "")
+                                    {
+                                        <button class="btn btn-success .shiny ver" style="padding:0;font-size:small;margin-top:-5px" value="@item.image_url.ToString()">Ver Imagen</button> <br />
+                                    }
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td>
+                                    @if (item.precio_unidad_precio_venta > 0)
+                                    {
+                                        <button class="btn btn-success .shiny generar" style="padding:0;font-size:small;margin-top:-5px">MODIFICAR</button> <br />
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-success .shiny generar" style="padding:0;font-size:small;margin-top:-5px">GENERAR</button> <br />
+                                    }
+
+                                    @if (item.NEstado == "ACTIVO")
+                                    {
+                                        <button class="btn btn-warning .shiny elimina" style="padding:0;font-size:small;margin-top:-5px">DESACTIVAR</button><br />
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-palegreen .shiny activa" style="padding:0;font-size:small;margin-top:-5px">ACTIVAR</button><br />
+                                    }
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_precio_compra)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_tipo_moneda)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.tipo_cambio_precio_venta)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.descripcion_tipo_moneda)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:600px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalFoto' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:500px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentFoto'></div>
+        </div>
+    </div>
+</div>
+<div id="spinnera" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+
+    @*<script src="~/assets/js/jqueryui/jquery-ui.js"></script>*@
+    <script src="~/assets/js/validation/bootstrapValidator.js"></script>
+    @*<script src="~/assets/css/autocomplete/jquery-2.1.4.min.js"></script>*@
+    <link href="~/assets/css/autocomplete/jquery-ui-1.11.1/jquery-ui.min.css" rel="stylesheet" />
+    <script src="~/assets/css/autocomplete/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <script>
+        var id_producto = 0;
+        $(document).ready(function () {
+            $('#spinnera').hide();
+        });
+        $("#NewRegistro").click(function () {
+                    var options = { "backdrop": "static", keyboard: false };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("GeneracionPrecioVentaMasiva", "Producto")',
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentNew').html(response);
+                            $('#myModalNew').modal(options);
+                            $('#myModalNew').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+        function CalculaPrecioVenta(obj) {
+            if (obj.value != "") {
+                console.log("pcomprasoles: " + document.getElementById('pcomprasoles').innerHTML);
+                var pc = $("#preciocompraf").val();
+                    //document.getElementById('pcomprasoles').innerHTML;  // $("#preciocompraf").val()
+                var d1 = obj.value;
+                var pvfinal = (pc * d1);
+                document.getElementById('pcomprasoles').innerHTML = pvfinal;
+                ///$("#precio_unidad").val(Math.ceil(pvfinal));
+            }
+        }
+        function CalculaPVUnidad(obj) {
+            if (obj.value != "") {
+                console.log("pcomprasoles: " + document.getElementById('pcomprasoles').innerHTML );
+                var pc = document.getElementById('pcomprasoles').innerHTML;  // $("#preciocompraf").val()
+                var d1 = obj.value;
+                var pvfinal = (pc * ((d1 / 100) + 1));
+                $("#precio_unidad").val(Math.ceil(pvfinal));
+            }
+        }
+        function CalculaPVUnidadP(obj) {
+            if (obj.value != "") {
+                console.log("pcomprasoles: " + document.getElementById('pcomprasoles').innerHTML);
+                var pc = document.getElementById('pcomprasoles').innerHTML;
+                var d1 = obj.value;
+                var pvfinal = (((d1 * 100) / pc) - 100);
+                console.log("pvfinal: " + pvfinal)
+                console.log("Math.ceil(pvfinal): " + Math.ceil(pvfinal))
+                $("#precio_unidadp").val(Math.ceil(pvfinal));
+            }
+        }
+        function CalculaPVMayor(obj) {
+            if (obj.value != "") {
+                console.log("pcomprasoles: " + document.getElementById('pcomprasoles').innerHTML);
+                var pc = document.getElementById('pcomprasoles').innerHTML;
+                var d1 = obj.value;
+                var pvfinal = (pc * ((d1 / 100) + 1));
+                $("#precio_mayor").val(Math.ceil(pvfinal));
+            }
+        }
+        function CalculaPVMayorP(obj) {
+            if (obj.value != "") {
+                console.log("pcomprasoles: " + document.getElementById('pcomprasoles').innerHTML);
+                var pc = document.getElementById('pcomprasoles').innerHTML;
+                var d1 = obj.value;
+                var pvfinal = (((d1 * 100) / pc) - 100);
+                $("#precio_mayorp").val(Math.ceil(pvfinal));
+            }
+        }
+        function CalculaPVEspecial(obj) {
+            if (obj.value != "") {
+                console.log("pcomprasoles: " + document.getElementById('pcomprasoles').innerHTML);
+                var pc = document.getElementById('pcomprasoles').innerHTML;
+                var d1 = obj.value;
+                var pvfinal = (pc * ((d1 / 100) + 1));
+                $("#precio_especial").val(Math.ceil(pvfinal));
+            }
+        }
+        function CalculaPVEspecialP(obj) {
+            if (obj.value != "") {
+                console.log("pcomprasoles: " + document.getElementById('pcomprasoles').innerHTML);
+                var pc = document.getElementById('pcomprasoles').innerHTML;
+                var d1 = obj.value;
+                var pvfinal = (((d1 * 100) / pc) - 100);
+                $("#precio_especialp").val(Math.ceil(pvfinal));
+            }
+        }
+
+        $('#myModalNew').on('hide.bs.modal', function (e) {
+            window.location.reload();
+        });
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+
+            var idx = $("#id_producto_precio_ventax").val();
+
+            var fk_productosxx = $("#fk_productosx").val();
+            var fk_precio_comprasxx = $("#fk_precio_comprasx").val();
+            var precio_unidadsxx = $("#precio_unidadsx").val();
+            var precio_unidadpsxx = $("#precio_unidadpsx").val();
+            var precio_mayorsxx = $("#precio_mayorsx").val();
+            var precio_mayorpsxx = $("#precio_mayorpsx").val();
+            var precio_especialsxx = $("#precio_especialsx").val();
+            var precio_especialpsxx = $("#precio_especialpsx").val();
+            var preciocomprafx = $("#preciocompraf").val();
+            var tipo_cambiosxx = $("#tipo_cambiosx").val();
+            var fk_tipo_monedasxx = $("#fk_tipo_monedas").val();
+
+            if (idx != "0") {
+                console.log("idxxx: " + idx);
+                $("#precio_unidad").val(precio_unidadsxx);
+                $("#precio_unidadp").val(precio_unidadpsxx);
+                $("#precio_mayor").val(precio_mayorsxx);
+                $("#precio_mayorp").val(precio_mayorpsxx);
+                $("#precio_especial").val(precio_especialsxx);
+                $("#precio_especialp").val(precio_especialpsxx);
+            }
+
+            $(document).ready(function () {
+                console.log('fk_tipo_monedasxx: ' + fk_tipo_monedasxx);
+                if (fk_tipo_monedasxx == '1') {
+                    console.log('fk_tipo_monedasxxw: ' + fk_tipo_monedasxx);
+                    $("#tipo_cambio").prop('disabled', true);
+                }
+
+                $("#txtValBus_familia").change(function () {
+                    var opcion = $(this).val();
+                    if (opcion == -1) {
+
+                    } else {
+                        LlenaSubFamilias(opcion);
+                    }
+                    console.log("opcion: " + opcion);
+
+                });
+            });
+
+
+            $("#Guardar").click(function () {
+                var id_save = 0;
+                var fk_producto = $("#fk_productosx").val();
+                var fk_precio_compra = $("#fk_precio_comprasx").val(); // document.getElementById('pcomprasoles').innerHTML;  //
+                var precio_unidadp = $("#precio_unidadp").val();
+                var precio_mayorp = $("#precio_mayorp").val();
+                var precio_especialp = $("#precio_especialp").val();
+                var tipo_cambio = $("#tipo_cambio").val();
+                var precio_unidad = $("#precio_unidad").val();
+                var precio_mayor = $("#precio_mayor").val();
+                var precio_especial = $("#precio_especial").val();
+                var fktipomoneda = $("#fk_tipo_monedas").val();
+                console.log('tipo_cambio: ' + tipo_cambio);
+                console.log('fktipomoneda: ' + fktipomoneda);
+                if ((fk_producto === '' || fk_producto === '0') && (fk_precio_compra === '' || fk_precio_compra === '0') && precio_unidadp === '' && precio_mayorp === '' && precio_especialp === '' && precio_unidad === ''
+                    && precio_mayor === '' && precio_especial === '') {
+                         sweetAlert("", "Datos Incompletos", "error");
+                        $("#nom_producto").focus();
+                        return false;
+                }
+                if (fktipomoneda == '2' && (tipo_cambio.trim() == '0.00' || tipo_cambio.trim() == '0' || tipo_cambio.trim() == '')) {
+                    sweetAlert("", "Debe ingresar un tipo de cambio!", "error");
+                    $("#nom_producto").focus();
+                    return false;
+                }
+
+                id_save = parseInt($("#id_producto_precio_ventax").val(), 10);
+                debugger;
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Guarda", "ProductoPrecioVenta")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save, fk_producto: fk_producto, fk_precio_compra: fk_precio_compra, precio_unidadp: precio_unidadp,
+                            precio_mayorp: precio_mayorp, precio_especialp: precio_especialp, precio_unidad: precio_unidad,
+                            precio_mayor: precio_mayor, precio_especial: precio_especial, tipo_cambio: tipo_cambio
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto = data;
+                            if (parseInt(id_producto, 10) > 0) {
+                                    swal({
+                                    title: 'Exito!',
+                                    text: 'Producto se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                })
+                                console.log("salirs");
+                                $("#btnCancel").click();
+
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto = 0;
+                            }
+                        }
+                    })).then(function (response) {
+
+                    });
+            });
+            $("#Guardarm").click(function () {
+                var id_save = 0;
+                var familia = $("#txtValBus_familia").val();
+                var subfamilia = $("#txtValBus_subfamilia").val();
+                var marca = $("#txtValBus_marca").val();
+
+                var precio_unidadpm = $("#precio_unidadpm").val();
+                var precio_mayorpm = $("#precio_mayorpm").val();
+                var precio_especialpm = $("#precio_especialpm").val();
+                var tipo_cambio = $("#tipo_cambiom").val();
+                console.log("familia: " + familia);
+                if (familia === '-1' && marca === '-1') {
+                    sweetAlert("", "Seleccione un filtro", "error");
+                    $("#familia").focus();
+                    return false;
+                } else if (tipo_cambio === '' || tipo_cambio === '0' || tipo_cambio === '0.00') {
+                    sweetAlert("", "Ingrese un tipo de cambio válido", "error");
+                    $("#familia").focus();
+                    return false;
+                }
+
+                else if ((precio_unidadpm === '' && precio_mayorpm === '' && precio_especialpm === '')) {
+                    sweetAlert("", "No hay porcentajes ingresados", "error");
+                    $("#precio_unidadpm").focus();
+                    return false;
+                }
+                console.log("subfamilia: " + subfamilia);
+                console.log("marca: " + marca);
+                if (familia === '-1') {
+                    subfamilia = 0;
+                }
+                if (subfamilia === '') {
+                    subfamilia = 0;
+                }
+                if (marca === '-1') {
+                    marca = 0;
+                }
+
+                if (tipo_cambio === '') {
+                    tipo_cambio = 0;
+                }
+                if (precio_unidadpm === '') {
+                    precio_unidadpm = 0;
+                }
+                if (precio_mayorpm === '') {
+                    precio_mayorpm = 0;
+                }
+                if (precio_especialpm === '') {
+                    precio_especialpm = 0;
+                }
+
+                //id_save = parseInt($("#id_producto_precio_ventax").val(), 10);
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaMasivo", "ProductoPrecioVenta")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            familia: familia, marca: marca, subfamilia: subfamilia, tipo_cambio: tipo_cambio,
+                            precio_unidadpm: precio_unidadpm, precio_mayorpm: precio_mayorpm, precio_especialpm: precio_especialpm
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        beforeSend: function () {
+                            $('#spinnera').show();
+                        },
+                        success: function (data) {
+                            console.log(data);
+                            id_producto = data;
+                            if (parseInt(id_producto, 10) > 0) {
+                                    swal({
+                                    title: 'Exito!',
+                                    text: 'Producto se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                })
+                                console.log("salirs");
+                                $("#btnCancelm").click();
+
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto = 0;
+                            }
+                        },
+                        error: function (data) {
+                            sweetAlert("Error: ", data.responseText, "error");
+                        },
+                        complete: function () {
+                            //check that it does exist and remove
+                            if ($('#spinnera').length > 0) {
+                                $('#spinnera').hide();
+                            }
+                        }
+                    })).then(function (response) {
+
+                    });
+            });
+            function GuardaTodo(id_producto) {
+            var nomArc = $("#lblNombArch").val();
+            var fileUpload = $("#FileUpload1").get(0);
+            var files = fileUpload.files;
+            var fileData = new FormData();
+            var flgSaveOk = 0;
+            if (files.length > 0) { //Guardamos la Imagen
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+                fileData.append(id_producto, files[i]);
+            }
+            $.when(
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GuardarImagenProducto", "Producto")',
+                contentType: false,
+                processData: false,
+                data: fileData,
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                    ActualizaProducto(data);
+                     },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            })).then(function (response) {
+                //GuardaTodo()
+            });
+        }
+        }
+            function LlenaSubFamilias(opcion) {
+
+                $.ajax({
+                    type: 'POST',
+                    //url: "Filter_ZonaEmbarque",
+                    url: '@Url.Action("Filter_ProductoSubFamiliaAsync", "Producto")',
+                    data: JSON.stringify({ idfamilia: opcion }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#txtValBus_subfamilia option').remove();
+                        var dataLen = response.length;
+                        $('#txtValBus_subfamilia').append('<option value=""></option>');
+                        for (i = 0; i < dataLen; i++) {
+                            $('#txtValBus_subfamilia').append('<option value="' + response[i].id_producto_subfamilia + '">' + response[i].descripcion + '</option>');
+                        }
+                    }
+                });
+            }
+        function ActualizaProducto(urls) {
+            if (id_producto > 0) { //Guardamos la Imagen
+            $.when(
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ActualizaProducto", "Producto")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    id_save: id_producto, image_url: urls
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                    id_producto = data;
+                    if (parseInt(id_producto, 10) > 0) {
+                        swal({
+                            title: 'Exito!',
+                            text: 'Producto se registró correctamente',
+                            type: 'success',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ok'
+                        }, function () {
+
+                        })
+                        console.log("salirs");
+                        $("#btnCancel").click();
+                    } else {
+                        sweetAlert("", "No se pudo registrar!", "error");
+                        id_producto = 0;
+                    }
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            })).then(function (response) {
+                //GuardaTodo()
+            });
+        }
+        }
+        });
+
+        $(document).on('click', '.ver', function () {
+                    debugger;
+                    var tableRow = $(this).closest("tr");
+                    //console.log("thiscloses: " + JSON.stringify(tableRow));
+                    var foto = tableRow.find("td:eq(15)").text();
+                    foto = foto.trim();
+                    console.log("foto: " + foto);
+                    var options = { "backdrop": "static", keyboard: true };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("VerFoto", "Producto")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { foto: foto },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentFoto').html(response);
+                            $('#myModalFoto').modal(options);
+                            $('#myModalFoto').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+
+        $(document).on('click', '.generar', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    id_producto = tableRow.find("td:eq(0)").text();
+                    console.log("id_producto: " + id_producto);
+                    id_producto = id_producto.trim();
+                    console.log("idgeneral: " + id_producto);
+                    var id_producto_precio_venta = tableRow.find("td:eq(15)").text().trim();
+                    var nom_producto = tableRow.find("td:eq(7)").text().trim();
+                    var precio_compra = tableRow.find("td:eq(14)").text().trim();
+                    var fk_precio_compra = tableRow.find("td:eq(23)").text().trim();
+                    var fk_tipo_moneda = tableRow.find("td:eq(24)").text().trim();
+                    var tipo_cambio = tableRow.find("td:eq(25)").text().trim();
+                    var moneda = tableRow.find("td:eq(26)").text().trim();
+                    var options = { "backdrop": "static", keyboard: false };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("GeneracionPrecioVenta", "Producto")',
+                        contentType: "application/json; charset=utf-8",
+                        data: {
+                            id_save: id_producto_precio_venta, fkproducto: id_producto,
+                            nom_producto: nom_producto, precio_compra: precio_compra, fk_precio_compra: fk_precio_compra,
+                            fk_tipo_moneda: fk_tipo_moneda, tipo_cambio: tipo_cambio, moneda: moneda
+                        },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentNew').html(response);
+                            $('#myModalNew').modal(options);
+                            $('#myModalNew').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+        $(document).on('click', '.elimina', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    var id_save = tableRow.find("td:eq(0)").text();
+                    id_save = id_save.trim();
+                    var statux = tableRow.find("td:eq(19)").text();
+                    statux = statux.trim();
+                    console.log("status: " + statux);
+                    var options = { "backdrop": "static", keyboard: false };
+                    if (statux == "ACTIVO") {
+                        $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Elimina", "ProductoMarcaSubFamilia")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto = data;
+                            if (parseInt(id_producto, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'SubFamilia se desactivó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                    })
+                                console.log("salirs");
+                                //$("#btnCancel").click();
+                                window.location.reload();
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto = 0;
+                            }
+                        }
+                    });
+                    }
+
+                    return false;
+                });
+        $(document).on('click', '.activa', function () {
+            //debugger;
+            var tableRow = $(this).closest("tr");
+            var id_save = tableRow.find("td:eq(0)").text();
+            id_save = id_save.trim();
+            var statux = tableRow.find("td:eq(19)").text();
+            statux = statux.trim();
+            console.log("status: " + statux);
+            var options = { "backdrop": "static", keyboard: false };
+            if (statux == "INACTIVO") {
+                $.ajax({
+                    type: 'POST',
+                    //url: "SaveTraslado",
+                    url: '@Url.Action("Elimina", "ProductoMarcaSubFamilia")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_save: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (data) {
+                        console.log(data);
+                        id_producto = data;
+                        if (parseInt(id_producto, 10) > 0) {
+                            swal({
+                                title: 'Exito!',
+                                text: 'SubFamilia se activó correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                            }, function () {
+
+                            })
+                            console.log("salirs");
+                            window.location.reload();
+                        } else {
+                            sweetAlert("", "No se pudo registrar!", "error");
+                            id_producto = 0;
+                        }
+                    }
+                });
+            }
+
+            return false;
+        });
+
+
+        $(document).ready(function () {
+            //Inicia();
+        });
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        //"print"
+                        //,
+                        //{
+                        //    "sExtends": "collection",
+                        //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                        //    "aButtons": ["csv", "xls", "pdf"]
+                        //}
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+            var isEditing = null;
+
+            $('#spinnera').hide();
+        }
+    </script>
+
+}

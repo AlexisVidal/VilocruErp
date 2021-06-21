@@ -1,0 +1,121 @@
+﻿@using ERP.Admin.Models
+@{ 
+    var _person = (Persona)ViewBag.Personas;
+    int id_persona = 0;
+    string dnis = "";
+    string nombress = "";
+    string apellido_paternos = "";
+    string apellido_maternos = "";
+    DateTime f_nacimientos = Convert.ToDateTime(DateTime.Now) ;
+    string emails = "";
+    if (_person != null)
+    {
+        id_persona = _person.id_persona;
+        dnis = _person.dni;
+        nombress = _person.nombres;
+        apellido_paternos = _person.apellido_paterno;
+        apellido_maternos = _person.apellido_materno;
+        f_nacimientos = _person.f_nacimiento;
+        emails = _person.email;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_personax", @id_persona)
+@Html.Hidden("dnix", @dnis)
+@Html.Hidden("nombresx", @nombress)
+@Html.Hidden("apellido_paternox", @apellido_paternos)
+@Html.Hidden("apellido_maternox", @apellido_maternos)
+@Html.Hidden("f_nacimientosx", @f_nacimientos.ToString("d"))
+@Html.Hidden("emailsx", @emails)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de persona</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">DNI <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("dni").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Dni")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Nombres <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("nombres").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Nombres")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">A. Paterno <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("apellido_paterno").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Apellido Paterno")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">A. Materno <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("apellido_materno").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Apellido Materno")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">F. Nac. <sup>*</sup></label>
+                                <div class="col-sm-3" style="width:250px">
+                                    <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="f_nacimiento" type="text">
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Email <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("email").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Email")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarPersona").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var idx = $("#id_persona").val();
+            alert(idx);
+        });
+        //--Bootstrap Date Picker--
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+            var idx = $("#id_persona").val();
+            alert(idx);
+        });
+
+    </script>
+}
+
+

@@ -1,0 +1,363 @@
+﻿<script type="text/javascript">
+    var NroTrGRF = 1;
+    var TrSeleGRF = "";
+
+    $(document).ready(function () {
+        FnInitControles();
+    });
+
+    function FnInitControles() {
+        var CallBy = $("#txtCompList_CallBy").val();
+        if (CallBy == "CompCompraEdit") {
+            IdCCSele = $("#txtCompCompEdit_FkCompra").val();
+            FkCompComp = $("#txtCompCompEdit_IdCompComp").val();
+            FnGetGuiaRemisionCompra(IdCCSele, FkCompComp);
+        }
+    }
+
+    function FnSeleccionarGuiaRemisionCompra(pIdTr, IdComp) {
+        var CallBy = $("#txtCompList_CallBy").val();
+        if (CallBy == "CompCompraCreate") {
+            TrSeleGRF = pIdTr;
+
+            FnGetGuiaRemisionCompra(IdComp, null);
+        }
+    }
+
+    function FnGetGuiaRemisionCompra(FkComp, FkCompComp) {
+        var pIdGuiaRemi = "";
+        var pNroGuiaRemi = "";
+        var pFechEmis = "";
+        var pFechTras = "";
+        var pNroComp = "";
+        var pFkProv = "";
+        var pDescProv = "";
+        NroTrGRF = 1;
+        $("#tBodyGuiaRemision tr").remove();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_GuiaRemisionByFkCompraPorFacturar", "GuiaRemision")',
+            data: JSON.stringify({
+                FkComp: FkComp, FkCompComp: FkCompComp
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                var dataLen = response.length;
+                for (i = 0; i < dataLen; i++) {
+                    pIdGuiaRemi = response[i].id_guia_remision;
+                    pNroGuiaRemi = response[i].nro_guia;
+                    pFechEmis = response[i].f_emision;
+                    pFechTras = response[i].f_traslado;
+                    pNroComp = response[i].n_compra;
+                    pFkProv = response[i].fk_proveedor_compra;
+                    pDescProv = response[i].ruc + " - " + response[i].razon_social;
+                    $("#HiddCompFact_FkProv").val(pFkProv);
+                    AddTRTableGuiaRemision(pIdGuiaRemi, pNroGuiaRemi, pFechEmis, pFechTras, pNroComp, pDescProv);
+                    
+                }
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+		});
+    }
+
+    function AddTRTableGuiaRemision(pIdGuiaRemi, pNroGuiaRemi, pFechEmis, pFechTras, pNroComp, pDescProv) {
+        var IdTrGRF = "TrGRF" + NroTrGRF;
+        var TDIdGuiRemi = "TDIdGuiRemi" + IdTrGRF;
+        var TDChk = "TDChk" + IdTrGRF;
+        var TDNroGuiaRemi = "TDNroGuiaRemi" + IdTrGRF;
+        var TDFechEmis = "TDFechEmis" + IdTrGRF;
+        var TDFechTras = "TDFechTras" + IdTrGRF;
+        var TDNroComp = "TDNroComp" + IdTrGRF;
+        var TDProv = "TDProv" + IdTrGRF;
+        var TDCantSald = "TDCantSald" + IdTrGRF;
+        var flgExiste = 0;
+        for (var k = 0; k < arrSaveIDGuiaRemi.length; k++) {
+            if (parseInt(arrSaveIDGuiaRemi[k]) == parseInt(pIdGuiaRemi)) {
+                flgExiste = 1;
+                break;
+            }
+        }
+        var strChkBox = "";
+        if (flgExiste == 1) {
+            strChkBox = '@Html.Bootstrap().CheckBox("form-field-checkbox").Text("").IsChecked(true).HtmlAttributes(new { @class = "colored-success" })';
+        } else {
+            strChkBox = '@Html.Bootstrap().CheckBox("form-field-checkbox").Text("").HtmlAttributes(new { @class = "colored-success" })';
+        }
+
+        var row = $("<tr id='" + IdTrGRF + "'>" +
+            "<td id='" + TDIdGuiRemi + "' class='input-xs' style='display: none;'>" + pIdGuiaRemi + "</td>" +
+            "<td id='" + TDChk + "' style='text-align: center; vertical-align: middle;'>" +
+            strChkBox +
+            "</td>" +
+            "<td id='" + TDNroGuiaRemi + "' class='input-xs' style='text-align: center;'>" + pNroGuiaRemi + "</td>" +
+            "<td id='" + TDFechEmis + "' class='input-xs' style='text-align: center;'>" + pFechEmis + "</td>" +
+            "<td id='" + TDFechTras + "' class='input-xs' style='text-align: center;'>" + pFechTras + "</td>" +
+            "<td id='" + TDNroComp + "' class='input-xs' style='text-align: center;'>" + pNroComp + "</td>" +
+            "<td id='" + TDProv + "' class='input-xs'>" + pDescProv + "</td>" +
+            "</tr>");
+        $("#tBodyGuiaRemision").append(row);
+        NroTrGRF++;
+    }
+</script>
+@model IEnumerable<ERP.Admin.Models.Compra>
+@{
+    int FkProv = 0;
+    string IdTrComp = "";
+    string TDIdComp = "";
+    string TDNroComp = "";
+    string TDCodiProv = "";
+    string TDRucRazoSociProv = "";
+
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("txtCompList_CallBy", CallBy)
+@Html.Hidden("HiddCompFact_FkProv", 0)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Orden de Compra por Facturar > Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableCompra">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id COMPRA
+                            </th>
+                            <th style="display:none">
+                                FK ORDEN COMPRA
+                            </th>
+                            <th>
+                                Nro OC
+                            </th>
+                            <th>
+                                Fecha
+                            </th>
+                            <th style="display: none;">
+                                Cod. Proveedor
+                            </th>
+                            <th>
+                                Proveedor
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FkProv = item.fk_proveedor;
+                            string FechComp = Convert.ToDateTime(item.f_compra).ToString("dd/MM/yyyy");
+                            IdTrComp = "TrComp" + item.id_compra;
+                            TDIdComp = "TDIdComp" + IdTrComp;
+                            TDNroComp = "TDNroComp" + IdTrComp;
+                            TDCodiProv = "TDCodiProv" + IdTrComp;
+                            TDRucRazoSociProv = "TDRucRazoSociProv" + IdTrComp;
+                            <tr id="@IdTrComp" onclick="FnSeleccionarGuiaRemisionCompra('@IdTrComp', @item.id_compra)">
+                                <td id="@TDIdComp" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_compra)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_orden_compra)
+                                </td>
+                                <td id="@TDNroComp" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.n_compra)
+                                </td>
+                                <td class="input-xs">
+                                    @FechComp
+                                </td>
+                                <td id="@TDCodiProv" class="input-xs" style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.cod_proveedor)
+                                </td>
+                                <td id="@TDRucRazoSociProv" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.ruc) - @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.estado)
+                                </td>
+                                <td>
+                                    @if (item.estado == "1")
+                                    {
+                                        <a class="btn btn-success btn-xs" onclick="FnSelecCompra(this)"> Seleccionar</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        
+                    </tbody>
+                </table>
+            </div>
+            <div class="widget-header bordered-bottom bordered-blue">
+                <span class="widget-caption">Guías Emitidas</span>
+            </div>
+            <form role="form">
+                <div class="form-group has-warning has-feedback">
+                    <label class="control-label" for="inputWarning2"> * Se facturan solo guías de remisión finalizadas</label>
+                </div>
+            </form>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableGuias">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id GUIA REMISION
+                            </th>
+                            <th class="hidden-xs">
+                                <i class="fa fa-bars"></i>
+                            </th>
+                            <th>
+                                Nro Guia
+                            </th>
+                            <th>
+                                Fecha Emisión
+                            </th>
+                            <th>
+                                Fecha Traslado
+                            </th>
+                            <th>
+                                Nro OC
+                            </th>
+                            <th>
+                                Proveedor
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="tBodyGuiaRemision"></tbody>
+                </table>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                        @Html.Bootstrap().Button().Text("Aceptar").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnSeleGuiaRemiFacturar()" })
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnSeleGuiaRemiFacturar() {
+        var CallBy = $("#txtCompList_CallBy").val();
+        var arrIdGuiaRemi = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyGuiaRemision');
+        var cantRows = table.rows.length;
+        var newTr = ""; 
+        var FkGuiaRemi = "";
+        var obj = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkGuiaRemi = document.getElementById("TDIdGuiRemi" + newTr).innerHTML;
+                    obj = document.getElementById("TDChk" + newTr).children;
+                    obj = obj[0].children;//Se obtiene el Label
+                    obj = obj[0].children;//Se obtene el check
+                    if (obj[0].checked) {
+                        arrIdGuiaRemi[IndArr] = FkGuiaRemi;
+                        IndArr++;
+                    }
+                }
+            }
+        }
+
+        if (arrIdGuiaRemi.length > 0) {
+            if (CallBy == "CompCompraCreate") {
+                var IdComp = document.getElementById("TDIdComp" + TrSeleGRF).innerHTML.trim();
+                var FkProv = $("#HiddCompFact_FkProv").val();
+                var NroComp = document.getElementById("TDNroComp" + TrSeleGRF).innerHTML.trim();
+                var CodiProv = document.getElementById("TDCodiProv" + TrSeleGRF).innerHTML.trim();
+                var RucRazoSociProv = document.getElementById("TDRucRazoSociProv" + TrSeleGRF).innerHTML.trim();
+                FnAgregaDetalleCompCompra(IdComp, FkProv, NroComp, CodiProv, RucRazoSociProv, arrIdGuiaRemi);
+            }
+            else if (CallBy =="CompCompraEdit") {
+                FnAgregaDetalleCompCompra(arrIdGuiaRemi);
+            }
+            $('#myModalCompra').modal('hide');
+        }
+        else {
+            sweetAlert("", "No ha seleccionado guias para facturar", "error");
+        }
+    }
+
+    //InitiateeditableCompra.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editableCompra').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editableCompra')));
+        var isEditing = null;
+    }
+</script>

@@ -1,0 +1,146 @@
+﻿@using System.Text.RegularExpressions
+@using ERP.Admin.Models
+@{
+    var _cuenta = (List<GastoPersonalErp>)ViewBag.Cuenta;
+    var _ingresos = (List<GastoPersonalErp>)ViewBag.Ingresos;
+
+    
+    int id_gasto_personal = 0;
+    string codigo = "";
+    string IDUSUARIO = "";
+    string IDCODIGOGENERAL = "";
+    string NOMBRES = "";
+    string sf_apertura = "";
+    decimal MONTO = 0;
+    decimal liquidacion = 0;
+    decimal saldo = 0;
+    string sestado = "";
+    string pattern = @"\s";
+    string iniciales = "";
+    Regex expr = new Regex(pattern);
+    decimal total = 0;
+
+    string shortname = (string)ViewBag.ShortName;
+
+    if (_cuenta.Any())
+    {
+        id_gasto_personal = _cuenta[0].id_gasto_personal;
+        codigo = _cuenta[0].codigo;
+        IDUSUARIO = _cuenta[0].IDUSUARIO;
+        IDCODIGOGENERAL = _cuenta[0].IDCODIGOGENERAL;
+        NOMBRES = _cuenta[0].NOMBRES;
+        sf_apertura = _cuenta[0].sf_apertura;
+        MONTO = _cuenta[0].MONTO;
+        //listagasto = _cuenta;
+        MatchCollection matches = expr.Matches(NOMBRES);
+        char primero = NOMBRES.ToCharArray()[0];
+        iniciales = iniciales + primero.ToString();
+        foreach (Match match in matches)
+        {
+            string subnomb = NOMBRES.Substring(match.Index + 1, 1);
+            iniciales = iniciales + subnomb;
+        }
+        total = _cuenta[0].MONTO;
+        liquidacion = _cuenta[0].liquidaciones;
+        saldo = total - liquidacion;
+    }
+    id_gasto_personal = (int)ViewBag.IdCuenta;
+}
+
+@Html.Hidden("id_gasto_personalx", @id_gasto_personal)
+@Html.Hidden("codigox", @codigo)
+@Html.Hidden("IDUSUARIOx", @IDUSUARIO)
+@Html.Hidden("IDCODIGOGENERALx", @IDCODIGOGENERAL)
+@Html.Hidden("NOMBRESx", @NOMBRES)
+@Html.Hidden("sf_aperturax", @sf_apertura)
+@Html.Hidden("MONTOx", @MONTO)
+@Html.Hidden("liquidacionx", @liquidacion)
+@Html.Hidden("saldox", @saldo)
+@Html.Hidden("totalliqx", @total)
+
+@Html.Hidden("sfecha_apertura", "")
+@Html.Hidden("sfecha_operacion", "")
+
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de liquidación</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row" style="margin-bottom: 5px">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-12 control-label" style="text-align: center; font-size: 14px;font-weight: bold">RENDICION DE GASTOS @shortname-@codigo-@iniciales </label>
+                            </div>
+                            <div class="form-group" style="margin: 1px;margin-bottom: 0 !important">
+                                <label class="col-sm-12 control-label" style="text-align: center; font-size: 13px;font-weight: bold">INGRESOS</label>
+                            </div>
+                            <hr style="margin:2px" />
+                        </div>
+                        <div class="row" style="margin: 5px">
+                            <table class="table table-striped table-hover table-bordered" id="tblGasto" style="">
+                                <thead>
+                                    <tr>
+                                        <th style="display:none">ID</th>
+                                        <th style="text-align: center;display:none">ID</th>
+                                        <th style="text-align: center">Fecha</th>
+                                        <th style="text-align: center">Concepto</th>
+                                        <th style="text-align: center">Observaciones</th>
+                                        <th style="text-align: center">Monto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in _ingresos.Where(x => x.estado_detalle.Equals("1")).ToList())
+                                    {
+                                    <tr>
+                                        <td style="display: none;font-size: 11px; padding-bottom: 1px; padding-top: 1px;vertical-align: middle">@item.id_gasto_personal_detalle</td>
+                                        <td style="font-size: 11px; padding-bottom: 1px; padding-top: 1px;vertical-align: middle;display:none">@item.ITEM</td>
+                                        <td style="text-align: center;font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.sf_operacion</td>
+                                        <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.nro_operacion</td>
+                                        <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.observacion</td>
+                                        <td style="text-align: right;font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.monto.ToString("N")</td>
+                                    </tr>
+                                    }
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <td colspan="3" style="text-align: right; color: red;font-weight: bold;vertical-align: middle">TOTAL</td>
+                                        <td style="text-align: right;color: red;font-weight: bold;vertical-align: middle" id="ttotalingreso">@total.ToString("N")</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        <div class="row" style="margin-bottom: 5px">
+                            <div class="col-md-12" style="text-align: center; font-weight: bold">
+                                <label style="text-align: center; margin-bottom: 2px; font-size: 13px;font-weight: bold">EGRESOS</label>
+                                <button type="button" class="btn btn-default btn-sm" onclick="AddDetalle()">
+                                    <span class="glyphicon glyphicon-plus"></span> Agregar
+                                </button>
+                            </div>
+                            <hr style="margin:2px" />
+                        </div>
+                        <div class="row" style="margin-bottom:20px" id="DivTbl">
+
+                        </div>
+                        @*<div class="row" style="margin-bottom: 5px">
+                            <div class="form-group" style="margin: 1px;margin-bottom: 0 !important">
+                                <label class="col-sm-12 control-label" style="text-align: center; font-size: 14px; font-weight: bold; color: red;" id="tsaldo">SALDO DE EFECTIVO EN CAJA S/. @saldo.ToString("N")</label>
+                            </div>
+                            <hr style="margin:2px" />
+                        </div>*@
+                        <div class="row" style="margin-bottom:5px">
+                            <div class="col-md-12" style="text-align: center">
+                                <button class="btn btn-md bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

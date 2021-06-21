@@ -1,0 +1,1629 @@
+﻿@{
+    ViewBag.Title = "Registro de Obligaciones por pagar";
+    ViewBag.Description = "obligaciones";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.ObligacionPagarErp>
+@{
+    decimal saldos = (decimal)ViewBag.DeudaSoles;
+    decimal saldod = (decimal)ViewBag.DeudaDolar;
+    decimal saldoe = (decimal)ViewBag.DeudaEuros;
+}
+<style>
+    .select2-container {
+        font-size: 10px;
+    }
+</style>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <div class="col-sm-1" style="width:40px;padding-left:0;padding-right:0">
+                        AÑO:
+                    </div>
+                    <div class="col-sm-1" style="width:100px;padding-left:0;">
+                        @Html.DropDownList("cmb_anio", new SelectList(new List<Object> {
+                           new { value = "0", text = "" },
+                           new { value = "2019", text = "2019" },
+                           new { value = "2020", text = "2020" },
+                           new { value = "2021", text = "2021" },
+                           new { value = "2022", text = "2022" }
+                       }, "value", "text", 0), new { id = "cmb_anio", @style = "margin-top:1px", @class = "form-control" })
+                    </div>
+                    <div class="col-sm-1" style="width:40px;padding-left:0;padding-right:0">
+                        MES:
+                    </div>
+                    <div class="col-sm-1" style="width:125px;padding-left:0;padding-right:0">
+                        @Html.DropDownList("cmb_mes", new SelectList(new List<Object> {
+                       new { value = "0", text = "" },
+                       new { value = "1", text = "ENERO" },
+                       new { value = "2", text = "FEBRERO" },
+                       new { value = "3", text = "MARZO" },
+                       new { value = "4", text = "ABRIL" },
+                       new { value = "5", text = "MAYO" },
+                       new { value = "6", text = "JUNIO" },
+                       new { value = "7", text = "JULIO" },
+                       new { value = "8", text = "AGOSTO" },
+                       new { value = "9", text = "SETIEMBRE" },
+                       new { value = "10", text = "OCTUBRE" },
+                       new { value = "11", text = "NOVIEMBRE" },
+                       new { value = "12", text = "DICIEMBRE" }
+                   }, "value", "text", 0), new { id = "cmb_mes", @style = "margin-top:1px; width:120px", @class = "form-control" })
+                    </div>
+
+                    <a id="ReportesMensuales" class="btn btn-success" style="width:140px">
+                        Presupuestos
+                    </a>
+                    <a id="ObligacionesCalendario" class="btn btn-danger" style="width:140px" href="@Url.Action("ObligacionesCalendario","Comercial", new {IdTrabajador="" })">
+                        Calendario
+                    </a>
+                    <a id="NewRegistro" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'ObligacionesPorPagar.xls', 'ObligacionesPorPagar')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="row" style="text-align: right">
+                    <div class="col-md-12">
+                        <h5 style="">
+                            <label style="font-weight: 600">Saldo Soles : @saldos.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Dolares : @saldod.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Euros : @saldoe.ToString("N")</label>
+                        </h5>
+                    </div>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size: 10px; overflow-x: auto; white-space: nowrap;padding-bottom: 10px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display: none">
+                                ID
+                            </th>
+                            <th style="display: none">
+                                Sel.
+                            </th>
+                            <th style="font-size: 10px">
+                                RUC
+                            </th>
+                            <th style="font-size: 10px; width:200px !important">
+                                PROVEEDOR
+                            </th>
+                            <th style="font-size: 10px">
+                                MONEDA
+                            </th>
+                            <th style="font-size: 10px">
+                                EMISION
+                            </th>
+                            <th style="font-size: 10px">
+                                VENCIMIENTO
+                            </th>
+                            <th style="font-size: 10px">
+                                TIPO COMP.
+                            </th>
+                            <th style="font-size: 10px">
+                                COMPROBANTE
+                            </th>
+                            <th style="font-size: 10px">
+                                MONTO
+                            </th>
+
+                            <th style="font-size: 10px">
+                                SALDO
+                            </th>
+                            <th style="display:none">
+                                OBSERVACIONES
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string estatu = item.estado;
+
+                            string fechavence = @item.fecha_vencimiento.ToString("dd/MM/yyyy");
+
+                            string fechaemision = @item.fecha_emision.ToString("dd/MM/yyyy");
+                            decimal montox = @item.monto;
+                            decimal saldox = @item.saldo;
+
+                            string disable = "";
+                            <tr>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.id_obligacion_pagar)
+                                </td>
+                                <td style="display: none">
+                                    @if (disable == "disabled")
+                                    {
+                                        /**/
+                                    }
+                                    else
+                                    {
+                                        <label><input type="checkbox" id="@item.id_obligacion_pagar"><span class="text"></span></label>
+                                    }
+
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ruc)
+                                </td>
+                                <td style="width:200px !important">
+                                    @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NOMBRE_CORTO)
+                                </td>
+                                <td>
+                                    @fechaemision
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.df_vencimiento)
+                                </td>
+                                <td style="">
+                                    @Html.DisplayFor(modelItem => item.comprobante_tipo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.documento_referencia)
+                                </td>
+                                <td>
+                                    @montox.ToString("N")
+                                </td>
+
+                                <td>
+                                    @saldox.ToString("N")
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.observacion)
+                                </td>
+                                <td style="width: 100px; text-align: center; vertical-align: middle">
+                                    @if (estatu == "1")
+                                    {
+                                        <button class="btn btn-sm btn-primary edita" data-toggle="tooltip" title="Editar Registro" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-edit"></i></button>
+                                        <button class="btn btn-sm btn-danger elimina" data-toggle="tooltip" title="Eliminar Registro" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-erase"></i></button>
+                                        <button class="btn btn-sm btn-success detalles" data-toggle="tooltip" title="Ver Detalles" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-list"></i></button>
+                                    }
+                                    else
+                                    {
+                                        @Html.Raw("ANULADO")
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:1080px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPagos' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagos'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPagosR' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:400px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagosR'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalNewBloque' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNewBloque'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/assets/css/pure-min.css" rel="stylesheet" />
+
+    <script src="~/assets/js/mindmup-editabletable.js"></script>
+
+    <script src="~/Scripts/fullcalendar39/divjs.js"></script>
+
+    <script src="~/Scripts/fullcalendar39/printThis.js"></script>
+    <script>
+        var id_obligacion_pagar = 0;
+
+        var NroTrCDD = 1;
+
+        function FnDeleteDetalle(obj) {
+            var IdTRsele = obj.parentElement.parentElement.id;
+            var tr = $("#" + IdTRsele);
+            tr.remove();
+
+        }
+
+        $('#myModalNewBloque').on('hide.bs.modal',
+            function (e) {
+                window.location.reload();
+            });
+        $("#myModalNewBloque").on('shown.bs.modal',
+            function (e) {
+
+        });
+
+
+
+        $('#myModalPagos').on('hide.bs.modal',
+            function(e) {
+                window.location.reload();
+            });
+        $("#myModalPagos").on('shown.bs.modal',
+            function(e) {
+                $(document).ready(function() {
+                    //debugger;
+                    var muestradetalle = $("#muestrabtn");
+                    muestradetalle.click();
+                });
+
+            });
+
+        function EliminaPago(idpago) {
+            //debugger;
+            id_save = idpago.trim();
+            id_save = parseInt(id_save);
+
+            swal({
+                title: '¿Está seguro?',
+                text: "Se va a eliminar el registro!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Si!'
+            }).then((result) => {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminaPagoCtaProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_obligacion_pagar: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function(data) {
+                        console.log(data);
+                        id_obligacion_pagar = data;
+                        if (parseInt(id_obligacion_pagar, 10) > 0) {
+                            swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                console.log("salirs");
+                                window.location.reload();
+                            });
+
+                        } else {
+                            sweetAlert("", "No se pudo eliminar!", "error");
+                            id_obligacion_pagar = 0;
+                        }
+                    }
+                });
+                },
+                function(dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+        };
+
+
+        function setName(jsonData) {
+            debugger;
+            var lengt = jsonData.length;
+            if (lengt > 0) {
+                for (var i = 0; i < lengt; i++) {
+                    var id = jsonData[i].id_obligacion_pagar;
+                    var nrooperacion = jsonData[i].nro_operacion_pago;
+                    var montopago = jsonData[i].monto_pago;
+                    var fpago = jsonData[i].sfpago;
+
+                    var IdTr = "IdTr" + id;
+                    var TdIdPago = "TdIdPago" + IdTr;
+                    var row = $("<tr id='" +
+                        IdTr +
+                        "'>" +
+                        "<td id='" +
+                        TdIdPago +
+                        "' class='input-xs' style='display: none;'>" +
+                        id +
+                        "</td>" +
+                        "<td style='text-align: left; vertical-align: middle;'>" +
+                        nrooperacion +
+                        "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" +
+                        montopago.toFixed(2) +
+                        "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" +
+                        fpago +
+                        "</td>" +
+                        "<td class='input-xs'><button type='button' class='btn btn-sm btn-danger' onclick=EliminaPago('" +
+                        id +
+                        "') data-toggle='tooltip' title='Eliminar Registro'  style='padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px'><i class='glyphicon glyphicon-erase'></i></button></td>" +
+                        "</tr>");
+                    $("#detallepagos").append(row);
+
+
+                }
+            }
+            //document.getElementById("ldetalle").innerHTML = jsonData[0].IDMONEDA;
+        };
+
+        $('#myModalPagosR').on('hide.bs.modal',
+            function(e) {
+                window.location.reload();
+            });
+        $('#myModalPagosR').on('shown.bs.modal',
+            function(e) {
+
+                $(document).ready(function () {
+                    $('.date-pickerIniPago').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_pago').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                });
+
+                $("#GuardarPago").click(function() {
+                    debugger;
+
+                    var id_save = 0;
+                    var fecha_pago = $("#sfecha_pago").val();
+                    var txtNroOperacionPago = $("#txtNroOperacionPago").val();
+                    var txtMontoPago = $("#txtMontoPago").val();
+                    var detraccion_estados = document.getElementById("chkdetra").checked;
+                    var tipo = '2';
+                    if (detraccion_estados === true) {
+                        tipo = '1';
+                    }
+                    if (fecha_pago === '') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDescripcion").focus();
+                        return false;
+                    }
+                    if (txtMontoPago === '' || txtMontoPago === '0') {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    var fk_obligacion_pagar = parseInt($("#id_obligacion_pagarx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaPagoProveedor", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_obligacion_pagar: fk_obligacion_pagar,
+                            f_pago: fecha_pago,
+                            nro_operacion: txtNroOperacionPago,
+                            monto: txtMontoPago,
+                            tipo: tipo
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_obligacion_pagar = data;
+                            if (parseInt(id_obligacion_pagar, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_obligacion_pagar = 0;
+                            }
+                        }
+                    });
+
+                });
+            });
+
+        $('#myModalNew').on('hide.bs.modal',
+            function(e) {
+                window.location.reload();
+            });
+
+        function FnCheckTipo() {
+                    //debugger;
+                    var fk_obligacion_tipo = $("#cmbfk_obligacion_tipo").val();
+                    fk_obligacion_tipo = parseInt(fk_obligacion_tipo, 10);
+
+                    if (fk_obligacion_tipo > 0) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetTipoObligacion", "Comercial")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ fk_obligacion_tipo: fk_obligacion_tipo }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(response) {
+
+                                var found = JSON.stringify(response).replace('"', '');
+                                found = found.replace('"', '');
+
+                                $('#stipoobligacion').val(found);
+                                //if (found === "2") {
+                                //    console.log("found: " + found);
+                                //    $('#div1').css("visibility", "hidden");
+                                //    $('#div1').css("height", "0");
+                                //    $('#div11').css("visibility", "hidden");
+                                //    $('#div11').css("height", "0");
+                                //} else {
+                                //    $('#div1').css("visibility", "");
+                                //    $('#div1').css("height", "auto");
+                                //    $('#div11').css("visibility", "");
+                                //    $('#div11').css("height", "auto");
+                                //}
+                            },
+                            error: function(request, status, error) {
+                                alert(request.responseText);
+                            }
+                        });
+                    }
+        }
+        function FnCheckFactura() {
+                    //debugger;
+                    var fk_empresa = $("#cmbfk_empresa").val();
+                    fk_empresa = parseInt(fk_empresa, 10);
+                    var fk_comprobantetipo = $("#cmbfk_comprobantetipo").val();
+                    fk_comprobantetipo = parseInt(fk_comprobantetipo, 10);
+                    var docx = $("#txtDocumento").val();
+                    var lengthd = 0;
+                    try {
+                        lengthd = docx.length;
+                    } catch (e) {
+
+                    }
+                    if (docx != "" && lengthd > 0 && fk_comprobantetipo > 0 && fk_empresa > 0) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetFacturaExist", "Comercial")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ doc: docx, fk_comprobantetipo: fk_comprobantetipo, fk_empresa: fk_empresa }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(response) {
+                                console.log("found: " + JSON.stringify(response));
+                                var found = parseInt(JSON.stringify(response), 10);
+                                if (found > 0) {
+                                    swal("", "El documento ya ha sido registrado anteriormente!", "error");
+                                    $("#txtDocumento").val('');
+                                }
+                            },
+                            error: function(request, status, error) {
+                                alert(request.responseText);
+                            }
+                        });
+                    }
+        }
+        function stringToDate(_date,_format,_delimiter)
+        {
+            var formatLowerCase=_format.toLowerCase();
+            var formatItems=formatLowerCase.split(_delimiter);
+            var dateItems=_date.split(_delimiter);
+            var monthIndex=formatItems.indexOf("mm");
+            var dayIndex=formatItems.indexOf("dd");
+            var yearIndex=formatItems.indexOf("yyyy");
+            var month=parseInt(dateItems[monthIndex]);
+            month-=1;
+            var formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
+            return formatedDate;
+        }
+        function SumaDias(emision, dias) {
+            //var tt = document.getElementById('txtDate').value;
+            //debugger;
+            //var date = new Date(emision);
+            var date = stringToDate(emision, "dd/MM/yyyy", "/");
+            //var newdate = new Date(date);
+            var newdate = stringToDate(emision, "dd/MM/yyyy", "/");
+
+            newdate.setDate(newdate.getDate() + dias);
+
+            var dd = ("00" + newdate.getDate()).slice(-2);
+            var mnm = newdate.getMonth() + 1;
+            var mm = ("00" + mnm).slice(-2);
+            var y = newdate.getFullYear();
+
+            var someFormattedDate = dd + '/' + mm + '/' + y;
+            return someFormattedDate;
+        }
+
+        function FnChangeTipoCronograma(obj) {
+            $("#letrastablesbody").empty();
+            if (obj.checked == false) {
+                $('#stipocronograma').val(1);
+                $('#txtDias').val("0");
+                $('#txtDias').prop('disabled', false);
+            }
+            else {
+                $('#stipocronograma').val(2);
+                $('#txtDias').val(0);
+                $('#txtDias').prop('disabled', true);
+            }
+        }
+        function FnChangeTipoCronograma2() {
+            var fk_tipo_check = $("#cmbfk_tipo").val();
+            fk_tipo_check = parseInt(fk_tipo_check, 10);
+            debugger;
+            if (fk_tipo_check === 1) {
+                $("#letrastablesbody").empty();
+                    $('#stipocronograma').val(2);
+                    $('#txtDias').val(0);
+                    $('#txtDias').prop('disabled', true);
+            }else if (fk_tipo_check === 2) {
+                $("#letrastablesbody").empty();
+                    $('#stipocronograma').val(3);
+                    $('#txtDias').val(0);
+                    //$('#txtInteres').val(0);
+                    //$('#txtMontoCuotaInicial').val(0);
+                    //$('#txtMontoCuota').val(0);
+                    $('#txtDias').prop('disabled', true);
+            }else if (fk_tipo_check === 3) {
+                $("#letrastablesbody").empty();
+                    $('#stipocronograma').val(4);
+                    $('#txtDias').val(0);
+                    $('#txtDias').prop('disabled', true);
+            }
+            else {
+                $('#stipocronograma').val(0);
+                $('#txtDias').val("0");
+                $('#txtDias').prop('disabled', false);
+            }
+
+        }
+        function Getdayhabil(cuotas, dia, opcion) {
+            var result="";
+            $.ajax({
+                    type: 'POST',
+                url: '@Url.Action("GetPrimerDiaHabilErp", "Comercial")',
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    cuotas: cuotas, diab : dia,opcion:opcion
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function(data) {
+                    console.log(data);
+                    result = data;
+                }
+            });
+            return result;
+        };
+
+        function GeneraLetras() {
+            
+            var cmbfk_obligacion_tipo = $('#cmbfk_obligacion_tipo').val();
+            if (cmbfk_obligacion_tipo === '' || cmbfk_obligacion_tipo === '0') {
+                swal("", "Debe seleccionar un tipo de obligación!", "error");
+                $("#cmbfk_obligacion_tipo").focus();
+                return false;
+            }
+
+            var tipoobligacion = $('#stipoobligacion').val();
+            var tipocronograma = $('#stipocronograma').val();
+            var montocuotainicial = $("#txtMontoCuotaInicial").val();
+            if (montocuotainicial === '' && tipoobligacion === '1') {
+                swal("", "Debe ingresar cuota inicial, si no hay ingrese 0!", "error");
+                $("#txtMontoCuotaInicial").focus();
+                return false;
+            }
+
+            var montocuota = $("#txtMontoCuota").val();
+            if (montocuota === '' && tipoobligacion === '1') {
+                swal("", "Debe ingresar monto de la cuota, si no hay ingrese 0!", "error");
+                $("#txtMontoCuota").focus();
+                return false;
+            }
+
+            var monto = $("#txtMonto").val();
+            if (monto === "" || monto === "0") {
+                swal("", "Ingrese monto correcto!", "error");
+                return;
+            }
+
+            var nro_letras = $("#txtNro_letras").val();
+            if ((nro_letras === '' || nro_letras === "0") && tipoobligacion === '1') {
+                swal("", "Debe ingresar cuotas!", "error");
+                $("#txtNro_letras").focus();
+                return false;
+            }
+
+            var dias = $("#txtDias").val();
+            if ((dias === '' || dias === "0") && tipoobligacion === '1' && tipocronograma === '1') {
+                swal("", "Debe ingresar dias!", "error");
+                $("#txtDias").focus();
+                return false;
+            }
+
+            var emision = $("#txtEmision").val();
+            if (emision === "") {
+                swal("", "Seleccione fecha de emision correcta!", "error");
+                return;
+            }
+
+            monto = parseFloat(monto);
+            nro_letras = parseInt(nro_letras, 10);
+            dias = parseInt(dias, 10);
+            montocuotainicial = parseFloat(montocuotainicial);
+            montocuota = parseFloat(montocuota);
+            var cuota = 0;
+            if (montocuota > 0) {
+                cuota = montocuota;
+            } else {
+                cuota = parseFloat(monto) / parseFloat(nro_letras);
+            }
+            $("#letrastablesbody").empty();
+            if (montocuotainicial > 0) {
+                var ix = 0;
+                var IdTr = "IdTr" + ix;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + ix + "</td>" +
+                        "<td id='Nro"+IdTr+"' style='text-align: left; vertical-align: middle;'>" + ix + "</td>" +
+                        "<td id='LetraNro"+IdTr+"' style='text-align: center; vertical-align: middle;'>CUOTA INICIAL</td>" +
+                        "<td id='Cuota"+IdTr+"' style='text-align: center;'>" + montocuotainicial.toFixed(2) + "</td>" +
+                        "<td id='Vence"+IdTr+"' style='text-align: center;'>" + emision + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'></td>" +
+                        "</tr>");
+                    $("#letrastablesbody").append(row);
+            }
+            if (tipocronograma === '2') {   //DIA HABIL
+                debugger;
+                var fvence = SumaDias(emision, dias * 1);
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                var dias = Getdayhabil(nro_letras, fvence, 'primer');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                for (var i = 0; i < diasleng; i++) {
+                    var y = parseInt(i, 10) + parseInt(1, 10);
+                    debugger;
+                    var IdTr = "IdTr" + y;
+                        var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                        var row = $("<tr id='" + IdTr + "'>" +
+                            "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                            "<td id='Nro"+IdTr+"' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                            "<td id='LetraNro"+IdTr+"' style='text-align: left; vertical-align: middle;'></td>" +
+                            "<td id='Cuota"+IdTr+"' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                            "<td id='Vence"+IdTr+"' style='text-align: center;'>" + dias[i] + "</td>" +
+                            "<td class='uneditable' style='text-align: center;'></td>" +
+                            "</tr>");
+                        $("#letrastablesbody").append(row);
+                }
+            } else if (tipocronograma === '3') {   //proyeccion quincena
+                debugger;
+                var fvence = SumaDias(emision, dias * 1);
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                var dias = Getdayhabil(nro_letras, fvence, 'quince');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                for (var i = 0; i < diasleng; i++) {
+                    var y = parseInt(i, 10) + parseInt(1, 10);
+                    debugger;
+                    var IdTr = "IdTr" + y;
+                        var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                        var row = $("<tr id='" + IdTr + "'>" +
+                            "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                            "<td id='Nro"+IdTr+"' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                            "<td id='LetraNro"+IdTr+"' style='text-align: left; vertical-align: middle;'></td>" +
+                            "<td id='Cuota"+IdTr+"' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                            "<td id='Vence"+IdTr+"' style='text-align: center;'>" + dias[i] + "</td>" +
+                            "<td class='uneditable' style='text-align: center;'></td>" +
+                            "</tr>");
+                        $("#letrastablesbody").append(row);
+                }
+            }
+                else if (tipocronograma === '4') {   //fin HABIL
+                debugger;
+                var fvence = SumaDias(emision, dias * 1);
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                var dias = Getdayhabil(nro_letras, fvence, 'fin');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                for (var i = 0; i < diasleng; i++) {
+                    var y = parseInt(i, 10) + parseInt(1, 10);
+                    debugger;
+                    var IdTr = "IdTr" + y;
+                        var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                        var row = $("<tr id='" + IdTr + "'>" +
+                            "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                            "<td id='Nro"+IdTr+"' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                            "<td id='LetraNro"+IdTr+"' style='text-align: left; vertical-align: middle;'></td>" +
+                            "<td id='Cuota"+IdTr+"' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                            "<td id='Vence"+IdTr+"' style='text-align: center;'>" + dias[i] + "</td>" +
+                            "<td class='uneditable' style='text-align: center;'></td>" +
+                            "</tr>");
+                        $("#letrastablesbody").append(row);
+                }
+            }
+            else {
+                debugger;
+                for (var i = 1; i <= nro_letras; i++) {
+                var fvence = SumaDias(emision, dias * i);
+                var IdTr = "IdTr" + i;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + i + "</td>" +
+                        "<td id='Nro"+IdTr+"' style='text-align: left; vertical-align: middle;'>" + i + "</td>" +
+                        "<td id='LetraNro"+IdTr+"' style='text-align: left; vertical-align: middle;'></td>" +
+                        "<td id='Cuota"+IdTr+"' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                        "<td id='Vence"+IdTr+"' style='text-align: center;'>" + fvence + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'></td>" +
+                        "</tr>");
+                    $("#letrastablesbody").append(row);
+            }
+            }
+
+
+            $('#letrastables').editableTableWidget();
+            $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	            return false;
+            });
+            $('#letrastables td').on('change', function (evt, newValue) {
+                debugger;
+                var indexcell = evt.currentTarget.cellIndex;
+                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                if (indexcell === 1) {
+                    return false;
+                }
+                else if (indexcell === 2) {
+                    try {
+                        var nuevo = parseFloat(newValue);
+                        if (Number.isNaN(nuevo)) {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                else if (indexcell === 4) {
+                    try {
+                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                        console.log(mydate.toDateString());
+                        if (mydate.toDateString() === 'Invalid Date') {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+            });
+        }
+
+        $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	            return false;
+            });
+            $('#letrastables td').on('change', function (evt, newValue) {
+                debugger;
+                var indexcell = evt.currentTarget.cellIndex;
+                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                if (indexcell === 1) {
+                    return false;
+                }
+                else if (indexcell === 2) {
+                    try {
+                        var nuevo = parseFloat(newValue);
+                        if (Number.isNaN(nuevo)) {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                else if (indexcell === 4) {
+                    try {
+                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                        console.log(mydate.toDateString());
+                        if (mydate.toDateString() === 'Invalid Date') {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+            });
+        $('#myModalNew').on('shown.bs.modal',
+            function(e) {
+
+                $("#txtDocumento").blur(function () {
+                    //FnCheckFactura();
+                });
+
+                $(document).ready(function() {
+                    //debugger;
+                    $('#cmbfk_empresa').select2();
+                    $('.date-pickerIni').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_operacion').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+
+                    $('.date-pickerFini').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_vencimiento').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                    $('#letrastables').editableTableWidget();
+                    $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	                    return false;
+                    });
+                    $('#letrastables td').on('change', function (evt, newValue) {
+                        debugger;
+                        var indexcell = evt.currentTarget.cellIndex;
+                        var indexrow = evt.currentTarget.parentElement.rowIndex;
+                        if (indexcell === 1) {
+                            return false;
+                        }
+                        else if (indexcell === 2) {
+                            try {
+                                var nuevo = parseFloat(newValue);
+                                if (Number.isNaN(nuevo)) {
+                                    return false;
+                                }
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                        else if (indexcell === 4) {
+                            try {
+                                var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                                console.log(mydate.toDateString());
+                                if (mydate.toDateString() === 'Invalid Date') {
+                                    return false;
+                                }
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+
+                    });
+                });
+                function stringToDate(_date,_format,_delimiter)
+                {
+                            var formatLowerCase=_format.toLowerCase();
+                            var formatItems=formatLowerCase.split(_delimiter);
+                            var dateItems=_date.split(_delimiter);
+                            var monthIndex=formatItems.indexOf("mm");
+                            var dayIndex=formatItems.indexOf("dd");
+                            var yearIndex=formatItems.indexOf("yyyy");
+                            var month=parseInt(dateItems[monthIndex]);
+                            month-=1;
+                            var formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
+                            return formatedDate;
+                }
+
+
+
+                var idx = $("#id_obligacion_pagarx").val();
+                var fk_comprobante_tiposxx = $("#fk_comprobante_tiposx").val();
+                var fk_obligacion_tiposxx = $("#fk_obligacion_tiposx").val();
+                var fk_proveedorsxx = $("#fk_proveedorsx").val();
+                var IDUSUARIOsxx = $("#IDUSUARIOsx").val();
+                var IDMONEDAsxx = $("#IDMONEDAsx").val();
+                var documentosxx = $("#documentosx").val();
+                var afecta_detraccionsxx = $("#afecta_detraccionsx").val();
+                var monto_detraccionsxx = $("#monto_detraccionsx").val();
+
+                var f_emisionsxx = $("#f_emisionsx").val();
+                var f_vencimientosxx = $("#f_vencimientosx").val();
+                var montosxx = $("#montosx").val();
+                var f_registrosxx = $("#f_registrosx").val();
+                var monedasxx = $("#monedasx").val();
+                var razon_socialsxx = $("#razon_socialsx").val();
+                var observacionsxx = $("#observacionsx").val();
+
+                var nro_letraxx = $("#nro_letrax").val();
+                var nro_letrasxx = $("#nro_letrasx").val();
+                var num_cuotaxx = $("#num_cuotax").val();
+                var saldosxx = $("#saldosx").val();
+                var interesxx = $("#interesx").val();
+                var diassxx = $("#diassx").val();
+                var cuota_inicialxx = $("#cuota_inicialx").val();
+                var monto_cuotaxx = $("#monto_cuotax").val();
+
+
+                if (idx != "0") {
+                    //debugger;
+                    $("#cmbfk_empresa").val(fk_proveedorsxx).trigger('change');
+                    $("#cmbfk_comprobantetipo").val(fk_comprobante_tiposxx).trigger('change');
+                    $("#cmbfk_obligacion_tipo").val(fk_obligacion_tiposxx);
+                    $("#txtDocumento").val(documentosxx);
+                    $("#cmbidmoneda").val(IDMONEDAsxx);
+                    $("#txtMonto").val(montosxx);
+                    $("#cmb_AfectaDetraccion").val(afecta_detraccionsxx);
+                    $("#txtMontoDetraccion").val(monto_detraccionsxx);
+                    $("#txtEmision").val(f_emisionsxx);
+                    $("#sfecha_operacion").val(f_emisionsxx);
+                    $("#txtFin").val(f_vencimientosxx);
+                    $("#sfecha_vencimiento").val(f_vencimientosxx);
+                    $("#txtObservacion").val(observacionsxx);
+                    $("#cmbfk_tipo").prop('disabled', true);
+                    $("#cmbfk_comprobantetipo").prop('disabled', true);
+
+                    document.getElementById("txtNro_letras").value = nro_letrasxx
+                    $("#txtNro_letras").prop('disabled', true);
+                    document.getElementById("txtInteres").value = interesxx;
+                    $("#txtInteres").prop('disabled', true);
+                    document.getElementById("txtDias").value = diassxx;
+                    $("#txtDias").prop('disabled', true);
+                    document.getElementById("txtMontoCuotaInicial").value = cuota_inicialxx;
+                    $("#txtMontoCuotaInicial").prop('disabled', true);
+
+                    document.getElementById("txtMontoCuota").value = monto_cuotaxx;
+                    $("#txtMontoCuota").prop('disabled', true);
+                    debugger;
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetObligacionPagarErpId", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_obligacion_pagar: idx
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log('data.length: ' + data.length);
+                            var datalenght = parseInt(data.length);
+                            if (datalenght ==1) {
+
+                            } else {
+
+
+                            for (var i = 0; i < data.length; i++) {
+                                var dat  =new Date(parseInt(data[i].fecha.replace(/(^.*\()|([+-].*$)/g, '')));
+                                var fechavencimiento = dat.getDate()+ "/" + (dat.getMonth()+1)  + "/" +dat.getFullYear();
+
+                                    //new Date(parseInt(data[i].fecha_vencimiento.substr(6)));
+
+
+                                var datp  =new Date(parseInt(data[i].fecha_pago.replace(/(^.*\()|([+-].*$)/g, '')));
+                                var fechapago = datp.getDate() + "/" + (datp.getMonth() + 1) + "/" + datp.getFullYear();
+
+                                console.log("fechapago: " + fechapago);
+                                if (fechapago ==='NaN/NaN/NaN') {
+                                    fechapago = "";
+                                }
+
+                                var IdTr = "IdTr" + data[i].id_obligacion_pagar_detalle;
+                                var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                                var row = $("<tr id='" + IdTr + "'>" +
+                                "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + data[i].id_obligacion_pagar_detalle + "</td>" +
+                                "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + data[i].nro_letra + "</td>" +
+                                "<td id='LetraNro" + IdTr + "' style='text-align: left; vertical-align: middle;'>"+data[i].letra_numero+"</td>" +
+                                "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + data[i].monto_detalle.toFixed(2) + "</td>" +
+                                "<td id='Vence" + IdTr + "' style='text-align: center;'>" + fechavencimiento + "</td>" +
+                                "<td class='uneditable' style='text-align: center;'>"+fechapago+"</td>" +
+                                "</tr>");
+                                $("#letrastablesbody").append(row);
+                            }
+                            $('#letrastables').editableTableWidget();
+                            $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	                            return false;
+                            });
+                            $('#letrastables td').on('change', function (evt, newValue) {
+                                debugger;
+                                var indexcell = evt.currentTarget.cellIndex;
+                                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                                if (indexcell === 1) {
+                                    return false;
+                                }
+                                else if (indexcell === 2) {
+                                    try {
+                                        var nuevo = parseFloat(newValue);
+                                        if (Number.isNaN(nuevo)) {
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        return false;
+                                    }
+                                }
+                                else if (indexcell === 4) {
+                                    try {
+                                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                                        console.log(mydate.toDateString());
+                                        if (mydate.toDateString() === 'Invalid Date') {
+                                            return false;
+                                        }
+                                    } catch (e) {
+                                        return false;
+                                    }
+                                }
+
+                            });
+                                }
+                        }
+                    });
+
+
+
+
+
+
+
+
+
+
+                }
+
+                $("#GuardarEntidad").click(function() {
+                    //debugger;
+                    var id_save = 0;
+                    var cantfilas = 0;
+                    var tipoobligacion = $('#stipoobligacion').val();
+                    try {
+                        cantfilas = $("#letrastables td").closest("tr").length;
+
+                    } catch (e) {
+
+                    }
+
+                    var cmbfk_empresa = $("#cmbfk_empresa").val();
+                    var cmbfk_obligacion_tipo = $("#cmbfk_obligacion_tipo").val();
+                    var sfecha_operacion = $("#sfecha_operacion").val();
+                    var cmbfk_comprobantetipo = $("#cmbfk_comprobantetipo").val();
+                    var txtDocumento = $("#txtDocumento").val();
+                    var cmbidmoneda = $("#cmbidmoneda").val();
+                    var txtMonto = $("#txtMonto").val();
+                    var txtNro_letras = $("#txtNro_letras").val();
+                    var txtInteres = $("#txtInteres").val();
+                    var txtDias = $("#txtDias").val();
+                    var txtMontoCuotaInicial = $("#txtMontoCuotaInicial").val();
+                    var txtMontoCuota = $("#txtMontoCuota").val();
+
+                    //var sfecha_vencimiento = $("#sfecha_vencimiento").val();
+                    //var txtObservacion = $("#txtObservacion").val();
+                    var txtObservacion = '';
+
+                    if (cmbfk_empresa === '') {
+                        swal("", "Debe seleccionar un proveedor!", "error");
+                        $("#cmbfk_empresa").focus();
+                        return false;
+                    }
+                    if (cmbfk_obligacion_tipo === '' || cmbfk_obligacion_tipo === '0') {
+                        swal("", "Debe seleccionar un tipo de obligación!", "error");
+                        $("#cmbfk_obligacion_tipo").focus();
+                        return false;
+                    }
+
+                    if (txtNro_letras === '' && tipoobligacion === '1') {
+                        swal("", "Debe ingresar cuotas!", "error");
+                        $("#txtNro_letras").focus();
+                        return false;
+                    } else if (txtNro_letras === '' && tipoobligacion === '2') {
+                        txtNro_letras = 0;
+                    } else if (txtNro_letras != '' && tipoobligacion === '2') {
+                        txtNro_letras = 0;
+                    }
+
+                    if (txtInteres === '' && tipoobligacion === '1') {
+                        swal("", "Debe ingresar interes, si no hay ingrese 0!", "error");
+                        $("#txtInteres").focus();
+                        return false;
+                    } else if (txtInteres === '' && tipoobligacion === '2') {
+                        txtInteres = 0;
+                    } else if (txtInteres != '' && tipoobligacion === '2') {
+                        txtInteres = 0;
+                    }
+
+                    if (txtDias === '' && tipoobligacion === '1') {
+                        swal("", "Debe ingresar dias!", "error");
+                        $("#txtDias").focus();
+                        return false;
+                    } else if (txtDias === '' && tipoobligacion === '2') {
+                        txtDias = 0;
+                    } else if (txtDias != '' && tipoobligacion === '2') {
+                        txtDias = 0;
+                    }
+
+                    if (txtMontoCuotaInicial === '' && tipoobligacion === '1') {
+                        swal("", "Debe ingresar cuota inicial, si no hay ingrese 0!", "error");
+                        $("#txtMontoCuotaInicial").focus();
+                        return false;
+                    } else if (txtMontoCuotaInicial === '' && tipoobligacion === '2') {
+                        txtMontoCuotaInicial = 0;
+                    } else if (txtMontoCuotaInicial != '' && tipoobligacion === '2') {
+                        txtMontoCuotaInicial = 0;
+                    }
+
+                    if (txtMontoCuota === '' && tipoobligacion === '1') {
+                        swal("", "Debe ingresar monto de la cuota, si no hay ingrese 0!", "error");
+                        $("#txtMontoCuota").focus();
+                        return false;
+                    } else if (txtMontoCuota === '' && tipoobligacion === '2') {
+                        txtMontoCuota = 0;
+                    } else if (txtMontoCuota != '' && tipoobligacion === '2') {
+                        txtMontoCuota = 0;
+                    }
+
+                    if (cantfilas === 0 && tipoobligacion === '1') {
+                        swal("", "No se ha generado cronograma de pagos!", "error");
+                        $("#txtNro_letras").focus();
+                        return false;
+                    }
+                    else if (cantfilas > 0 /*&& tipoobligacion === '1'*/) {
+                        FnLlenaArrayLetras();
+                    }
+
+
+
+
+
+                    if (cmbfk_empresa === '' ||
+                        cmbfk_comprobantetipo === '' ||
+                        sfecha_operacion === '' ||
+                        cmbidmoneda === '' ||
+                        txtDocumento === '' ||
+                        cmbfk_obligacion_tipo === '' ||
+                        cmbfk_obligacion_tipo === '0') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDocumento").focus();
+                        return false;
+                    }
+                    if (txtMonto === '' || txtMonto === '0') {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    id_save = parseInt($("#id_obligacion_pagarx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaObligacionPagar", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_empresa: cmbfk_empresa,
+                            fk_obligacion_tipo: cmbfk_obligacion_tipo,
+                            fk_comprobantetipo: cmbfk_comprobantetipo,
+                            documento: txtDocumento,
+                            IDMONEDA: cmbidmoneda,
+                            monto: txtMonto,
+                            nro_letras: txtNro_letras,
+                            interes: txtInteres,
+                            dias: txtDias,
+                            f_emision: sfecha_operacion,
+                            montocuotainicial: txtMontoCuotaInicial,
+                            montocuota: txtMontoCuota,
+                            //f_vencimiento: sfecha_vencimiento,
+                            observacion: txtObservacion,
+                            arrLetras: arrLetras
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_obligacion_pagar = data;
+                            if (parseInt(id_obligacion_pagar, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_obligacion_pagar = 0;
+                            }
+                        }
+                    });
+
+                });
+
+            });
+        var arrLetras = new Array();
+        function FnLlenaArrayLetras() {
+            
+            arrLetras = [];
+            var IndArr = 0;
+            var table = document.getElementById('letrastablesbody');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            var Nro = "";
+            var LetraNro = "";
+            var Cuota = "";
+            var Vence = "";
+            var IdPagoDet = "";
+            if (cantRows > 0) {
+
+                for (var i = 0; i < cantRows; i++) {
+                    debugger;
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        Nro = document.getElementById("Nro" + newTr).innerHTML;
+                        LetraNro = document.getElementById("LetraNro" + newTr).innerHTML;
+                        Cuota = document.getElementById("Cuota" + newTr).innerHTML;
+                        Vence = document.getElementById("Vence" + newTr).innerHTML;
+                        IdPagoDet = document.getElementById("TdIdPago" + newTr).innerHTML;
+                        arrLetras[IndArr] = new Array(5);
+                        arrLetras[IndArr][0] = Nro;
+                        arrLetras[IndArr][1] = LetraNro;
+                        arrLetras[IndArr][2] = Cuota;
+                        arrLetras[IndArr][3] = Vence;
+                        arrLetras[IndArr][4] = IdPagoDet;
+                        IndArr++;
+                    }
+                }
+            }
+        }
+
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).on('click',
+            '.detalles',
+            function() {
+                debugger;
+                var tableRow = $(this).closest("tr");
+                id_obligacion_pagar = tableRow.find("td:eq(0)").text();
+                id_obligacion_pagar = id_obligacion_pagar.trim();
+                console.log("idgeneral: " + id_obligacion_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("IndexDetallesObligacion", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_obligacion_pagar: id_obligacion_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentPagos').html(response);
+                        $('#myModalPagos').modal(options);
+                        $('#myModalPagos').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+
+        $(document).on('click',
+            '.edita',
+            function() {
+                debugger;
+                var tableRow = $(this).closest("tr");
+                id_obligacion_pagar = tableRow.find("td:eq(0)").text();
+                id_obligacion_pagar = id_obligacion_pagar.trim();
+                console.log("idgeneral: " + id_obligacion_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroObligacionPagarErp", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_obligacion_pagar: id_obligacion_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNew').html(response);
+                        $('#myModalNew').modal(options);
+                        $('#myModalNew').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.agregar',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_obligacion_pagar = tableRow.find("td:eq(0)").text();
+                id_obligacion_pagar = id_obligacion_pagar.trim();
+                console.log("idgeneral: " + id_obligacion_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroPagoProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_obligacion_pagar: id_obligacion_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentPagosR').html(response);
+                        $('#myModalPagosR').modal(options);
+                        $('#myModalPagosR').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.elimina',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                var id_save = tableRow.find("td:eq(0)").text();
+                id_save = id_save.trim();
+
+                var monto = tableRow.find("td:eq(8)").text();
+                monto = parseFloat(monto);
+
+                var saldo = tableRow.find("td:eq(12)").text();
+                saldo = parseFloat(saldo);
+                if (saldo < monto) {
+                    swal("", "Existen pagos activos!", "error");
+                }
+
+                swal({
+                    title: '¿Está seguro?',
+                    text: "Se va a eliminar el registro!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Si!'
+                }).then((result) => {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("EliminaCtaObligacion", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_obligacion_pagar: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_obligacion_pagar = data;
+                            if (parseInt(id_obligacion_pagar, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    window.location.reload();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo eliminar!", "error");
+                                id_obligacion_pagar = 0;
+                            }
+                        }
+                    });
+                    },
+                    function(dismiss) {
+                        if (dismiss === 'cancel' || dismiss === 'close') {
+                            // ignore
+                        }
+                    });
+            });
+
+
+        //$("#ObligacionesCalendario").click(function () {
+
+        //});
+
+
+        $("#BloquePago").click(function () {
+            debugger;
+            var id = "";
+            arrCuentas = [];
+            var IndArr = 0;
+            $("#editabledatatable input[type=checkbox]:checked").each(function () {
+                var row = $(this).closest("tr")[0];
+                id = row.cells[0].innerHTML;
+                arrCuentas[IndArr] = new Array(1);
+                //arrCuentas[IndArr][0] = IndArr;
+                arrCuentas[IndArr][0] = id.trim();
+                IndArr++;
+
+            });
+            if (arrCuentas.length > 0) {
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("PagoBloqueCuentaPagarProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data:
+                        JSON.stringify({
+                            arrCuentas: arrCuentas
+                        }),
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNewBloque').html(response);
+                        $('#myModalNewBloque').modal(options);
+                        $('#myModalNewBloque').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            } else {
+                swal("", "Debe seleccionar una cuenta!", "error");
+            }
+            //Display selected Row data in Alert Box.
+            //alert(arrCuentas.length);
+            return false;
+        });
+        $("#ReportesMensuales").click(function() {
+            // debugger;
+            var cmb_anio = $("#cmb_anio").val();
+            var cmb_mes = $("#cmb_mes").val();
+            if (cmb_anio ==='0') {
+                sweetAlert("", "Seleccione año!", "error");
+                return;
+            }
+            if (cmb_mes ==='0') {
+                sweetAlert("", "Seleccione mes!", "error");
+                return;
+            }
+            var url = '@Url.Action("PrintPresupuestoView", "Comercial")?cmb_anio=' + cmb_anio+'&cmb_mes='+cmb_mes;
+            window.open(url, "_blank")
+        });
+        $("#NewRegistro").click(function() {
+            // debugger;
+            id_obligacion_pagar = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroObligacionPagarErp", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_obligacion_pagar: id_obligacion_pagar },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            Inicia();
+
+        });
+
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+                //"scrollY": "auto",
+                //"scrollCollapse": true
+
+            });
+
+
+        }
+    </script>
+
+}
+
+
+

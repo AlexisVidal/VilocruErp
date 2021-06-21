@@ -1,0 +1,165 @@
+﻿<script type="text/javascript">
+</script>
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Conductor > Nuevo</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">DNI <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input type="text" id="txtCondNew_DNI" data-mask="99999999" class="form-control" placeholder="DNI">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-6 control-label" style="text-align: right;">Fecha Nacimiento <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input id="txtCondNew_FechNaci" data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" type="text">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Nombres <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCondNew_Nomb").Placeholder("Nombres").HtmlAttributes(new { style = "text-transform: uppercase" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right;">A. Paterno <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCondNew_ApelPate").Placeholder("Apel. Paterno").HtmlAttributes(new { style = "text-transform: uppercase" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right;">A. Materno <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCondNew_ApelMate").Placeholder("Apel. Materno").HtmlAttributes(new { style = "text-transform: uppercase" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Nro. Licencia <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCondNew_NroLice").Placeholder("Nro Licencia").HtmlAttributes(new { style = "text-transform: uppercase" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Conductor <sup>*</sup></label>
+                                <div class="col-md-6">
+                                    <input id="txtCondNew_Emai" class="form-control" placeholder="Email" type="email" style = "text-transform: uppercase">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("btnSaveNewConductor").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnGuardarConductor()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerCondCreate" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#spinnerCondCreate").hide();
+        //Inicia();
+        $('#spinnerCondCreate').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnGuardarConductor() {
+        var NombPers = $("#txtCondNew_Nomb").val();
+        var ApelPatePers = $("#txtCondNew_ApelPate").val();
+        var ApelMatePers = $("#txtCondNew_ApelMate").val();
+        var FechNaciPers = $("#txtCondNew_FechNaci").val();
+        var EmaiPers = $("#txtCondNew_Emai").val();
+        var DniPers = $("#txtCondNew_DNI").val();
+        var NroLiceCond = $("#txtCondNew_NroLice").val();
+        var flgError = 0;
+        if (NombPers.trim() == "") {
+            sweetAlert("", "Ingrese Nombre", "error");
+            flgError = 1;
+        } else if (ApelPatePers.trim() == "") {
+            sweetAlert("", "Ingrese Apellido Paterno", "error");
+            flgError = 1;
+        } else if (ApelMatePers.trim() == "") {
+            sweetAlert("", "Ingrese Apellido Materno", "error");
+            flgError = 1;
+        } else if (FechNaciPers.trim() == "") {
+            sweetAlert("", "Ingrese Fecha de Nacimiento", "error");
+            flgError = 1;
+        } else if (EmaiPers.trim() == "") {
+            sweetAlert("", "Ingrese Email", "error");
+            flgError = 1;
+        } else if (DniPers.trim() == "") {
+            sweetAlert("", "Ingrese DNI", "error");
+            flgError = 1;
+        } else if (NroLiceCond.trim() == "") {
+            sweetAlert("", "Ingrese Nro de Licencia", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveNewConductor", "Conductor")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    NombPers: NombPers, ApelPatePers: ApelPatePers, ApelMatePers: ApelMatePers, FechNaciPers: FechNaciPers,
+                    EmaiPers: EmaiPers, DniPers: DniPers, NroLiceCond: NroLiceCond
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCondCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: 'Exito!',
+                        text: data,
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'Ok'
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCondCreate').length > 0) {
+                        $('#spinnerCondCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+</script>

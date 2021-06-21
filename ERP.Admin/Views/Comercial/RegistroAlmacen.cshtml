@@ -1,0 +1,88 @@
+﻿@using ERP.Admin.Models
+@{
+    var _almacs = (Almacen)ViewBag.Almacen;
+    int id_almacen = 0;
+    string cod_almacens = "";
+    string ubicacions = "";
+    string nombres = "";
+    if (_almacs != null)
+    {
+        id_almacen = _almacs.id_almacen;
+        cod_almacens = _almacs.cod_almacen;
+        ubicacions = _almacs.ubicacion;
+        nombres = _almacs.nombre;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_almacenx", @id_almacen)
+@Html.Hidden("cod_almacensx", @cod_almacens)
+@Html.Hidden("ubicacionsx", @ubicacions)
+@Html.Hidden("nombresx", @nombres)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de almacen</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Nombre <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("nombre").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Nombre")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Codigo <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("cod_almacen").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Codigo - 6 caracteres")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Ubicacion <sup>*</sup></label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextBox("ubicacion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Ubicacion")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarAlmacen").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+}
+
+
+
+

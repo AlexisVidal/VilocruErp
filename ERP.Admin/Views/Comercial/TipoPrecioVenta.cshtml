@@ -1,0 +1,392 @@
+﻿@{
+    ViewBag.Title = "Registro de Tipo de precios";
+    ViewBag.Description = "tipoprecios";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.TipoPrecioVenta>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="NewRegistro" class="btn btn-danger">
+                        Nuevo registro
+                    </a>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_tipo_precio_venta)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.nombre)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.porcentaje)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NEstado)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_tipo_precio_venta)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.nombre)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.porcentaje)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-primary edita" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+                                    <button class="btn btn-sm btn-danger elimina" style="padding: 2px; font-size: small; margin-top: -5px">Desactivar</button><br />
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:350px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        var id_tipo_precio_venta = 0;
+        $('#myModalNew').on('hide.bs.modal', function (e) {
+            window.location.reload();
+        });
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+            var idx = $("#id_tipo_precio_ventax").val();
+            var nombressx = $("#nombresx").val();
+            var porcentajessx = $("#porcentajesx").val();
+
+            if (idx != "0") {
+                $("#nombre").val(nombressx);
+                $("#porcentaje").val(porcentajessx);
+            }
+
+            $("#Guardar").click(function () {
+                debugger;
+                var respueta = '';
+                var id_save = 0;
+                var nombre = $("#nombre").val();
+                var porcentaje = $("#porcentaje").val();
+
+
+                if (nombre === '' || porcentaje === '' ) {
+                    sweetAlert("", "Datos Incompletos", "error");
+                    $("#nombre").focus();
+                    return false;
+                }
+                id_save = parseInt($("#id_tipo_precio_ventax").val(), 10);
+                if (id_save == 0) {
+                    respueta = " registró ";
+                }else{
+                    respueta = " actualizó ";
+                }
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Guardar", "TipoPrecioVenta")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_tipo_precio_venta: id_tipo_precio_venta, nombre: nombre, porcentaje: porcentaje
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_tipo_precio_venta = data;
+                            if (parseInt(id_tipo_precio_venta, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Tipo Precio Venta se'+ respueta + 'correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                    })
+                                console.log("salirs");
+                                $("#btnCancel").click();
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_tipo_precio_venta = 0;
+                            }
+                        }
+                    });
+
+            });
+        });
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+
+        $(document).on('click', '.edita', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    id_tipo_precio_venta = tableRow.find("td:eq(0)").text();
+                    id_tipo_precio_venta = id_tipo_precio_venta.trim();
+                    console.log("idgeneral: " + id_tipo_precio_venta);
+                    var options = { "backdrop": "static", keyboard: false };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("Registro", "TipoPrecioVenta")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { id_tipo_precio_venta: id_tipo_precio_venta },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentNew').html(response);
+                            $('#myModalNew').modal(options);
+                            $('#myModalNew').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+        $(document).on('click', '.elimina', function () {
+                    debugger;
+                    var tableRow = $(this).closest("tr");
+                    var id_save = tableRow.find("td:eq(0)").text();
+                    id_save = id_save.trim();
+                    var statux = tableRow.find("td:eq(3)").text();
+                    statux = statux.trim();
+                    console.log("status: " + statux);
+                    var options = { "backdrop": "static", keyboard: false };
+                    if (statux == "ACTIVO") {
+                        $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Elimina", "TipoPrecioVenta")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_tipo_precio_venta: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_tipo_precio_venta = data;
+                            if (parseInt(id_tipo_precio_venta, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'TipoPrecioVenta se desactivó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                    })
+                                console.log("salirs");
+                                //$("#btnCancel").click();
+                                window.location.reload();
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_tipo_precio_venta = 0;
+                            }
+                        }
+                    });
+                    }
+
+                    return false;
+        });
+
+        $(document).on('click', '.activa', function () {
+            //debugger;
+            var tableRow = $(this).closest("tr");
+            var id_save = tableRow.find("td:eq(0)").text();
+            id_save = id_save.trim();
+            var statux = tableRow.find("td:eq(3)").text();
+            statux = statux.trim();
+            console.log("status: " + statux);
+            var options = { "backdrop": "static", keyboard: false };
+            if (statux == "INACTIVO") {
+                $.ajax({
+                    type: 'POST',
+                    //url: "SaveTraslado",
+                    url: '@Url.Action("Elimina", "TipoPrecioVenta")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_tipo_precio_venta: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (data) {
+                        console.log(data);
+                        id_producto = data;
+                        if (parseInt(id_producto, 10) > 0) {
+                            swal({
+                                title: 'Exito!',
+                                text: 'TipoPrecioVenta se activó correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                            }, function () {
+
+                            })
+                            console.log("salirs");
+                            window.location.reload();
+                        } else {
+                            sweetAlert("", "No se pudo registrar!", "error");
+                            id_producto = 0;
+                        }
+                    }
+                });
+            }
+
+            return false;
+        });
+        $("#NewRegistro").click(function () {
+            //debugger;
+            id_tipo_precio_venta = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Registro", "TipoPrecioVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_tipo_precio_venta: id_tipo_precio_venta },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            Inicia();
+
+        });
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                        //,
+                        //{
+                        //    "sExtends": "collection",
+                        //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                        //    "aButtons": ["csv", "xls", "pdf"]
+                        //}
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+            var isEditing = null;
+
+        }
+    </script>
+
+}
+
+
+
+
+
+
+

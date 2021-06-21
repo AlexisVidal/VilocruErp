@@ -1,0 +1,178 @@
+﻿@using ERP.Admin.Models
+@{
+    var _entidadp = (ProductoPrecioVenta)ViewBag.ProductoPrecioVenta;
+    int id_producto_precio_venta = 0;
+    int fk_productos = 0;
+    int fk_precio_compras = 0;
+    decimal precio_unidads = 0;
+    decimal precio_mayors = 0;
+    decimal precio_especials = 0;
+    decimal precio_unidadps = 0;
+    decimal precio_mayorps = 0;
+    decimal precio_especialps = 0;
+    decimal tipo_cambios = 0;
+
+    int fk_tipo_monedas = 0;
+
+
+    int fkproducto = Convert.ToInt32(ViewBag.ProductoID);
+    int fkpreciocompra = Convert.ToInt32(ViewBag.FkPrecioCompra);
+    string nombreproductos = Convert.ToString(ViewBag.NomProducto);
+    decimal preciocompra = Convert.ToDecimal(ViewBag.PrecioCompra);
+    decimal preciocomprasoles = Convert.ToDecimal(ViewBag.PrecioFinalSoles);
+    int fktipomoneda = Convert.ToInt32(ViewBag.TipoMoneda);
+    string moneda = ViewBag.Moneda;
+    decimal tipocambio = Convert.ToDecimal(ViewBag.TipoCambio);
+
+    if (_entidadp != null)
+    {
+        id_producto_precio_venta = _entidadp.id_producto_precio_venta;
+        fk_productos = _entidadp.fk_producto;
+        fk_precio_compras = _entidadp.fk_precio_compra;
+        precio_unidads = _entidadp.precio_unidad;
+        precio_mayors = _entidadp.precio_mayor;
+        precio_especials = _entidadp.precio_especial;
+        precio_unidadps = _entidadp.precio_unidadp;
+        precio_mayorps = _entidadp.precio_mayorp;
+        precio_especialps = _entidadp.precio_especialp;
+        tipo_cambios = _entidadp.tipo_cambio;
+        fk_tipo_monedas = _entidadp.fk_tipo_moneda;
+    }
+    else
+    {
+        fk_productos = fkproducto;
+        fk_precio_compras = fkpreciocompra;
+        fk_tipo_monedas = fktipomoneda;
+        tipo_cambios = tipocambio;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+
+@Html.Hidden("id_producto_precio_ventax", @id_producto_precio_venta)
+@Html.Hidden("fk_productosx", @fk_productos)
+@Html.Hidden("fk_precio_comprasx", @fk_precio_compras)
+@Html.Hidden("precio_unidadsx", @precio_unidads)
+@Html.Hidden("precio_mayorsx", @precio_mayors)
+@Html.Hidden("precio_especialsx", @precio_especials)
+
+@Html.Hidden("precio_unidadpsx", @precio_unidadps)
+@Html.Hidden("precio_mayorpsx", @precio_mayorps)
+@Html.Hidden("precio_especialpsx", @precio_especialps)
+@Html.Hidden("tipo_cambiosx", @tipo_cambios)
+
+@Html.Hidden("preciocompraf", @preciocompra)
+@Html.Hidden("preciocomprasoles", @preciocomprasoles)
+@Html.Hidden("fk_tipo_monedas", @fk_tipo_monedas)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de producto</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-4 control-label" style="text-align:left;margin-right:0;padding-right:15px;font-size:13px">PRODUCTO: @nombreproductos </label>
+                                <label class="col-sm-4 control-label" style="text-align:left;margin-right:0;padding-right:15px;font-size:13px">MONEDA: @moneda </label>
+                                <label class="col-sm-4 control-label" style="text-align:left;margin-right:0;padding-right:15px;font-size:13px">P. COMPRA: @preciocompra</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:140px">Tipo de cambio <sup>*</sup></label>
+                                <div class="col-md-3" style="width:90px">
+                                    @Html.Bootstrap().TextBox("tipo_cambio").HtmlAttributes(new { @onkeyup = "CalculaPrecioVenta(this)", @onkeypress = "return isNumber(event)" }).Placeholder("Tipo cambio S/.")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-4 control-label" style="text-align:left;margin-right:0;padding-right:15px;font-size:13px;width:150px">P. COMPRA SOLES: </label>
+                                <label class="col-sm-4 control-label" id="pcomprasoles" style="text-align:left;margin-right:0;padding-right:15px;font-size:13px">@preciocomprasoles</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-4 control-label" style="text-align:center;/*width:120px*/">Precio Unidad </label>
+                                <label class="col-sm-4 control-label" style="text-align:center;/*width:120px*/">Precio x Mayor </label>
+                                <label class="col-sm-4 control-label" style="text-align:center;/*width:120px*/">Precio Especial </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">% </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_unidadp").HtmlAttributes(new { @onkeyup = "CalculaPVUnidad(this)", @onkeypress = "return isNumber(event)" }).Placeholder("Unidad")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">% </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_mayorp").HtmlAttributes(new { @onkeyup = "CalculaPVMayor(this)", @onkeypress = "return isNumber(event)" }).Placeholder("x Mayor")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">% </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_especialp").HtmlAttributes(new { @onkeyup = "CalculaPVEspecial(this)", @onkeypress = "return isNumber(event)" }).Placeholder("Especial")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">Valor: </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_unidad").HtmlAttributes(new { @onkeyup = "CalculaPVUnidadP(this)", @onkeypress = "return isNumber(event)" }).Placeholder("Unidad")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">Valor: </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_mayor").HtmlAttributes(new { @onkeyup = "CalculaPVMayorP(this)", @onkeypress = "return isNumber(event)" }).Placeholder("x Mayor")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">Valor: </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_especial").HtmlAttributes(new { @onkeyup = "CalculaPVEspecialP(this)", @onkeypress = "return isNumber(event)" }).Placeholder("Especial")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}
+
+
+
+
+
+

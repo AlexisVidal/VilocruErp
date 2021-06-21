@@ -1,0 +1,111 @@
+﻿
+
+@using ERP.Admin.Models
+@{
+    var _productoTipo = (ProductoTipoErp)ViewBag.ProductoTipo;
+    int id_producto_tipo = 0;
+    int fkproductolinea = 0;
+    string codigo_tipo = "";
+    string abreviatura_tipo = "";
+    string producto_tipo = "";
+    if (_productoTipo != null)
+    {
+        id_producto_tipo = _productoTipo.id_producto_tipo;
+        codigo_tipo = _productoTipo.codigo_tipo;
+        abreviatura_tipo = _productoTipo.abreviatura_tipo;
+        producto_tipo = _productoTipo.producto_tipo;
+        fkproductolinea = _productoTipo.fk_producto_linea;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_producto_tipox", @id_producto_tipo)
+@Html.Hidden("codigo_tipox", @codigo_tipo)
+@Html.Hidden("abreviatura_tipox", @abreviatura_tipo)
+@Html.Hidden("producto_tipox", @producto_tipo)
+@Html.Hidden("fk_producto_lineasx", @fkproductolinea)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de tipo</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        @Html.Hidden("id_producto_tipo_save", 0)
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Linea <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.DropDownList("txtValBus_linea", new SelectList(ViewBag.ProductoLinea, "id_producto_linea", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductolinea")
+                                    @Html.Hidden("productolinea")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Abreviatura <sup>*</sup></label>
+                                <div class="col-md-3" style="width:150px">
+                                    @Html.Bootstrap().TextBox("abreviatura_tipo").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Abreviatura")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Codigo <sup>*</sup></label>
+                                <div class="col-md-3" style="width:100px">
+                                    @Html.Bootstrap().TextBox("codigo_tipo").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Codigo")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Descripcion <sup>*</sup></label>
+                                <div class="col-md-3" style="width:350px">
+                                    @Html.Bootstrap().TextBox("producto_tipo").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" , @style="form-control"}).Placeholder("Descripcion")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarTipo").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            @Html.Hidden("idqrpalets")
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <link href="~/assets/css/jquery-ui.css" rel="stylesheet" />
+    <script src="~/assets/js/jquery-ui.1.11.4.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#myModal').on('shown.bs.modal', function (e) {
+
+            });
+        });
+        if ($('#chkUsuario').is(':checked')) {
+            console.log("chekeado");
+        }
+
+        //--Bootstrap Date Picker--
+        $('.date-picker').datepicker();
+    </script>
+}
+
+

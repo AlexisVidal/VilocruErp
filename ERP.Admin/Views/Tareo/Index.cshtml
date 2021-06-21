@@ -1,0 +1,293 @@
+﻿@{
+    ViewBag.Title = "Registro de Asistencias";
+    ViewBag.Description = "asistencia";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    //ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    string tipousuario = (string)ViewBag.IDUSUARIOTIPO;
+    string urlink = (string)ViewBag.UrlLink;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@Html.Hidden("idtipousuario", @tipousuario)
+@using System
+@model IEnumerable<ERP.Admin.Models.ControlIngresoErp>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                PERIODO:
+                @Html.DropDownList("cmbCompVent_FilterPeriodo", new SelectList(ViewBag.Periodos, "PERIODO", "PERIODO", selectedValue: ""), new { id = "cmbCompVent_FilterPeriodo", @style = "margin-top:2px" })
+            <div class="widget-buttons">
+                @if (Request.UrlReferrer != null)
+                {
+                    <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                }
+                <a id="NewPersona" class="btn btn-primary NewPersona" style="padding-left: 10px;padding-right: 10px" href="@Url.Action("GetDetalleControl","Tareo", new {IDCONTROLINGRESO="" })">
+                    Nuevo
+                </a>
+                <a href="#" onclick="return Exporter.export(editabledatatable2, 'Asistencias.xls', 'PERSONAL')">
+                    <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+                <a href="#" data-toggle="maximize">
+                    <i class="fa fa-expand"></i>
+                </a>
+                <a href="#" data-toggle="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+                <a href="#" data-toggle="dispose">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+            </div>
+            <div class="widget-body">
+                <div id="DivTbl" onload="hidespinner()"></div>
+                @*<table class="table table-striped table-hover table-bordered" id="editabledatatable2" style="font-size: 11px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display: none">
+                                IDCONTROLINGRESO
+                            </th>
+                            <th style="font-size: 11px">
+                                FECHA ASISTENCIA
+                            </th>
+                            <th style="font-size: 11px">
+                                PERIODO
+                            </th>
+                            <th style="font-size: 11px">
+                                USUARIO
+                            </th>
+                            <th style="font-size: 11px">
+                                FECHA CREACION
+                            </th>
+                            <th style="font-size: 11px">
+                                ESTADO
+                            </th>
+                            <th style="font-size: 11px">
+                                HUELLERO
+                            </th>
+                            <th style="font-size: 11px">
+                                PROCESADO
+                            </th>
+                            <th style="font-size: 11px">
+                                FICHA
+                            </th>
+                            <th style="width: 140px">
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            var IDCONTROLINGRESO = "TrId" + item.IDCONTROLINGRESO;
+                            var fecha = item.FECHA.ToString("d");
+                            var fechacreacion = item.FECHACREACION.ToString("d");
+                            var estatus = item.IDESTADO;
+                            string urlinktr = @urlink + "/" + @item.ficha_tareo;
+
+                            <tr>
+                                <td id="@IDCONTROLINGRESO" style="display: none">
+                                    @Html.DisplayFor(modelItem => item.IDCONTROLINGRESO)
+                                </td>
+                                <td class="input-xs">
+                                    @fecha
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.PERIODO)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.IDUSUARIO)
+                                </td>
+                                <td class="input-xs">
+                                    @fechacreacion
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.Ngenerado_zktime)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Nprocesado)
+                                </td>
+                                <td>
+                                    @if (item.ficha_tareo != "")
+                                    {
+                                        <a href=@urlinktr>@item.ficha_tareo</a>
+                                    }
+
+                                </td>
+                                <td style="text-align: center; width: 140px">
+                                    @if (estatus == "PE")
+                                    {
+                                        <a class="btn btn-info btn-sm edita" style="padding: 2px; font-size: small; margin-top: -5px" href="@Url.Action("GetDetalleControl", "Tareo", new {IDCONTROLINGRESO = item.IDCONTROLINGRESO})">Editar</a>
+                                        if (@tipousuario == "ADM")
+                                        {
+                                            <a class="btn btn-danger btn-sm elimina" style="padding: 2px; font-size: small; margin-top: -5px">Eliminar</a>
+                                        }
+                                    }
+                                    else
+                                    {
+
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>*@
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    @*<script src="~/assets/js/datatables4/Buttons-1.5.6/js/buttons.bootstrap4.js"></script>
+    <link href="~/assets/js/datatables4/Buttons-1.5.6/css/buttons.bootstrap4.css" rel="stylesheet"/>*@
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        $(document).ready(function() {
+            //Inicia();
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend",
+                function() {
+                    $(this).show();
+                }).bind("ajaxComplete",
+                function() {
+                    $(this).hide();
+                });
+            $('#loading').hide().ajaxStart(function() {
+                $(this).show();
+            }).ajaxStop(function() {
+                $(this).hide();
+            });
+
+            $("#cmbCompVent_FilterPeriodo").change(function () {
+                loadDivTblRegistros();
+            });
+        });
+        function loadDivTblRegistros() {
+            var CallBy = "Asistencia";
+            var EstaFilt = $("#cmbCompVent_FilterPeriodo").val();
+            var url = "../Tareo/ListRegistros?EstaFilt=" + EstaFilt;
+            $('#DivTbl').html('');
+            $('#DivTbl').load(url);
+        }
+        function Inicia() {
+            oTable = $('#editabledatatable2').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        "copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+
+
+        }
+
+        $(document).on('click',
+            '.elimina',
+            function() {
+                debugger;
+                var tableRow = $(this).closest("tr");
+                var IDCONTROLINGRESO = tableRow.find("td:eq(0)").text();
+                IDCONTROLINGRESO = IDCONTROLINGRESO.trim();
+                swal({
+                    title: '¿Está seguro?',
+                    text: "Se va a eliminar una cabecera de asistencia!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Si!'
+                }).then((result) => {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("EliminaControlIngreso", "Tareo")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            IDCONTROLINGRESO: IDCONTROLINGRESO
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            iddeleted = data;
+                            if (iddeleted != "") {
+                                swal({
+                                        title: 'Exito!',
+                                        text: 'Se eliminó correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function() {
+                                    window.location.reload();
+                                });
+                                
+                                
+                            } else {
+                                swal("", "No se pudo eliminar!", "error");
+                                iddeleted = "";
+                            }
+                        }
+                    });
+                });
+            });
+    </script>
+
+}

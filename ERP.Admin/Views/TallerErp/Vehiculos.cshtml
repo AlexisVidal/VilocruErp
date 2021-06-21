@@ -1,0 +1,712 @@
+﻿@{
+    ViewBag.Title = "Registro de vehiculos";
+    ViewBag.Description = "vehiculos";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+
+    string urlink = (string)ViewBag.UrlLink;
+    //urlink = urlink.Replace("~", "");
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.VehiculoErp>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="NewRegistro" class="btn btn-primary" style="width:60px" href="@Url.Action("RegistroVehiculo","TallerErp", new {id_save="" })">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'Vehiculo.xls', 'Vehiculo')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size: 11px; white-space: nowrap;padding-bottom: 10px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display: none">
+                                ID
+                            </th>
+                            <th style="display: none">
+                                IDEQUIPO
+                            </th>
+                            <th style="display: none">
+                                IDTIPOEQUIPO
+                            </th>
+                            <th style="display: none">
+                                IDPRODUCTOMARCA
+                            </th>
+                            <th style="display: none">
+                                IDCARROCERIA
+                            </th>
+                            <th style="display: none">
+                                EQUIPO
+                            </th>
+                            <th style="font-size: 11px">
+                                TIPO EQUIPO
+                            </th>
+                            <th style="font-size: 11px">
+                                MARCA
+                            </th>
+                            <th style="font-size: 11px">
+                                CARROCERIA
+                            </th>
+                            <th style="font-size: 11px">
+                                CODIGO
+                            </th>
+                            <th style="font-size: 11px">
+                                MODELO
+                            </th>
+                            <th style="font-size: 11px">
+                                SERIE
+                            </th>
+                            <th style="font-size: 11px">
+                                PLACA
+                            </th>
+                            <th style="font-size: 11px">
+                                AÑO
+                            </th>
+                            <th style="font-size: 11px">
+                                IMAGEN
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string estatu = item.estado;
+                            string prelink = @item.image_url.Replace("~", "").Trim();
+                            int indexquitar = prelink.IndexOf("/vehiculos/");
+                            prelink = prelink.Substring(indexquitar + 11);
+                            string urlinktr = @urlink + "/" + prelink;
+                            <tr>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.id_vehiculo)
+                                </td>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.fk_equipo)
+                                </td>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.fk_tipo_equipo)
+                                </td>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.fk_vehiculo_marca)
+                                </td>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.fk_carroceria)
+                                </td>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.equipo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.tipo_equipo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.marca)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.carroceria)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.codigo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.modelo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.serie)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.placa)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.anio_fabricacion)
+                                </td>
+                                <td>
+                                    <a href="@urlinktr" target="_blank">Ver</a>
+                                </td>
+                                <td style="width: 200px; text-align: center; vertical-align: middle">
+                                    @if (estatu == "1")
+                                    { 
+                                        <a class="btn btn-sm btn-primary edita" style="padding: 2px; font-size: small; margin-top: -5px" href="@Url.Action("RegistroVehiculo","TallerErp", new {id_save=item.id_vehiculo })">Editar</a>
+                                        <button class="btn btn-sm btn-danger input-sm elimina" data-toggle="tooltip" title="Eliminar Registro" style="padding: 2px; font-size: small; margin-top: -5px">Eliminar</button>
+
+
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:1050px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalProducto' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:60%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentProducto'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        var id_producto = 0;
+        var NroTr = 1;
+        var NroTrCDD = 1;
+        var arrDetalles = new Array();
+        function FnDeleteDetalle(obj) {
+            var IdTRsele = obj.parentElement.parentElement.id;
+            var tr = $("#" + IdTRsele);
+            tr.remove();
+            FnCalculaTotal();
+        }
+
+        function FnListaProducto(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            var EstaPro = "1";
+            $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ListaProductos", "ProductoErp")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        CallBy: pCallBy, EstaPro: EstaPro
+                    }),
+                    dataType: 'html',
+                    success: function (response) {
+                        $('#myModalContentProducto').html(response);
+                        $('#myModalProducto').modal(options);
+                        $('#myModalProducto').modal('show');
+                    },
+                    error: function (request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+        }
+        function FnValidaExisteAgregado(IdProdBusq) {
+            var table = document.getElementById('tBodyCompDeta');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            var NewFkIdProd = "";
+            var flgExisteReturn = 0;
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        NewFkIdProd = document.getElementById("TDIdProd" + newTr).innerHTML;
+                        if (IdProdBusq.trim() == NewFkIdProd.trim()) {
+                            flgExisteReturn = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            return flgExisteReturn;
+        }
+
+        $('#myModalNew').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+        function FnChangePrecDetalle(obj) {
+            var IdTRsele = obj.parentElement.parentElement.id;
+            var newCant = parseInt(obj.value);
+            if (newCant <= 0) {
+                sweetAlert("", "Precio No Válido", "error");
+                obj.value = 0;
+                document.getElementById("TDSubTotaDeta" + IdTRsele).innerHTML = 0;
+                obj.focus();
+            } else {
+                FnCalculaSubTotal(IdTRsele);
+            }
+        }
+        function FnChangeCantDetalle(obj) {
+            var IdTRsele = obj.parentElement.parentElement.id;
+            var newCant = parseInt(obj.value);
+            if (newCant <= 0) {
+                sweetAlert("", "Cantidad No Válida", "error");
+                obj.value = 1;
+                obj.focus();
+            } else {
+                FnCalculaSubTotal(IdTRsele);
+            }
+        }
+    function FnCalculaTotal() {
+        debugger;
+            var tblOCDeta = document.getElementById('tBodyCompDeta');
+            var cantRowsTblOCDeta = tblOCDeta.rows.length;
+            var newTrTblOCDeta = "";
+            var SumSubTota = 0;
+            var FkMuesPale = "";
+            var FkInstLote = "";
+            if (cantRowsTblOCDeta > 0) {
+                for (var i = 0; i < cantRowsTblOCDeta; i++) {
+                    newTrTblOCDeta = tblOCDeta.rows[i].id;
+                    if (newTrTblOCDeta.trim() != "") {
+                        SumSubTota = SumSubTota + parseFloat(document.getElementById("TDSubTotaDeta" + newTrTblOCDeta).innerHTML);
+                    }
+                }
+            }
+            document.getElementById("TDTotalOrdeComp").innerHTML = SumSubTota.toFixed(2);
+        }
+        function FnCalculaTotalOC() {
+            //debugger;
+            var tblOCDeta = document.getElementById('tBodyCompDeta');
+            var cantRowsTblOCDeta = tblOCDeta.rows.length;
+            var newTrTblOCDeta = "";
+            var SumSubTota = 0;
+            var FkMuesPale = "";
+            var FkInstLote = "";
+            if (cantRowsTblOCDeta > 0) {
+                for (var i = 0; i < cantRowsTblOCDeta; i++) {
+                    newTrTblOCDeta = tblOCDeta.rows[i].id;
+                    if (newTrTblOCDeta.trim() != "") {
+                        SumSubTota = SumSubTota + parseFloat(document.getElementById("TDSubTotaDeta" + newTrTblOCDeta).innerHTML);
+                    }
+                }
+            }
+            document.getElementById("TDTotalOrdeComp").innerHTML = SumSubTota.toFixed(2);
+        }
+
+        function FnCalculaSubTotal(IdTRsele) {
+            var objTxtCant = document.getElementById("TDTxtCantDeta" + IdTRsele).children;
+            var newCant = objTxtCant[0].value;
+            var objTxtPrec = document.getElementById("TDTxtPrecDeta" + IdTRsele).children;
+            var newPrec = objTxtPrec[0].value;
+            var newSubTota = 0;
+            newSubTota = newCant * newPrec;
+            document.getElementById("TDSubTotaDeta" + IdTRsele).innerHTML = newSubTota.toFixed(2);;
+
+            FnCalculaTotal();
+        }
+
+
+        $('#myModalNew').on('shown.bs.modal',
+            function(e) {
+
+                $(document).ready(function() {
+                    $('#txtValBus_Proveedor').select2();
+                    $('#txtValBus_Personal').select2();
+                    $('#txtValBus_Proyecto').select2();
+                    $('#txtValBus_Almacen').select2();
+                    $('#txtValBus_Moneda').select2();
+                    $('.date-pickerFecha').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_compra').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                });
+
+                var idx = $("#id_comprax").val();
+                var fkordencompraxx = $("#fkordencomprax").val();
+                var idusuarioxx = $("#idusuariox").val();
+                var fkempresaxx = $("#fkempresax").val();
+                var ncompraxx = $("#ncomprax").val();
+                var fcompraxx = $("#fcomprax").val();
+                var motivocierrexx = $("#motivocierrex").val();
+                var agenciatransportexx = $("#agenciatransportex").val();
+                var observacionxx = $("#observacionx").val();
+                var estadoxx = $("#estadox").val();
+                var idcodigogeneralxx = $("#idcodigogeneralx").val();
+                var nroguiaxx = $("#nroguiax").val();
+                var fkproyectoxx = $("#fkproyectox").val();
+                var fkalmacenxx = $("#fkalmacenx").val();
+                var nro_facturaxx = $("#nro_facturax").val();
+                var creditoxx = $("#creditox").val();
+
+                if (creditoxx === '1') {
+                    $('#chkcredito').prop('checked', true);
+                } else {
+                    $('#chkcredito').prop('checked', false);
+                }
+
+                var IDMONEDAxx = $("#IDMONEDAx").val();
+
+
+
+                if (idx != "0") {
+                    //debugger;
+                    $("#txtValBus_Proveedor").val(fkempresaxx).trigger('change');
+
+                    $("#txtFecha").val(fcompraxx);
+                    $("#sfecha_compra").val(fcompraxx);
+                    $("#txtValBus_Personal").val(idcodigogeneralxx).trigger('change');
+                    $("#nro_guia").val(nroguiaxx);
+                    $("#txtValBus_Proyecto").val(fkproyectoxx).trigger('change');
+                    $("#txtValBus_Almacen").val(fkalmacenxx).trigger('change');
+                    $("#txtValBus_Moneda").val(IDMONEDAxx).trigger('change');
+                    $("#nro_guia").val(nroguiaxx);
+                    $("#nro_factura").val(nro_facturaxx);
+                    if (creditoxx === '1') {
+                        $('#chkcredito').prop('checked', true);
+                    } else {
+                        $('#chkcredito').prop('checked', false);
+                    }
+
+
+                    $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetCompraDetalleJson", "CompraErp")',
+                            data: JSON.stringify({ id_compra: idx }),
+                            contentType: "application/json; charset=utf-8",
+                            dataType: 'json',
+                            success: function(response) {
+                                var dataLen = response.length;
+
+                                for (i = 0; i < dataLen; i++) {
+                                    var IdDetalle = response[i].id_compra_detalle;
+                                    var IdProd = response[i].fk_producto;
+                                    var CodiProd = response[i].cod_producto;
+                                    var CodiSkuProd = response[i].codigo_sku;
+                                    var NombProd = response[i].nom_producto;
+                                    var DescMarc = response[i].descripcion_producto_marca;
+                                    var DescFami = response[i].descripcion_producto_familia;
+                                    var Cant = response[i].cantidad;
+                                    var Precio = response[i].precio;
+
+                                    AddTDTableOrdenCompraDetalle(IdDetalle,IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescFami,Cant,Precio)
+
+
+                                }
+                            }
+                        });
+
+                }
+
+                function AddTDTableOrdenCompraDetalle(IdDetalle, IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescFami, Cant, Precio) {
+                    //debugger;
+                var IdTrDeta = "TrDeta" + NroTrCDD;
+                var TDIdCDeta = "TDIdCDeta" + IdTrDeta;
+                var TDIdProd = "TDIdProd" + IdTrDeta;
+                var TDTxtCantDeta = "TDTxtCantDeta" + IdTrDeta;
+                var TDTxtPrecDeta = "TDTxtPrecDeta" + IdTrDeta;
+                var TDSubTotaDeta = "TDSubTotaDeta" + IdTrDeta;
+                var TDBtnDeleDeta = "TDBtnDeleDeta" + IdTrDeta;
+                var Cant = parseFloat(Cant);
+                var Precio = parseFloat(Precio);
+
+                    var strTxtCantDeta = '@Html.Bootstrap().TextBox("txtCantDeta").Value(1).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangeCantDetalle(this)", @type = "number", @min = "1", @style = "text-align: right;" })';
+                var strTxtPrecDeta = '@Html.Bootstrap().TextBox("txtPrecDeta").Value(0).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangePrecDetalle(this)", @type = "number", @min = "0.1", @style = "text-align: right;" })';
+                var strBtnDeleDeta = '@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title="Eliminar detalle", @onclick = "FnDeleteDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)';
+                var row = $("<tr id='" + IdTrDeta + "'>" +
+                "<td id='" + TDIdCDeta + "' class='input-xs' style='display: none;'>" + IdDetalle + "</td>" +
+                "<td id='" + TDIdProd + "' class='input-xs' style='display: none;'>" + IdProd + "</td>" +
+                "<td class='input-xs' style='text-align: center; font-size: 10px;'>" + CodiProd + "</td>" +
+                "<td class='input-xs' style='text-align: center; font-size: 10px'>" + CodiSkuProd + "</td>" +
+                "<td class='input-xs' style='; font-size: 10px'>" + NombProd + "</td>" +
+                "<td class='input-xs' style='; font-size: 10px'>" + DescMarc + "</td>" +
+                "<td class='input-xs' style='; font-size: 10px'>" + DescFami + "</td>" +
+                "<td id='" + TDTxtCantDeta + "' style='text-align: right; font-size: 10px;'>" + strTxtCantDeta + "</td>" +
+                "<td id='" + TDTxtPrecDeta + "' style='text-align: right; font-size: 10px;'>" + strTxtPrecDeta + "</td>" +
+                "<td id='" + TDSubTotaDeta + "' class='input-xs' style='text-align: right; font-size: 10px;'>0</td>" +
+                "<td id='" + TDBtnDeleDeta + "' style='width: 10%; text-align: center; font-size: 10px;'>" + strBtnDeleDeta + "</td>" +
+                "</tr>");
+                $("#tBodyCompDeta").append(row);
+                    document.getElementById("txtCantDeta").value = Cant;
+                    $("#txtCantDeta").trigger("onchange");
+
+                    document.getElementById("txtPrecDeta").value = Precio;
+                    $("#txtPrecDeta").trigger("onchange");
+                    FnCalculaTotalOC();
+                NroTrCDD++;
+            }
+
+
+
+
+                function FnLlenaArrayDetalle() {
+                    arrOCDeta = [];
+                    var IndArr = 0;
+                    var table = document.getElementById('tBodyCompDeta');
+                    var cantRows = table.rows.length;
+                    var newTr = "";
+                    var FkIdProd = "";
+                    if (cantRows > 0) {
+                        for (var i = 0; i < cantRows; i++) {
+                            newTr = table.rows[i].id;
+                            if (newTr.trim() != "") {
+                                FkIdProd = document.getElementById("TDIdProd" + newTr).innerHTML;
+                                var objTxtCant = document.getElementById("TDTxtCantDeta" + newTr).children;
+                                var newCant = objTxtCant[0].value;
+                                var objTxtPrec = document.getElementById("TDTxtPrecDeta" + newTr).children;
+                                var newPrec = objTxtPrec[0].value;
+                                arrOCDeta[IndArr] = new Array(3);
+                                arrOCDeta[IndArr][0] = FkIdProd;
+                                arrOCDeta[IndArr][1] = newCant;
+                                arrOCDeta[IndArr][2] = newPrec;
+                                IndArr++;
+                            }
+                        }
+                    }
+                }
+
+                $("#GuardarEntidad").click(function() {
+                    debugger;
+                    FnLlenaArrayDetalle();
+                    var id_save = 0;
+                    var fk_orden_compra = 0;
+                    var fk_empresa = $("#txtValBus_Proveedor").val();
+                    var n_compra = "";
+                    var f_compra = $("#sfecha_compra").val();
+                    var agencia_transporte = "";
+                    var observacion = $("#txtObservacion").val();
+                    var IDCODIGOGENERAL = $("#txtValBus_Personal").val();
+                    var nro_guia = $("#nro_guia").val();
+                    var fk_proyecto = $("#txtValBus_Proyecto").val();
+                    var fk_almacen = $("#txtValBus_Almacen").val();
+                    var nro_factura = $("#nro_factura").val();
+                    var idmoneda = $("#txtValBus_Moneda").val();
+
+
+                    var credito = document.getElementById("chkcredito").checked;
+                    if (credito === true) {
+                        credito = '1';
+                    } else {
+                        credito = '0';
+                    }
+
+
+                    debugger;
+                    if (fk_empresa === '' || f_compra === '' || IDCODIGOGENERAL === ''
+                        || fk_almacen === '0' || idmoneda === '' || nro_factura ==='') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtValBus_Proveedor").focus();
+                        return false;
+                    }
+                    if (arrOCDeta.length == 0) {
+                        swal("", "No hay items agregados!", "error");
+                        $("#txtValBus_Proveedor").focus();
+                        return false;
+                    }
+                    id_save = parseInt($("#id_comprax").val());
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("SaveNewCompra", "CompraErp")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_orden_compra: fk_orden_compra,
+                            fk_empresa: fk_empresa,
+                            n_compra: n_compra,
+                            f_compra: f_compra,
+                            agencia_transporte: agencia_transporte,
+                            observacion: observacion,
+                            IDCODIGOGENERAL: IDCODIGOGENERAL,
+                            nro_guia: nro_guia,
+                            fk_proyecto: fk_proyecto,
+                            arrOCDeta: arrOCDeta,
+                            fk_almacen: fk_almacen,
+                            nro_factura: nro_factura,
+                            idmoneda: idmoneda,
+                            credito: credito
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_producto = data;
+                            if (parseInt(id_producto, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto = 0;
+                            }
+                        }
+                    });
+
+                });
+
+
+            });
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+    }
+
+        $(document).on('click',
+            '.elimina',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                var id_save = tableRow.find("td:eq(0)").text();
+                id_save = id_save.trim();
+
+               swal({
+                    title: '¿Está seguro?',
+                    text: "Se va a eliminar el registro!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Si!'
+                }).then((result) => {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("EliminaCompra", "CompraErp")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_compra: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_compra = data;
+                            if (parseInt(id_compra, 10) > 0) {
+                                swal({
+                                        title: 'Exito!',
+                                        text: 'Se eliminó correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function() {
+                                        window.location.reload();
+                                });
+                            } else {
+                                sweetAlert("", "No se pudo eliminar!", "error");
+                                id_compra = 0;
+                            }
+                        }
+                    });
+                }, function (dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+            });
+        @*$("#NewRegistro").click(function() {
+            // debugger;
+            id_producto = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroVehiculo", "TallerErp")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_save: id_producto },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });*@
+
+        $(document).ready(function() {
+            Inicia();
+
+        });
+
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                }
+            });
+
+
+        }
+    </script>
+
+}
+
+
+
+

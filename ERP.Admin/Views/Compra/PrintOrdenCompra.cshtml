@@ -1,0 +1,11 @@
+﻿
+@{
+    ViewBag.Title = "ORDEN DE COMPRA";
+}
+
+@*<h2>@ViewBag.Printer</h2>*@
+
+@if (ViewBag.Codigo != "")
+{
+    <iframe src="@Url.Action("GetPDF","Compra", new {codigo = ViewBag.Codigo })" width="90%" height="900px"></iframe>
+}

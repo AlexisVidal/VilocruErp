@@ -1,0 +1,172 @@
+﻿@model IEnumerable<ERP.Admin.Models.Movimiento>
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+@{ 
+    int NroInve = 0;
+    if (Model != null)
+    {
+        NroInve = Model.Count();
+    }
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">INVENTARIOS </span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    <div class="horizontal-space"></div>
+                    <div class="row">
+                        <div class="col-xs-12 col-md-12">
+                            <div class="widget">
+                                <div class="col-md-12">
+                                    <table class="table" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                        <thead>
+                                            <tr role="row">
+                                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                    NRO
+                                                </th>
+                                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                    F. INICIO
+                                                </th>
+                                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                    F. FIN
+                                                </th>
+                                                <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                    ...
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                //strFechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                                                <tr>
+                                                    <td class="input-xs">
+                                                        @NroInve
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: center;">
+                                                        @item.f_inicio
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: center;">
+                                                        @item.f_fin
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: right;">
+                                                        <a href="#" class="btn btn-success btn-xs" onclick="FnVerInventario('@item.nro_inventario')" title="Ver detalle"><i class="fa fa-search"></i> VER</a>
+                                                    </td>
+                                                    <td class="input-xs" style="display: none;">@item.nro_inventario</td>
+                                                </tr>
+                                                NroInve = NroInve - 1;
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalInveDetalle' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentInveDetalle'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#spinner").hide();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+        });
+
+        function FnVerInventario(NroInve) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ViewDetalleInventario", "Reportes")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    NroInve: NroInve
+                }),
+                //data: { NroInve: NroInve},
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentInveDetalle').html(response);
+                    $('#myModalInveDetalle').modal(options);
+                    $('#myModalInveDetalle').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                    }
+                }
+            });
+        }
+    </script>
+}

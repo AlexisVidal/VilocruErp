@@ -1,0 +1,96 @@
+﻿
+@using ERP.Admin.Models
+@{
+    var _productoSubfamilia = (ProductoSubFamilia)ViewBag.ProductoSubFamilia;
+    int id_producto_subfamilia = 0;
+    int fkproductofamilia = 0;
+    string codigos = "";
+    string descripcions = "";
+    if (_productoSubfamilia != null)
+    {
+        id_producto_subfamilia = _productoSubfamilia.id_producto_subfamilia;
+        codigos = _productoSubfamilia.codigo;
+        descripcions = _productoSubfamilia.descripcion;
+        fkproductofamilia = _productoSubfamilia.fk_producto_familia;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_producto_subfamiliax", @id_producto_subfamilia)
+@Html.Hidden("codigosx", @codigos)
+@Html.Hidden("descripcionsx", @descripcions)
+@Html.Hidden("fkproductofamiliax", @fkproductofamilia)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de sub familia</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        @Html.Hidden("id_producto_subfamilia_save", 0)
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Familia <sup>*</sup></label>
+                                <div class="col-md-9" style="">
+                                    @Html.DropDownList("txtValBus_familia", new SelectList(ViewBag.ProductoFamilia, "id_producto_familia", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductofamilia")
+                                    @Html.Hidden("productofamilia")
+                                    @Html.Hidden("codigo")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Sub-familia <sup>*</sup></label>
+                                <div class="col-md-9" style="">
+                                    @Html.Bootstrap().TextBox("descripcion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Descripcion")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Success).HtmlAttributes( new { @class="btn btn-md btn-success"})
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-md btn-danger" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <link href="~/assets/css/jquery-ui.css" rel="stylesheet" />
+    <script src="~/assets/js/jquery-ui.1.11.4.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#myModal').on('shown.bs.modal', function (e) {
+                var idupdate = $('#id_producto_subfamiliax').val();
+                if (idupdate != "") {
+                        document.getElementById("txtValBus_familia").disabled = true;
+                }
+            });
+        });
+
+    </script>
+}
+
+
+
+

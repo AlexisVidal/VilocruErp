@@ -1,0 +1,125 @@
+﻿<script type="text/javascript">
+    
+</script>
+@{
+    string FechInic = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+
+    string NombUsua = ViewBag.UsuarioNombreCompleto;
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Aperturar Caja</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right; ">Responsable </label>
+                                <div class="col-md-10">
+                                    @Html.Bootstrap().TextBox("txtCajaNew_Resp").Value(@NombUsua).Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align: right;">Inicio <sup>*</sup></label>
+                                <div class="col-md-4">
+                                    <input class="form-control" id="txtCajaNew_FInic" type="text" value="@FechInic" readonly>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align: right; ">Monto Apertura <sup>*</sup></label>
+                                <div class="col-md-3">
+                                    @Html.Bootstrap().TextBox("txtCajaNew_MontAper").HtmlAttributes(new { @type="number", style="text-align: right;"}).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("btnSaveNewCaja").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnGuardarNewCaja()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerCajaCreate" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    var arrVentDeta = new Array();
+    $(document).ready(function () {
+        $("#spinnerCajaCreate").hide();
+        //Inicia();
+        $('#spinnerCajaCreate').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnGuardarNewCaja() {
+        var MontAper = $("#txtCajaNew_MontAper").val();
+        var flgError = 0;
+        if (MontAper == "") {
+            sweetAlert("", "Ingrese el monto con lo que apertura caja", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveNewCaja", "Caja")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    MontAper: MontAper
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCajaCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCajaCreate').length > 0) {
+                        $('#spinnerCajaCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+</script>

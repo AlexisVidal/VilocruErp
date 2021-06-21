@@ -1,0 +1,53 @@
+﻿@using ERP.Admin.Models
+@{
+    List<GastoPersonalErp> listagasto = new List<GastoPersonalErp>();
+    var _cuentadetalle = (List<GastoPersonalErp>)ViewBag.CuentaDetalle;
+    decimal total = 0;
+    if (_cuentadetalle.Any())
+    {
+        listagasto = _cuentadetalle;
+        total = _cuentadetalle.Sum(x=>x.monto);
+    }
+}
+<div class="col-md-12" style="text-align: center; ">
+    <table class="table table-striped table-hover table-bordered" id="tblDetalle"  style="width:620px">
+        <thead>
+            <tr>
+                <th style="display:none">ID</th>
+                <th style="text-align: center">ID</th>
+                <th style="text-align: center">Fecha</th>
+                <th style="text-align: center">Concepto</th>
+                <th style="text-align: center">Monto</th>
+                <th style="text-align: center">Observacion</th>
+                <th style="text-align: center">...</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (listagasto.Any())
+            {
+                foreach (var item in listagasto.ToList())
+                {
+                    <tr>
+                        <td style="display: none;font-size: 11px; padding-bottom: 1px; padding-top: 1px;vertical-align: middle">@item.id_gasto_personal_detalle</td>
+                        <td style="font-size: 11px; padding-bottom: 1px; padding-top: 1px;vertical-align: middle">@item.ITEM</td>
+                        <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.sf_operacion</td>
+                        <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.nro_operacion</td>
+                        <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.monto.ToString("N")</td>
+                        <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.observacion</td>
+                        <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">
+                            <button type="button" class="btn btn-default btn-sm" onclick="DeleteDetalle(@item.id_gasto_personal_detalle)">
+                                <span class="glyphicon glyphicon-minus"></span> Eliminar
+                            </button>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="5" style="text-align: right; color: red;font-weight: bold;vertical-align: middle">TOTAL</td>
+                <td style="text-align: left;color: red;font-weight: bold;vertical-align: middle">@total.ToString("N")</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>

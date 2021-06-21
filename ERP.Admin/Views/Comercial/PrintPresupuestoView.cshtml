@@ -1,0 +1,12 @@
+﻿
+@{
+    ViewBag.Title = ViewBag.Printer;
+    ViewBag.Description = "presupuestos";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+
+@if (ViewBag.Codigo != "")
+{
+    <iframe src="@Url.Action("GetPDF","Comercial", new {codigo = ViewBag.Codigo })" width="90%" height="900px"></iframe>
+}

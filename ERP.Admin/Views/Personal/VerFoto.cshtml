@@ -1,0 +1,21 @@
+﻿@{
+    var urlimage = (string)ViewBag.Foto;
+    string urlimagex = urlimage;
+}
+<img src="@urlimagex" alt="Image" style="width:400px;height:auto;object-fit: contain;" id="fotog" />
+<div class="row">
+    <div class="col-md-12" style="text-align:center;margin-top:8px">
+        <div class="form-group" style="margin:0">
+            <div class="col-md-6">
+                <input type="text" id="lblNombArch" style="margin-top:15px; background-color: transparent; border: none;display:none" readonly="readonly" />
+                <input type="file" name="FileUpload" id="FileUpload1" onChange="Handlechange();" style="margin-top:5px;" accept=".png , .jpg" />
+                <div class="horizontal-space"></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-12" style="text-align:center;margin-bottom:8px">
+        @*@Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Blue).Shiny()*@
+        <button class="btn btn-success guardaimagen" type="button" id="btnGuardar" style="margin-right:5px" >Guardar</button>
+        <button class="btn btn-danger" type="button" id="btnCancel" style="margin-right:5px" data-dismiss="modal">Cancelar</button>
+    </div>
+</div>

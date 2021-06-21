@@ -1,0 +1,161 @@
+﻿<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">KARDEX </span>
+                <a href="#" onclick="return Exporter.export(editabledataKardex, 'KARDEX.xls', 'KARDEX')">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    <div class="horizontal-space"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table border="1" class="table" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                <thead>
+                                    <tr style="text-align: center;">
+                                        <th style="text-align: left; height: 20px; font-size: 11px; padding-right: 20px">
+                                            <div class="row">
+                                                <div class="form-group" style="margin:0">
+                                                    <div class="col-md-6">
+                                                        @Html.Bootstrap().TextBox("txtReportKardex_NombProd").Placeholder("PRODUCTO").Disable().Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaProducto('ReporteKardex')" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                                        @Html.Hidden("txtReportKardex_FkProd", 0)
+                                                        <div class="horizontal-space"></div>
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <button class="btn btn-sm btn-default" style="margin-top: 0px" onclick="loadDivTblReporteCompra()">BUSCAR</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div id="DivTblDataRepoKardex"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalPrecVenta' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPrecVenta'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#spinner").hide();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+            $('.date-picker').datepicker();
+        });
+
+        function loadDivTblReporteCompra() {
+            var FkProd = $("#txtReportKardex_FkProd").val();
+            var url = "../Reportes/ListDataReporteKardex?FkProd=" + FkProd;
+            $('#DivTblDataRepoKardex').html('');
+            $('#DivTblDataRepoKardex').load(url);
+        }
+
+        function FnListaProducto(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaProductoVenta", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy
+                }),
+                dataType: 'html',
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
+                success: function (response) {
+                    $('#myModalContentPrecVenta').html(response);
+                    $('#myModalPrecVenta').modal(options);
+                    $('#myModalPrecVenta').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                    }
+                }
+            });
+        }
+
+        function FnAddDataRepoKardexProducto(IdProd, NombProd) {
+            $("#txtReportKardex_FkProd").val(parseInt(IdProd));
+            $("#txtReportKardex_NombProd").val(NombProd.trim());
+        }
+    </script>
+}

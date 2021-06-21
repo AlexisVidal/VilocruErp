@@ -1,0 +1,551 @@
+﻿@{
+    ViewBag.Title = "Listado de Palets";
+    ViewBag.Description = "palets";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{ }
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Listado</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="col-md-2">
+                                Año
+                                @Html.Bootstrap().DropDownList("anios", new SelectList(ViewBag.Anios, "Anio", "AnioS"))
+                                <div class="horizontal-space"></div>
+                            </div>
+                            <div class="col-md-2">
+                                Meses
+                                @Html.Bootstrap().DropDownList("meses", new List<SelectListItem>())
+                                <div class="horizontal-space"></div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget" id="maindetalle">
+            <div class="widget-header ">
+                <span class="widget-caption">Resultado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body" id="detalleResultado">
+                <div class="table-toolbar">
+                    @*<a id="editabledatatable_new" href="javascript:void(0);" class="btn btn-default">
+                            Nuevo registro
+                        </a>*@
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th>
+                                Id
+                            </th>
+                            <th>
+                                Fecha
+                            </th>
+                            <th>
+                                Tipo Proceso
+                            </th>
+                            <th style="display: none;">
+                            </th>
+                            <th>
+                                Producto
+                            </th>
+                            <th>
+                                Formato
+                            </th>
+                            <th>
+                                Empaque
+                            </th>
+                            <th>
+                                Bultos
+                            </th>
+                            <th>
+                                Peso
+                            </th>
+                            <th>
+                                Camara
+                            </th>
+                            <th style="display: none;">
+                            </th>
+                            <th>
+                                Responsable
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                            <th>
+                                Ubicacion
+                            </th>
+                            <th style="display: none;">
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/validation/bootstrapValidator.js"></script>
+
+    <script>
+        var id_trasladoNew = 0;
+        var oTable;
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+        $(document).ready(function () {
+            //$("#spinner").hide();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            var anioid = "0";
+            try {
+                anioid = $("#anios").val();
+            }
+            catch (e) {
+
+            }
+            if (anioid != "0") {
+                LlenaMeses(anioid);
+            }
+            function isANumber(str) {
+                return !/\D/.test(str);
+            }
+            function InputToUpper(obj) {
+                if (obj.value != "") {
+                    obj.value = obj.value.toUpperCase();
+                }
+            }
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+        });
+        $("#anios").change(function () {
+            var opcion = $(this).val();
+            LlenaMeses(opcion);
+        });
+        $("#meses").change(function () {
+            console.log("meses");
+            var aniosvalue = $("#anios").val();
+            var mesesopcion = $(this).val();
+            console.log("aniosv: " + aniosvalue);
+            CargaData(aniosvalue, mesesopcion);
+        });
+        function LlenaMeses(opcion) {
+            $.ajax({
+                type: 'POST',
+                //url: "Filter_ZonaEmbarque",
+                url: '@Url.Action("Filter_MesQr", "QrPalet")',
+                data: JSON.stringify({ anio: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinner').show();
+
+                },
+                success: function (response) {
+                    $("#meses").prop('disabled', false);
+                    $('#meses option').remove();
+                    var dataLen = response.length;
+                    $('#meses').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#meses').append('<option value="' + response[i].Ids + '">' + response[i].Mes + '</option>');
+                    }
+                },
+                error: function () {
+
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                    }
+                }
+            });
+        }
+        function CargaData(aniosvalue, mesesopcion) {
+            $.ajax({
+                type: 'POST',
+                //url: "Filter_ZonaEmbarque",
+                url: '@Url.Action("ListarPalet", "QrPalet")',
+                data: JSON.stringify({ anio: aniosvalue, mes: mesesopcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                async: true, //Forcing this sync
+                beforeSend: function () {
+                    RemoveDatatable();
+                    $('#spinner').show();
+
+                },
+                success: function (response) {
+                    $('#editabledatatable tbody tr').remove();
+                    var dataLen = response.length;
+                    //console.log("dataLen: " + dataLen);
+
+                    if (dataLen > 0) {
+                        for (var i = 0; i < dataLen; i++) {
+                            if (response[i].Estado == "INACTIVO") {
+                                var row = $("<tr>" +
+                                        "<td>" + response[i].Id + "</td>" +
+                                        "<td>" + response[i].Fecha + "</td>" +
+                                        "<td>" + response[i].Proceso + "</td>" +
+                                        "<td style='display: none;'>" + response[i].IdProducto + "</td>" +
+                                        "<td>" + response[i].Producto + "</td>" +
+                                        "<td>" + response[i].Formato + "</td>" +
+                                        "<td>" + response[i].Empaque + "</td>" +
+                                        "<td>" + response[i].Bultos + "</td>" +
+                                        "<td>" + response[i].Peso + "</td>" +
+                                        "<td>" + response[i].Camara + "</td>" +
+                                        "<td style='display: none;'>" + response[i].Fk_Usuario + "</td>" +
+                                        "<td>" + response[i].Responsable + "</td>" +
+                                        "<td>" + response[i].Estado + "</td>" +
+                                        "<td><a href='#' class='btn btn-info btn-xs ver'><i class='fa fa-binoculars'></i> Ver</a></td>" +
+                                        "<td style='display: none;'>" + response[i].FkProductoFinal + "</td>" +
+                                        "<td></td>" +
+                                        "</tr>");
+                            } else {
+                                var row = $("<tr>" +
+                                        "<td>" + response[i].Id + "</td>" +
+                                        "<td>" + response[i].Fecha + "</td>" +
+                                        "<td>" + response[i].Proceso + "</td>" +
+                                        "<td style='display: none;'>" + response[i].IdProducto + "</td>" +
+                                        "<td>" + response[i].Producto + "</td>" +
+                                        "<td>" + response[i].Formato + "</td>" +
+                                        "<td>" + response[i].Empaque + "</td>" +
+                                        "<td>" + response[i].Bultos + "</td>" +
+                                        "<td>" + response[i].Peso + "</td>" +
+                                        "<td>" + response[i].Camara + "</td>" +
+                                        "<td style='display: none;'>" + response[i].Fk_Usuario + "</td>" +
+                                        "<td>" + response[i].Responsable + "</td>" +
+                                        "<td>" + response[i].Estado + "</td>" +
+                                        "<td><a href='#' class='btn btn-info btn-xs ver'  id='" + response[i].Encriptado + "' onclick='MuestraSaec(" + response[i].Id + ")'><i class='fa fa-binoculars'></i> Ver</a></td>" +
+                                        "<td style='display: none;'>" + response[i].FkProductoFinal + "</td>" +
+                                        "<td><a href='#' class='btn btn-success btn-xs imprimir' id='" + response[i].Id + "' onclick='fnReimprime(" + response[i].Id + ")'><i class='fa fa-print'></i> Imprimir</a></td>" +
+                                        "</tr>");
+                            }
+
+                            $("#editabledatatable").append(row);
+                        }
+
+                    }
+                },
+                error: function () {
+
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                        Inicia();
+                    }
+                }
+            });
+        }
+        function fnReimprime(valor) {
+            var id = valor;
+            if (id != "") {
+                var url = '@Url.Action("QrGenerado", "QrPalet")/' + id;
+                window.open(url, "_blank")
+            }
+        }
+        function MuestraSaec(valor) {
+            //debugger;
+            console.log("valor: " + valor);
+            $.ajax({
+                type: 'POST',
+                //url: "ListarUbicacion",
+                url: '@Url.Action("ListarUbicacion", "QrPalet")',
+                data: JSON.stringify({ id: valor }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                async: true, //Forcing this sync
+                beforeSend: function () {
+                    $('#spinner').show();
+
+                },
+                success: function (response) {
+                    console.log("jsonstr: " + JSON.stringify(response));
+                    var dataLen = response.Id;
+
+                    swal({
+                        title: "Información",
+                        type: "info",
+                        html: "<div style='font-size:16px'><b>Lugar:</b> " + response.CamaraUbicacion + "<br/><b>Cámara:</b> " + response.CamaraCongelamiento + "<br/><b> Palet: </b>" + response.Palet + "<br/>" +
+                            "<b>Partida: </b>" + response.Partida + "<br/><b>Bascula: </b>" + response.PBascula + "<b> Bruto: </b>" + response.PBrutos + "<b> Neto: </b>" + response.PNetos + "<br/>" +
+                            "<b>C: </b>" + response.CamaraCongelamiento + "<b> E: </b>" + response.Estante + "<b> A: </b>" + response.Altura + "<b> F: </b>" + response.Fondo + "</div>"
+                });
+        },
+        error: function () {
+            swal({
+                title: "Información",
+                type: "warning",
+                html: "<div style='font-size:16px'>El producto no ha sido registrado en la cámara<br/>"
+            });
+        },
+        complete: function () {
+            if ($('#spinner').length > 0) {
+                $('#spinner').hide();
+            }
+        }
+        });
+        }
+        function getSpinner() {
+            var loadingimage = '<div id="spinner" class="spinnerdiv"><img id="img-spinner" class="ajax-spinner" src="~/img/spinner1.gif" /></div>';
+            return loadingimage;
+        }
+        function isANumber(str) {
+            return !/\D/.test(str);
+        }
+        function RemoveDatatable() {
+            if ($.fn.dataTable.isDataTable('#editabledatatable')) {
+                oTable = $('#editabledatatable').DataTable();
+                oTable.destroy();
+                //alert("existe");
+            }
+        }
+
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                        //,
+                        //{
+                        //    "sExtends": "collection",
+                        //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                        //    "aButtons": ["csv", "xls", "pdf"]
+                        //}
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+            var isEditing = null;
+
+            //Add New Row
+            $('#editabledatatable_new').click(function (e) {
+                e.preventDefault();
+                var aiNew = oTable.fnAddData([
+                    '', '', '', '',
+                    '<a href="#" class="btn btn-success btn-xs save"><i class="fa fa-edit"></i> Save</a> <a href="#" class="btn btn-warning btn-xs cancel" data-mode="new"><i class="fa fa-times"></i> Cancel</a>'
+                ]);
+                console.log("aiNew: " + aiNew);
+                var nRow = oTable.fnGetNodes(aiNew[0]);
+
+                editAddedRow(oTable, nRow);
+                isEditing = nRow;
+            });
+
+            //Delete an Existing Row
+            $('#editabledatatable').on("click", 'a.delete', function (e) {
+                e.preventDefault();
+
+                if (confirm("Are You Sure To Delete This Row?") == false) {
+                    return;
+                }
+
+                var nRow = $(this).parents('tr')[0];
+                oTable.fnDeleteRow(nRow);
+                alert("Row Has Been Deleted!");
+            });
+
+            //Cancel Editing or Adding a Row
+            $('#editabledatatable').on("click", 'a.cancel', function (e) {
+                e.preventDefault();
+                if ($(this).attr("data-mode") == "new") {
+                    var nRow = $(this).parents('tr')[0];
+                    oTable.fnDeleteRow(nRow);
+                    isEditing = null;
+                } else {
+                    restoreRow(oTable, isEditing);
+                    isEditing = null;
+                }
+            });
+
+            //Edit A Row
+            $('#editabledatatable').on("click", 'a.edit', function (e) {
+                e.preventDefault();
+
+                var nRow = $(this).parents('tr')[0];
+
+                if (isEditing !== null && isEditing != nRow) {
+                    restoreRow(oTable, isEditing);
+                    editRow(oTable, nRow);
+                    isEditing = nRow;
+                } else {
+                    editRow(oTable, nRow);
+                    isEditing = nRow;
+                }
+            });
+
+            //Save an Editing Row
+            $('#editabledatatable').on("click", 'a.save', function (e) {
+                e.preventDefault();
+                if (this.innerHTML.indexOf("Save") >= 0) {
+                    saveRow(oTable, isEditing);
+                    isEditing = null;
+                    //Some Code to Highlight Updated Row
+                }
+            });
+
+
+            function restoreRow(oTable, nRow) {
+                var aData = oTable.fnGetData(nRow);
+                var jqTds = $('>td', nRow);
+
+                for (var i = 0, iLen = jqTds.length; i < iLen; i++) {
+                    oTable.fnUpdate(aData[i], nRow, i, false);
+                }
+
+                oTable.fnDraw();
+            }
+
+            function editRow(oTable, nRow) {
+                var aData = oTable.fnGetData(nRow);
+                var jqTds = $('>td', nRow);
+                jqTds[0].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[0] + '">';
+                jqTds[1].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[1] + '">';
+                jqTds[2].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[2] + '">';
+                jqTds[3].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[3] + '">';
+                jqTds[4].innerHTML = '<a href="#" class="btn btn-success btn-xs save"><i class="fa fa-save"></i> Save</a> <a href="#" class="btn btn-warning btn-xs cancel"><i class="fa fa-times"></i> Cancel</a>';
+            }
+
+            function editAddedRow(oTable, nRow) {
+                var aData = oTable.fnGetData(nRow);
+                var jqTds = $('>td', nRow);
+                jqTds[0].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[0] + '">';
+                jqTds[1].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[1] + '">';
+                jqTds[2].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[2] + '">';
+                jqTds[3].innerHTML = '<input type="text" class="form-control input-small" value="' + aData[3] + '">';
+                jqTds[4].innerHTML = aData[4];
+            }
+
+            function saveRow(oTable, nRow) {
+                var jqInputs = $('input', nRow);
+                oTable.fnUpdate(jqInputs[0].value, nRow, 0, false);
+                oTable.fnUpdate(jqInputs[1].value, nRow, 1, false);
+                oTable.fnUpdate(jqInputs[2].value, nRow, 2, false);
+                oTable.fnUpdate(jqInputs[3].value, nRow, 3, false);
+                oTable.fnUpdate('<a href="#" class="btn btn-info btn-xs edit"><i class="fa fa-edit"></i> Edit</a> <a href="#" class="btn btn-danger btn-xs delete"><i class="fa fa-trash-o"></i> Delete</a>', nRow, 4, false);
+                oTable.fnDraw();
+            }
+
+            function cancelEditRow(oTable, nRow) {
+                var jqInputs = $('input', nRow);
+                oTable.fnUpdate(jqInputs[0].value, nRow, 0, false);
+                oTable.fnUpdate(jqInputs[1].value, nRow, 1, false);
+                oTable.fnUpdate(jqInputs[2].value, nRow, 2, false);
+                oTable.fnUpdate(jqInputs[3].value, nRow, 3, false);
+                oTable.fnUpdate('<a href="#" class="btn btn-info btn-xs edit"><i class="fa fa-edit"></i> Edit</a> <a href="#" class="btn btn-danger btn-xs delete"><i class="fa fa-trash-o"></i> Delete</a>', nRow, 4, false);
+                oTable.fnDraw();
+            }
+        }
+    </script>
+}

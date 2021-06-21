@@ -1,0 +1,479 @@
+﻿@{
+    ViewBag.Title = "Lista de Almacenes";
+    ViewBag.Description = "almacenes";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.Almacen>
+@*<script type="text/javascript">
+    $(document).ready(function () {
+        $("#btnWarningStocMinimo").click();
+    });
+</script>*@
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                @*<div class="table-toolbar">
+                    <a id="btnProdStocMini" class="btn btn-danger">
+                        Productos Con Stock Mínimos
+                    </a>
+                    <button class="btn btn-danger" id="btnWarningStocMinimo" onclick="javascript: Notify('Existen Productos con Stock por debajo del limite establecido!', 'top-right', '5000', 'danger', 'fa-bolt', true); return false;" style="display: none;">AVISO</button>
+                </div>*@
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th>
+                                @Html.DisplayNameFor(model => model.id_almacen)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.cod_almacen)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.nombre)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ubicacion)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NEstado)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.id_almacen)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.cod_almacen)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.nombre)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.ubicacion)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.NEstado)
+                            </td>
+                            <td>
+                                <a href="#" class="btn btn-info btn-xs ver_existencias"><i class="fa fa-search"></i> Ver Existencias</a>
+                            
+                                <a href="#" class="btn btn-danger btn-xs add_existencias"><i class="glyphicon glyphicon-plus-sign"></i> Agregar Existencias</a>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalAlmaStock' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:90%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentAlmaStock'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalKardexAlmaStock' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:90%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentKardexAlmaStock'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPtoLimiAlmaStock' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:30%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPtoLimiAlmaStock'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalProdStocMini' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:90%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentProdStocMini'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalOrdeCompra' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:90%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentOrdeCompra'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalProducto' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:60%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentProducto'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        var NroTr = 1;
+        var NroTrCDD = 1;
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $("#btnProdStocMini").click(function () {
+            //debugger;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("ViewProductoStockMinimo", "AlmacenStock")',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentProducto').html(response);
+                    $('#myModalProdStocMini').modal(options);
+                    $('#myModalProdStocMini').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        });
+        
+        $(document).on('click', '.add_existencias', function () {
+            //debugger;
+            var tableRow = $(this).closest("tr");
+            FkAlma = tableRow.find("td:eq(0)").text();
+            FkAlma = FkAlma.trim();
+            console.log("idgeneral: " + FkAlma);
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("AddExistencias", "AlmacenStock")',
+                contentType: "application/json; charset=utf-8",
+                data: { FkAlma: FkAlma },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentAlmaStock').html(response);
+                    $('#myModalAlmaStock').modal(options);
+                    $('#myModalAlmaStock').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.ver_existencias', function () {
+            //debugger;
+            var tableRow = $(this).closest("tr");
+            FkAlma = tableRow.find("td:eq(0)").text();
+            FkAlma = FkAlma.trim();
+            console.log("idgeneral: " + FkAlma);
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Existencias", "AlmacenStock")',
+                contentType: "application/json; charset=utf-8",
+                data: { FkAlma: FkAlma },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentAlmaStock').html(response);
+                    $('#myModalAlmaStock').modal(options);
+                    $('#myModalAlmaStock').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+            return false;
+        });
+
+        $(document).ready(function () {
+            Inicia();
+            //ValidaStockMinimo();
+        });
+
+        function ValidaStockMinimo() {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetJson_AlmacenStockMinimo", "AlmacenStock")',
+			    contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    var dataLen = response.length;
+                    if (dataLen > 0) {
+                        $("#btnWarningStocMinimo").click();
+                    }
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+		    });
+        }
+
+        function FnKadex(FkAlma, FkProd) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("ViewKardex", "AlmacenStock")',
+                contentType: "application/json; charset=utf-8",
+                data: { FkAlma: FkAlma, FkProd: FkProd },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentKardexAlmaStock').html(response);
+                    $('#myModalKardexAlmaStock').modal(options);
+                    $('#myModalKardexAlmaStock').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+
+        function FnStockMinimo(IdAlmaStoc) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("ViewStockMinimo", "AlmacenStock")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdAlmaStoc: IdAlmaStoc },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentPtoLimiAlmaStock').html(response);
+                    $('#myModalPtoLimiAlmaStock').modal(options);
+                    $('#myModalPtoLimiAlmaStock').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+
+        function FnCreaRequCompra(FkProd) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Create", "OrdenCompra")',
+                contentType: "application/json; charset=utf-8",
+                data: { FkProd: FkProd },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentOrdeCompra').html(response);
+                    $('#myModalOrdeCompra').modal(options);
+                    $('#myModalOrdeCompra').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+
+        function FnListaProducto(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            var EstaPro = "1";
+            var FkProv = "";
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("ListaProductos", "Producto")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        CallBy: pCallBy, FkProv: FkProv, EstaPro: EstaPro
+                    }),
+                    dataType: 'html',
+                    success: function (response) {
+                        $('#myModalContentProducto').html(response);
+                        $('#myModalProducto').modal(options);
+                        $('#myModalProducto').modal('show');
+                    },
+                    error: function (request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+        }
+        function AddTDTableOrdenCompraDetalle( IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescFami, Cant, Precio) {
+                    debugger;
+                var IdTrDeta = "TrDeta" + NroTrCDD;
+                var TDIdCDeta = "TDIdCDeta" + IdTrDeta;
+                var TDIdProd = "TDIdProd" + IdTrDeta;
+                var TDTxtCantDeta = "TDTxtCantDeta" + IdTrDeta;
+                var TDTxtPrecDeta = "TDTxtPrecDeta" + IdTrDeta;
+                var TDSubTotaDeta = "TDSubTotaDeta" + IdTrDeta;
+                var TDBtnDeleDeta = "TDBtnDeleDeta" + IdTrDeta;
+                var Cant = parseFloat(Cant);
+                var Precio = parseFloat(Precio);
+            var IdDetalle = 0;
+                    var strTxtCantDeta = '@Html.Bootstrap().TextBox("txtCantDeta").Value(1).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangeCantDetalle(this)", @type = "number", @min = "1", @style = "text-align: right;" })';
+                var strTxtPrecDeta = '@Html.Bootstrap().TextBox("txtPrecDeta").Value(0).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangePrecDetalle(this)", @type = "number", @min = "0.1", @style = "text-align: right;" })';
+                var strBtnDeleDeta = '@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title="Eliminar detalle", @onclick = "FnDeleteDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)';
+                var row = $("<tr id='" + IdTrDeta + "'>" +
+                "<td id='" + TDIdCDeta + "' class='input-xs' style='display: none;'>" + IdDetalle + "</td>" +
+                "<td id='" + TDIdProd + "' class='input-xs' style='display: none;'>" + IdProd + "</td>" +
+                "<td class='input-xs' style='text-align: center; font-size: 10px;'>" + CodiProd + "</td>" +
+                "<td class='input-xs' style='text-align: center; font-size: 10px'>" + CodiSkuProd + "</td>" +
+                "<td class='input-xs' style='; font-size: 10px'>" + NombProd + "</td>" +
+                "<td class='input-xs' style='; font-size: 10px'>" + DescMarc + "</td>" +
+                "<td class='input-xs' style='; font-size: 10px'>" + DescFami + "</td>" +
+                "<td id='" + TDTxtCantDeta + "' style='text-align: right; font-size: 10px;'>" + strTxtCantDeta + "</td>" +
+                "<td id='" + TDTxtPrecDeta + "' style='text-align: right; font-size: 10px;display:none;'>" + strTxtPrecDeta + "</td>" +
+                "<td id='" + TDSubTotaDeta + "' class='input-xs' style='text-align: right; font-size: 10px;display:none;'>0</td>" +
+                "<td id='" + TDBtnDeleDeta + "' style='width: 10%; text-align: center; font-size: 10px;'>" + strBtnDeleDeta + "</td>" +
+                "</tr>");
+                $("#tBodyCompDeta").append(row);
+                    document.getElementById("txtCantDeta").value = Cant;
+                    $("#txtCantDeta").trigger("onchange");
+                    
+                    document.getElementById("txtPrecDeta").value = Precio;
+                    $("#txtPrecDeta").trigger("onchange");
+                    FnCalculaTotalOC();
+                NroTrCDD++;
+            }
+        function FnValidaExisteAgregado(IdProdBusq) {
+            debugger;
+            var table = document.getElementById('tBodyCompDeta');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            var NewFkIdProd = "";
+            var flgExisteReturn = 0;
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        NewFkIdProd = document.getElementById("TDIdProd" + newTr).innerHTML;
+                        if (IdProdBusq.trim() == NewFkIdProd.trim()) {
+                            flgExisteReturn = 1;
+                            break;
+                        }
+                    }
+                }
+            }
+            return flgExisteReturn;
+        }
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                        //,
+                        //{
+                        //    "sExtends": "collection",
+                        //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                        //    "aButtons": ["csv", "xls", "pdf"]
+                        //}
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+            var isEditing = null;
+
+        }
+    </script>
+
+}
+
+
+
+
+

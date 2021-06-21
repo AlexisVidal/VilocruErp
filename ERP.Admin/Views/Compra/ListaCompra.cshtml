@@ -1,0 +1,188 @@
+﻿@model IEnumerable<ERP.Admin.Models.Compra>
+@{
+    string IdTrComp = "";
+    string TDIdComp = "";
+    string TDNroComp = "";
+    string TDCodiProv = "";
+    string TDRucRazoSociProv = "";
+
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("txtCompList_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Orden de Compra > Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableCompra">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id COMPRA
+                            </th>
+                            <th style="display:none">
+                                FK ORDEN COMPRA
+                            </th>
+                            <th>
+                                Nro OC
+                            </th>
+                            <th>
+                                Fecha
+                            </th>
+                            <th style="display: none;">
+                                Cod. Proveedor
+                            </th>
+                            <th>
+                                Proveedor
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string FechComp = Convert.ToDateTime(item.f_compra).ToString("dd/MM/yyyy");
+                            IdTrComp = "TrComp" + item.id_compra;
+                            TDIdComp = "TDIdComp" + IdTrComp;
+                            TDNroComp = "TDNroComp" + IdTrComp;
+                            TDCodiProv = "TDCodiProv" + IdTrComp;
+                            TDRucRazoSociProv = "TDRucRazoSociProv" + IdTrComp;
+                            <tr id="@IdTrComp">
+                                <td id="@TDIdComp" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_compra)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_orden_compra)
+                                </td>
+                                <td id="@TDNroComp" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.n_compra)
+                                </td>
+                                <td class="input-xs">
+                                    @FechComp
+                                </td>
+                                <td id="@TDCodiProv" class="input-xs" style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.cod_proveedor)
+                                </td>
+                                <td id="@TDRucRazoSociProv" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.ruc) - @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.estado)
+                                </td>
+                                <td>
+                                    @if (item.estado == "1" || item.estado == "2")
+                                    {
+                                        <a class="btn btn-success btn-xs" onclick="FnSelecCompra(this)"> Seleccionar</a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-2" style="text-align:right; vertical-align: middle; width:60%">
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnSelecCompra(obj) {
+        var IdTrsele = obj.parentElement.parentElement.id;
+        var IdComp = document.getElementById("TDIdComp" + IdTrsele).innerHTML.trim();
+        var NroComp = document.getElementById("TDNroComp" + IdTrsele).innerHTML.trim();
+        var CodiProv = document.getElementById("TDCodiProv" + IdTrsele).innerHTML.trim();
+        var RucRazoSociProv = document.getElementById("TDRucRazoSociProv" + IdTrsele).innerHTML.trim();
+        var CallBy = $("#txtCompList_CallBy").val();
+        if (IdComp.trim() != "") {
+            if (CallBy.trim() == "GuiaRemiCreate") {
+                FnAddDataCompraCreate(IdComp, NroComp, CodiProv, RucRazoSociProv);
+            } else if (CallBy.trim() == "OrdeCompEdit") {
+                FnAddDataProvedor(IdComp, NroComp, CodiProv, RucRazoSociProv);
+            }
+            $('#myModalCompra').modal('hide');
+        }
+    }
+
+    //InitiateeditableCompra.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editableCompra').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    "print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editableCompra')));
+        var isEditing = null;
+    }
+</script>

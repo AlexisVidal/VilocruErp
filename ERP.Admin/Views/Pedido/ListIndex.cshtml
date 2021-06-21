@@ -1,0 +1,153 @@
+﻿@model IEnumerable<ERP.Admin.Models.Pedido>
+@{
+    string FechEmis = "";
+    string strDniRuc = "";
+    string strClie = "";
+    string strUsuaVenta = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="btnNewCotizacion" class="btn btn-danger">
+                        Nuevo registro
+                    </a>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id_PEDIDO
+                            </th>
+                            <th>
+                                NRO COTIZCIÓN
+                            </th>
+                            <th>
+                                FECHA
+                            </th>
+                            <th>
+                                DNI / RUC
+                            </th>
+                            <th>
+                                NOMBRE / RAZON SOCIAL
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FechEmis = Convert.ToDateTime(item.f_pedido).ToString("dd/MM/yyyy");
+
+                            if (!item.id_cliente_natural.Equals(0))
+                            {
+                                strDniRuc = item.dni_cliente_natural;
+                                strClie = item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                            }
+                            else if (!item.id_cliente_juridico.Equals(0))
+                            {
+                                strDniRuc = item.ruc_empresa_cliente_juridico;
+                                strClie = item.razon_social;
+                            }
+                            strUsuaVenta = item.nombre_usuario_venta + " " + item.apellido_paterno_usuario_venta + " " + item.apellido_materno_usuario_venta;
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_pedido)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.n_pedido)
+                                </td>
+                                <td class="input-xs">
+                                    @FechEmis
+                                </td>
+                                <td class="input-xs">
+                                    @strDniRuc
+                                </td>
+                                <td class="input-xs">
+                                    @strClie
+                                </td>
+                                <td>
+                                    <a href='#' class='btn btn-info btn-xs ver' onclick="MuestraCotizacion('@item.id_pedido', '@item.n_pedido', '@FechEmis', '@strDniRuc', '@strClie', '@strUsuaVenta')"><i class='fa fa-binoculars'></i>Ver</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function MuestraCotizacion(valor, NroPedi, FechPedi, DniRuc, NombClie, UsuaVent) {
+        var id = valor;
+        if (id != "") {
+            var url = '@Url.Action("PrintIndex", "Pedido")?id=' + id + '&NroPedi=' + NroPedi + '&FechPedi=' + FechPedi + '&DniRuc=' + DniRuc + '&NombClie=' + NombClie + '&UsuaVent=' + UsuaVent;
+            window.open(url, "_blank")
+        }
+    }
+
+    $("#btnNewCotizacion").click(function () {
+        //debugger;
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Create", "Pedido")',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentPediCoti').html(response);
+                $('#myModalPediCoti').modal(options);
+                $('#myModalPediCoti').modal('show');
+            },
+            error: function (request, status, error) {
+                sweetAlert("", request.responseText, "error");
+            }
+        });
+    });
+
+    function Inicia() {
+        oTable = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ],
+            "aaSorting": [[0, "desc"]]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+        var isEditing = null;
+    }
+</script>

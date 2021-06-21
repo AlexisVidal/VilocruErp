@@ -1,0 +1,135 @@
+﻿@model IEnumerable<ERP.Admin.Models.VentaDetalle>
+@{
+    string strComprobante = "";
+    string strFechEmis = "";
+    string strCliente = "";
+    string AlmaActual = "";
+    int FkVent = 0;
+    foreach (var oneDeta in Model)
+    {
+        strComprobante = oneDeta.descripcion_comprobante + ": " + oneDeta.nro_comprobante;
+        strFechEmis = oneDeta.f_emision.ToString("yyyy/MM/dd");
+        strCliente = oneDeta.nombre_cliente;
+        FkVent = oneDeta.fk_venta;
+        break;
+    }
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">NOTA DE ENTREGA </span>
+                @*<a href="#" onclick="return Exporter.export(editabledatanotaentrega, 'INVENTARIO.xls', 'EXISTENCIAS')">
+                        <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>*@
+                @Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new {  @onclick = "FnPrinterNotaEntrega('"+ @FkVent + "')" }).Shiny().Size(ButtonSize.Small).IconOnly().IconPrepend(FontAwesome.Print)
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table @*class="table"*@ id="editabledatanotaentrega" style="text-align: center;table-layout: auto;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                    <tr>
+                                        <td colspan="2" style="text-align: center;">
+                                            <img style='width:70%;text-align:left;margin-bottom:10px;margin-top:10px' src='~/assets/img/cromo_plastic.jpg' />
+                                        </td>
+                                        <td colspan="3" style="text-align:center; vertical-align: bottom; height:20px; font-size:24px;"><b>NOTA DE ENTREGA</b></td>
+                                    </tr>
+                                    <tr><td colspan="5" style="border: none;"><hr style="height: 3px; color: #123455; background-color: #123455; border: none;" /></td></tr>
+                                    <tr style="text-align: left;">
+                                        <td></td>
+                                        <td colspan="2" style="height:20px; font-size:11px; border: none; margin-left: 15px;"><b>@strComprobante</b></td>
+                                        <td colspan="2" style="height:20px; font-size:11px; border: none; margin-left: 15px;"><b>Fecha Emisión: @strFechEmis</b></td>
+                                    </tr>
+                                    <tr style="text-align: left;">
+                                        <td></td>
+                                        <td colspan="4" style="height:20px; font-size:11px; border: none; margin-left: 15px;"><b>CLIENTE: @strCliente</b></td>
+                                    </tr>
+                                    @*<tr><td><br /></td></tr>*@
+                                    @*<tr style="text-align: center;">
+                                        <td colspan="2" style="text-align:center; width:15%; height:20px; font-size:11px; border: none;"><b>CÓDIGO</b></td>
+                                        <td style="text-align:center; width:55%; height:20px; font-size:11px; border: none"><b>PRODUCTO</b></td>
+                                        <td style="text-align:center; width:20%; height:20px; font-size:11px; border: none"><b>MARCA</b></td>
+                                        <td style="text-align:center; width:10%; height:20px; border: none"><b>CANTIDAD</b></td>
+                                    </tr>
+                                    <tr><td colspan="5" style="border: none;"><hr style="height: 1px; color: #123455; background-color: #123455; border: none; margin-top: 0px; margin-bottom: 5px;"/></td></tr>*@
+                                    @foreach (var item in Model)
+                                    {
+                                        if (AlmaActual != item.nombre_almacen)
+                                        {
+                                            <tr><td><br /><br /></td></tr>
+                                            <tr>
+                                                <td></td>
+                                                <td colspan="4" style="text-align:left; vertical-align: bottom; height:20px; font-size:18px;"><b><u>@item.nombre_almacen</u></b></td>
+                                            </tr>
+                                            <tr><td><br /></td></tr>
+                                            <tr style="text-align: center;">
+                                                <td colspan="2" style="text-align:center; width:15%; height:20px; font-size:11px; border: none;"><b>CÓDIGO</b></td>
+                                                <td style="text-align:center; width:55%; height:20px; font-size:11px; border: none"><b>PRODUCTO</b></td>
+                                                <td style="text-align:center; width:20%; height:20px; font-size:11px; border: none"><b>MARCA</b></td>
+                                                <td style="text-align:center; width:10%; height:20px; border: none"><b>CANTIDAD</b></td>
+                                            </tr>
+                                            <tr><td colspan="5" style="border: none;"><hr style="height: 1px; color: #123455; background-color: #123455; border: none; margin-top: 0px; margin-bottom: 5px;" /></td></tr>
+                                        }
+                                        <tr>
+                                            <td colspan="2" class="input-xs" style="border: none;">
+                                                @Html.DisplayFor(modelItem => item.cod_producto)
+                                            </td>
+                                            <td class="input-xs" style="text-align: left; border: none;">
+                                                @Html.DisplayFor(modelItem => item.nom_producto)
+                                            </td>
+                                            <td class="input-xs" style="text-align: left; border: none;">
+                                                @Html.DisplayFor(modelItem => item.descripcion_marca)
+                                            </td>
+                                            <td class="input-xs" style="text-align: right; border: none;">
+                                                @Html.DisplayFor(modelItem => item.cantidad_movimiento)
+                                            </td>
+                                        </tr>
+                                    }
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right;">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerNotaEntrega" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    var arrGuiaRemiDeta = new Array();
+    $(document).ready(function () {
+        $("#spinnerNotaEntrega").hide();
+        //Inicia();
+        $('#spinnerNotaEntrega').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+</script>
+<style>
+    /*hr {
+        height: 3px;
+        color: #123455;
+        background-color: #123455;
+        border: none;
+    }*/
+</style>

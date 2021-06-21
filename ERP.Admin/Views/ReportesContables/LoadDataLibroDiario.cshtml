@@ -1,0 +1,90 @@
+﻿
+@model IEnumerable<ERP.Admin.Models.ReporteContable>
+@{
+    string strFechAsie = "";
+    string strDebe = "";
+    string strHaber = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="tableLibroDiario" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th colspan="7" style="font-size: 14px; text-align: center; background: #0070C0; color: #FFFFFF; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DATA REGISTRO DIARIO
+                            </th>
+                        </tr>
+                        <tr role="row">
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                N°
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                FECHA
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                GLOSA O DESCRIPCION DEL ASIENTO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COD
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DESCRIPCION DE LA CUENTA
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DEBE
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                HABER
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            strFechAsie = item.fecha.Substring(0, 10);
+                            strFechAsie = Convert.ToDateTime(strFechAsie).ToString("dd/MM/yyyy");
+                            strDebe = item.debe.ToString();
+                            if (item.debe > 0)
+                            {
+                                strDebe = item.debe.ToString("#,##0.00");
+                            }
+                            strHaber = item.haber.ToString();
+                            if (item.haber > 0)
+                            {
+                                strHaber = item.haber.ToString("#,##0.00");
+                            }
+                            <tr>
+                                <td class="input-xs">
+                                    @item.asiento
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @strFechAsie
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.concepto
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @item.num_subcuenta
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.nombre
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strDebe
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strHaber
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>

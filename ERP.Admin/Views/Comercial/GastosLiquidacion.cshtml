@@ -1,0 +1,596 @@
+﻿@{
+    ViewBag.Title = "Liquidaciones de gastos";
+    ViewBag.Description = "liquidaciones";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    string tipousuario = (string)ViewBag.IDUSUARIOTIPO;
+
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.GastoPersonalErp>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    @*<a id="NewRegistro" class="btn btn-primary" style="width:60px">
+            Nuevo
+        </a>*@
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'GastoPersonalErp.xls', 'GastoPersonalErp')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size: 11px; ">
+                    <thead>
+                        <tr role="row">
+                            <th style="display: none">
+                                ID
+                            </th>
+                            <th style="font-size: 11px">
+                                CODIGO
+                            </th>
+                            <th style="font-size: 11px">
+                                GENERADO
+                            </th>
+                            <th style="font-size: 11px">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size: 11px">
+                                RESPONSABLE
+                            </th>
+                            <th style="font-size: 11px">
+                                FECHA INICIO
+                            </th>
+                            <th style="font-size: 11px">
+                                MONTO
+                            </th>
+                            <th style="font-size: 11px">
+                                SALDO
+                            </th>
+                            <th>
+                                ESTADO
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            decimal montox = @item.MONTO;
+                            decimal liquidacion = @item.liquidaciones;
+                            decimal saldox = montox - liquidacion;
+                            string estatu = item.estado;
+                            <tr>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.id_gasto_personal)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.codigo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.IDUSUARIO)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.IDCODIGOGENERAL)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NOMBRES)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.sf_apertura)
+                                </td>
+                                <td>
+                                    @montox.ToString("N")
+                                </td>
+                                <td style="">
+                                    @saldox.ToString("N")
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.sestado)
+                                </td>
+                                <td style="width: 200px; text-align: center; vertical-align: middle">
+                                    @if (estatu == "1")
+                                    {
+                                        <button type="button" class="btn btn-warning btn-sm" onclick="ShowLiquidaciones(@item.id_gasto_personal)">
+                                            <span class="glyphicon glyphicon-list-alt"></span> Liquidaciones
+                                        </button>
+                                        <button type="button" class="btn btn-danger btn-sm" onclick="FnPrinterLiquidacion(@item.id_gasto_personal)">
+                                            <span class="glyphicon glyphicon-record"></span> Reporte
+                                        </button>
+                                        <button type="button" class="btn btn-success btn-sm" onclick="DownloadExcel(@item.id_gasto_personal)">
+                                            <span class="glyphicon glyphicon-import"></span> Excel
+                                        </button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:1150px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalDetalle' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:560px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentDetalle'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts
+{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet"/>
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js">
+    </script>
+    <script>
+        function DownloadExcel(id_gasto_personal) {
+            var url = '@Url.Action("ExcelExportLiquidacion", "Comercial")?id_gasto_personal=' + id_gasto_personal;
+            window.open(url, "_blank")
+            //$.ajax({
+            //    type: "POST",
+            //    url: "ExcelExportLiquidacion",
+            //    contentType: 'application/json; charset=utf-8',
+            //    dataType: "json",
+            //    data: JSON.stringify({
+            //        id_gasto_personal: id_gasto_personal
+            //    }),
+            //    cache: false,
+            //    success: function (data) {
+            //        @*var urlx= '@Url.Action("Download", "Tareo")'
+                    window.location = urlx;*@
+            //    },
+            //    error: function(data) {
+            //        swal("", "Algo salio mal: " + JSON.stringify(data), "error");
+            //    }
+            //});
+        }
+        function FnPrinterLiquidacion(id_gasto_personal) {
+            var url = '@Url.Action("PrintLiquidacionView", "Comercial")?id_gasto_personal=' + id_gasto_personal;
+            window.open(url, "_blank")
+        }
+        function AddDetalle() {
+            //debugger;
+
+            var idgasto = $("#id_gasto_personalx").val();
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroLiquidacionGasto", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_gasto_personal: idgasto },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentDetalle').html(response);
+                    $('#myModalDetalle').modal(options);
+                    $('#myModalDetalle').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $('#myModalDetalle').on('hide.bs.modal',
+            function(e) {
+                loadDivTbl();
+            });
+        $('#myModalDetalle').on('shown.bs.modal',
+            function (e) {
+                 $("#ruc").blur(function() {
+                    var rucx = $("#ruc").val();
+                    var lengthd = 0;
+                    try {
+                        lengthd = rucx.length;
+                    } catch (e) {
+
+                    }
+                    if (rucx != "" && (lengthd > 0 && lengthd == 11)) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetEmpresaRucMigo", "Empresa")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ rucc: rucx, fromto: "liquidacion"  }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(response) {
+                                console.log("migo: " + JSON.stringify(response));
+
+                                var dataLen = response.length;
+                                console.log("dataLen: " + dataLen);
+
+                                var razon_social = response.nombre_o_razon_social;
+                                var direccion = response.direccion;
+
+                                $("#razon_social").val(razon_social);
+                                //$("#direccion").val(direccion);
+                            },
+                            error: function(request, status, error) {
+                                alert(request.responseText);
+                            }
+                        });
+                    }
+                });
+
+                $(document).ready(function() {
+                    $('#txtValBus_Proyecto').select2();
+                    $('.date-pickerFini').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_operacion').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                    var idcreado = $("#id_gasto_personalxx").val();
+                    console.log("idcreado: " + idcreado);
+                    $("#id_gasto_personalx").val(idcreado);
+                });
+                function InputToUpper(obj) {
+                    if (obj.value != "") {
+                        obj.value = obj.value.toUpperCase();
+                    }
+                }
+                $("#GuardarDetalle").click(function() {
+                    debugger;
+                    var id_save = 0;
+                    var id_gasto_personalxx = $("#id_gasto_personalxx").val();
+                    var txtDocumento = $("#txtDocumento").val();
+
+                    var txtValBus_Proyecto = $("#txtValBus_Proyecto").val();
+                    //var sroyecto = document.getElementById("txtValBus_Proyecto");
+                    //var txtproyecto = sroyecto.options[sroyecto.selectedIndex].innerHTML;;
+                    var txtConcepto = $("#txtConcepto").val();
+                    var sfecha_operacion = $("#sfecha_operacion").val();
+                    var txtMonto = $("#txtMonto").val();
+                    var txtDestino = $("#txtDestino").val();
+                    var ruc = $("#ruc").val();
+                    var razon_social = $("#razon_social").val();
+
+                    if (txtDocumento === '' || sfecha_operacion === '' || txtConcepto === '' || txtDestino === '' ) {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDocumento").focus();
+                        return false;
+                    }
+                    if (txtMonto === '' || txtMonto === '0') {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    id_save = 0;
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaDetalleLiquidacion", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            id_gasto_personal: id_gasto_personalxx,
+                            documento: txtDocumento,
+                            concepto: txtConcepto,
+                            destino: txtDestino,
+                            fecha_operacion: sfecha_operacion,
+                            monto: txtMonto,
+                            ruc: ruc,
+                            razon_social: razon_social,
+                            fk_proyecto: txtValBus_Proyecto
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_gasto_personal_liquidacion = data;
+                            if (parseInt(id_gasto_personal_liquidacion, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCanceld").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_gasto_personal_liquidacion = 0;
+                            }
+                        }
+                    });
+
+                });
+
+            });
+        $('#myModalNew').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+        $('#myModalNew').on('shown.bs.modal',
+            function(e) {
+                var idx = $("#id_gasto_personalx").val();
+                $(document).ready(function() {
+                    loadDivTbl();
+                    $('#txtValBus_Personal').select2();
+                    $('.date-pickerIni').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_apertura').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+
+                    $('.date-pickerFini').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_operacion').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            });
+                    //debugger;
+                    //var ttotalingreso = $("#totalliqx").val();
+                    //var totalliqui = $("#liquidacionx").val();
+                    //var saldux = parseFloat(ttotalingreso) - parseFloat(totalliqui);
+                    //document.getElementById("tsaldo").innerHTML = "SALDO DE EFECTIVO EN CAJA S/. " + saldux.toFixed(2);
+                });
+            });
+
+        function FnVerificaLiqui(id_gasto_personal_liquidacion) {
+            debugger;
+            var chkid = "#chk-" + id_gasto_personal_liquidacion;
+            var cheko = $(chkid).prop('checked');
+            console.log("id_gasto_personal_liquidacion: " + id_gasto_personal_liquidacion);
+            var revisao = '0';
+            if (cheko) {
+                revisao = '1';
+            }
+            swal({
+                title: '¿Está seguro?',
+                text: "Se va a modificar el estado del registro!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Si!'
+            }).then((result) => {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("CheckDetalleLiquidacion", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_gasto_personal_liquidacion: id_gasto_personal_liquidacion, revisado: revisao
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function(data) {
+                        console.log(data);
+                        id_gasto_personal_liquidacion = data;
+                        if (parseInt(id_gasto_personal_liquidacion, 10) > 0) {
+                            swal({
+                                    title: 'Exito!',
+                                    text: 'Se modificó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                console.log("salirs");
+                                loadDivTbl();
+                            });
+
+                        } else {
+                            sweetAlert("", "No se pudo modificar!", "error");
+                            id_gasto_personal_liquidacion = 0;
+                        }
+                    }
+                });
+                },
+                function(dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+
+        }
+
+        function loadDivTbl() {
+            //debugger;
+            var idx = $("#id_gasto_personalx").val();
+            var url = "../Comercial/ListadoDetalleLiquidacion?fk_gasto_personal=" + idx;
+            $('#DivTbl').html('');
+            $('#DivTbl').load(url);
+            //var ttotalingreso = $("#totalliqx").val();
+            //var totalliqui = $("#liquidacionx").val();
+            //var saldux = parseFloat(ttotalingreso) - parseFloat(totalliqui);
+            //document.getElementById("tsaldo").innerHTML = "SALDO DE EFECTIVO EN CAJA S/. " + saldux.toFixed(2);
+            //var ttotalingreso = $("#totalliqx").val();
+            //var totalliqui = $("#liquidacionx").val();
+            //var saldux = parseFloat(ttotalingreso) - parseFloat(totalliqui);
+            //document.getElementById("tsaldo").innerHTML = "SALDO DE EFECTIVO EN CAJA S/. " + saldux.toFixed(2);
+        }
+    function DeleteDetalle (iddetalle) {
+            debugger;
+            id_save = iddetalle;
+
+
+            swal({
+                title: '¿Está seguro?',
+                text: "Se va a eliminar el registro!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Si!'
+            }).then((result) => {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminaDetalleLiquidacion", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_gasto_personal_liquidacion: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function(data) {
+                        console.log(data);
+                        id_gasto_personal_liquidacion = data;
+                        if (parseInt(id_gasto_personal_liquidacion, 10) > 0) {
+                            swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                console.log("salirs");
+                                loadDivTbl();
+                            });
+
+                        } else {
+                            sweetAlert("", "No se pudo eliminar!", "error");
+                            id_gasto_personal_liquidacion = 0;
+                        }
+                    }
+                });
+                },
+                function(dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+        };
+
+
+        function ShowLiquidaciones(id_gasto_personal) {
+            //debugger;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroLiquidacion", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_gasto_personal: id_gasto_personal },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        };
+
+        $(document).ready(function() {
+            Inicia();
+
+        });
+
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                }
+            });
+
+
+        }
+    </script>
+}

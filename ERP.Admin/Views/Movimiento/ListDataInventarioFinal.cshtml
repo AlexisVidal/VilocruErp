@@ -1,0 +1,95 @@
+﻿@model IEnumerable<ERP.Admin.Models.Producto>
+@{
+    decimal StockAct = 0;
+    decimal SubTota = 0;
+    decimal TotaInveFina = 0;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="editabledataRegiCompras" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr style="text-align: center;border: none;">
+                            <th colspan="7" style="text-align:center;height:20px;border: 0px solid black;font-size:11px;padding-right:20px">REGISTRO DEL INVENTARIO PERMANENTE EN UNIDADES FISICAS</th>
+                        </tr>
+                        <tr style="text-align: center; border: none;">
+                            <th colspan="7" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">AL: @ViewBag.FechaInventarioFinal</th>
+                        </tr>
+                        <tr style="text-align: center; border: none;">
+                            <th colspan="7" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">EMPRESA: 20225058319 - CROMO PLASTIC E.I.R.L.</th>
+                        </tr>
+                        <tr style="text-align: center; border: none;">
+                            <th colspan="7" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">DIECCIÓN: AV. COUNTRY A NRO 06 INT 1 (COSTADO TRAGAMONEDAS) PIURA</th>
+                        </tr>
+                        <tr role="row">
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                COD.PRODUCTO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                PRODUCTO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                MARCA
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                SUB-FAMILIA
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                STOCK
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                VALOR COMPRA
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                TOTAL
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            StockAct = item.total_ingreso - item.total_salida;
+                            SubTota = StockAct * item.precio_costo;
+                            TotaInveFina = TotaInveFina + SubTota;
+                            <tr>
+                                <td class="input-xs">
+                                    @item.cod_producto
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.nom_producto
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.descripcion_producto_marca
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.descripcion_producto_subfamilia
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @StockAct
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Convert.ToDecimal(item.precio_costo).ToString("#,##0.00")
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Convert.ToDecimal(SubTota).ToString("#,##0.00")
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="6" style="width: 80px; font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; font-weight: bold;">
+                                TOTAL
+                            </td>
+                            <td style="width: 80px; font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; font-weight: bold;">
+                                @TotaInveFina.ToString("#,##0.00")
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>

@@ -1,0 +1,193 @@
+﻿@model IEnumerable<ERP.Admin.Models.AlmacenStock>
+<script type="text/javascript">
+</script>
+@{
+    string IdTrAlmaStocList = "";
+    string TDIdAlmaStoc = "";
+    string TDFkProd = "";
+    string TDCodiProd = "";
+    string TDCodiSku = "";
+    string TDNombProd = "";
+    string TDDescMarc = "";
+    string TDDescSubFami = "";
+    string TDExistencia = "";
+
+    string CallBy = ViewBag.CallBy;
+    string NombAlma = ViewBag.NombreAlmacen;
+}
+@Html.Hidden("txtAlmaStocList_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">EXISTENCIAS > @NombAlma </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableListAlmacenStock">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                ID_ALMACEN_STOCK
+                            </th>
+                            <th style="display:none">
+                                FK_PRODUCTO
+                            </th>
+                            <th>
+                                CODIGO PROD.
+                            </th>
+                            <th>
+                                CODIGO SKU
+                            </th>
+                            <th>
+                                PRODUCTO
+                            </th>
+                            <th>
+                                MARCA
+                            </th>
+                            <th>
+                                SUB-FAMILIA
+                            </th>
+                            <th>
+                                STOCK
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            IdTrAlmaStocList = "IdTrAlmaStocList" + item.id_almacen_stock;
+                            TDIdAlmaStoc = "TDIdAlmaStoc" + IdTrAlmaStocList;
+                            TDFkProd = "TDFkProd" + IdTrAlmaStocList;
+                            TDCodiProd = "TDCodiProd" + IdTrAlmaStocList;
+                            TDCodiSku = "TDCodiSku" + IdTrAlmaStocList;
+                            TDNombProd = "TDNombProd" + IdTrAlmaStocList;
+                            TDDescMarc = "TDDescMarc" + IdTrAlmaStocList;
+                            TDDescSubFami = "TDDescSubFami" + IdTrAlmaStocList;
+                            TDExistencia = "TDExistencia" + IdTrAlmaStocList;
+
+                            <tr id="@IdTrAlmaStocList">
+                                <td id="@TDIdAlmaStoc" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_almacen_stock)
+                                </td>
+                                <td id="@TDFkProd" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto)
+                                </td>
+                                <td id="@TDCodiProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                </td>
+                                <td id="@TDCodiSku" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                </td>
+                                <td id="@TDNombProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                </td>
+                                <td id="@TDDescMarc" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+                                <td id="@TDDescSubFami" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_subfamilia)
+                                </td>
+                                <td id="@TDExistencia" class="input-xs" style="text-align: right;">
+                                    @Html.DisplayFor(modelItem => item.existencia)
+                                </td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-success" onclick="FnAceptarSoliTraslado('@IdTrAlmaStocList')" style="padding:0; font-size:small; margin-top:-5px"> Seleccionar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right; margin-left: 10px;">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnAceptarSoliTraslado(newTr) {
+        var CallBy = $("#txtAlmaStocList_CallBy").val();
+        var flgExisProd = 0;
+        var FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+        var CodiProd = document.getElementById("TDCodiProd" + newTr).innerHTML.trim();
+        var CodiSku = document.getElementById("TDCodiSku" + newTr).innerHTML.trim();
+        var NombProd = document.getElementById("TDNombProd" + newTr).innerHTML.trim();
+        var DescMarc = document.getElementById("TDDescMarc" + newTr).innerHTML.trim();
+        var DescSubFami = document.getElementById("TDDescSubFami" + newTr).innerHTML.trim();
+        var Exis = document.getElementById("TDExistencia" + newTr).innerHTML.trim();
+
+        if (CallBy == "ComprobanteTrasladoCreate") {
+            flgExisProd = FnValidaExisteProducto(FkProd);
+            if (flgExisProd == 0) {
+                AddTRTableCompTrasladoDetalle(0, FkProd, CodiProd, CodiSku, NombProd, DescMarc, DescSubFami, Exis);
+            }
+            else {
+                sweetAlert("", "Producto ya se encuentra agregado", "error");
+            }
+        }
+    }
+
+    function Inicia() {
+        oTable = $('#editableListAlmacenStock').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>

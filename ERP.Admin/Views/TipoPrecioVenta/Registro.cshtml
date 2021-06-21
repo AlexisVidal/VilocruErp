@@ -1,0 +1,81 @@
+﻿@using ERP.Admin.Models
+@{
+    var _entidad = (TipoPrecioVenta)ViewBag.TipoPrecioVenta;
+    int id_tipo_precio_venta = 0;
+    string nombres = "";
+    decimal porcentajes = 0;
+    if (_entidad != null)
+    {
+        id_tipo_precio_venta = _entidad.id_tipo_precio_venta;
+        nombres = _entidad.nombre;
+        porcentajes = Convert.ToDecimal(_entidad.porcentaje);
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_tipo_precio_ventax", @id_tipo_precio_venta)
+@Html.Hidden("nombresx", @nombres)
+@Html.Hidden("porcentajesx", @porcentajes)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Nombre <sup>*</sup></label>
+                                <div class="col-md-3" style="width:200px">
+                                    @Html.Bootstrap().TextBox("nombre").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Nombre")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Porcentaje <sup>*</sup></label>
+                                <div class="col-md-3" style="width:120px">
+                                    @Html.Bootstrap().TextBox("porcentaje").HtmlAttributes(new { @onkeypress = "return isNumber(event)" }).Placeholder("Porcentaje")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+}
+
+
+
+
+
+

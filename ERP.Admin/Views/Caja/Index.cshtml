@@ -1,0 +1,236 @@
+﻿@{
+    ViewBag.Title = "Registro de Caja";
+    ViewBag.Description = "Caja";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                @if (Request.UrlReferrer != null)
+                {
+                    <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                }
+                Estado:
+                @Html.DropDownList("cmbCaja_FilterEstado", new SelectList(ViewBag.EstadosFilter, "estado", "Nestado", selectedValue: "-1"), new { id = "cmbCaja_FilterEstado" })
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="DivTblCaja"></div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalCaja' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:50%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentCaja'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalMoviCaja' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:60%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentMoviCaja'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalCerrCaja' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentCerrCaja'></div>
+        </div>
+    </div>
+</div>
+@*    <div id='myModalPrecVenta' class='modal fade in' role="dialog">
+        <div class="modal-dialog" style="width:80%; height:auto">
+            <div class="modal-content">
+                <div id='myModalContentPrecVenta'></div>
+            </div>
+        </div>
+    </div>
+    <div id='myModalNotaEntrega' class='modal fade in' role="dialog">
+        <div class="modal-dialog" style="width:70%; height:auto">
+            <div class="modal-content">
+                <div id='myModalContentNotaEntrega'></div>
+            </div>
+        </div>
+    </div>
+    <div id='myModalCliente' class='modal fade in' role="dialog">
+        <div class="modal-dialog" style="width:80%; height:auto">
+            <div class="modal-content">
+                <div id='myModalContentCliente'></div>
+            </div>
+        </div>
+    </div>*@
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script>
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).ready(function () {
+            loadDivTblCaja();
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+            $("#cmbCaja_FilterEstado").change(function () {
+                loadDivTblCaja();
+            });
+        });
+
+        function loadDivTblCaja() {
+            var EstaFilt = $("#cmbCaja_FilterEstado").val();
+            var url = "../Caja/ListIndex?EstaFilt=" + EstaFilt;
+            $('#DivTblCaja').html('');
+            $('#DivTblCaja').load(url);
+        }
+
+        $(document).on('click', '.ingreso_egreso', function () {
+            var tableRow = $(this).closest("tr");
+            IdCaja = tableRow.find("td:eq(0)").text();
+            IdCaja = IdCaja.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "ComprobanteVentaRevertir";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("ViewIngresoEgreso", "Caja")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCaja: IdCaja, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentMoviCaja').html(response);
+                    $('#myModalMoviCaja').modal(options);
+                    $('#myModalMoviCaja').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.cerrar', function () {
+            var tableRow = $(this).closest("tr");
+            IdCaja = tableRow.find("td:eq(0)").text();
+            IdCaja = IdCaja.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "CajaCerrar";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("ViewCerrarCaja", "Caja")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCaja: IdCaja, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCerrCaja').html(response);
+                    $('#myModalCerrCaja').modal(options);
+                    $('#myModalCerrCaja').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.ver', function () {
+            var tableRow = $(this).closest("tr");
+            IdCaja = tableRow.find("td:eq(0)").text();
+            IdCaja = IdCaja.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "CajaVer";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("ViewCerrarCaja", "Caja")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCaja: IdCaja, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCerrCaja').html(response);
+                    $('#myModalCerrCaja').modal(options);
+                    $('#myModalCerrCaja').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+    </script>
+}

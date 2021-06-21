@@ -1,0 +1,55 @@
+﻿<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Pedidos por Facturar > Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="form-group" style="margin: 0">
+                <div class="col-md-4">
+                    @Html.Bootstrap().RadioButton("radioPedidoCotizacion", null).Text("Pedido").HtmlAttributes(new { @class = "colored-success", @onchange = "FnGetPediCotiValueRadio()", @value = 1 }).IsChecked(true)
+                    <div class="horizontal-space"></div>
+                </div>
+                <div class="col-md-4">
+                    @Html.Bootstrap().RadioButton("radioPedidoCotizacion", null).Text("Cotización").HtmlAttributes(new { @class = "colored-danger", @onchange = "FnGetPediCotiValueRadio()", @value = 2 })
+                    <div class="horizontal-space"></div>
+                </div>
+            </div>
+            <div class="widget-body" id="DivListPediFacturar">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        loadDivListPediFacturar();
+    });
+
+    function FnGetPediCotiValueRadio() {
+        loadDivListPediFacturar();
+    }
+
+    function loadDivListPediFacturar() {
+        var opcion = $('input[name=radioPedidoCotizacion]:checked').val();
+        CallBy = "CompVentaCreate";
+        var CharPC = "";
+        if (parseInt(opcion) == 1) {
+            CharPC = "P";
+        } else {
+            CharPC = "C";
+        }
+        var url = "../Pedido/ListaPedidoFacturar?CharPC=" + CharPC + "&CallBy=" + CallBy;
+        $('#DivListPediFacturar').html('');
+        $('#DivListPediFacturar').load(url);
+    }
+</script>

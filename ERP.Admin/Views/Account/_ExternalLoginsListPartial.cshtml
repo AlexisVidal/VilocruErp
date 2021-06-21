@@ -1,0 +1,21 @@
+﻿@model ERP.Admin.Models.ExternalLoginListViewModel
+@using Microsoft.Owin.Security
+
+@{
+
+    var loginProviders = Context.GetOwinContext().Authentication.GetExternalAuthenticationTypes();
+    if (loginProviders.Count() > 0)
+    {
+        using (Html.BeginForm("ExternalLogin", "Account", new { ReturnUrl = Model.ReturnUrl }))
+        {
+            @Html.AntiForgeryToken()
+            <div class="loginbox-social">
+                <div class="social-title ">Utilice credenciales válidas.</div>
+                <div class="social-buttons" style="height:auto" id="socialLoginList">
+                    <img src=@ViewBag.Logo style="width:140px" />
+                    @*<img src="~/assets/img/cromo_plastic300.png" style="width:140px" />*@
+                </div>
+            </div>
+        }
+    }
+}

@@ -1,0 +1,1088 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Registro de Productos";
+    ViewBag.Description = "producto";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.Producto>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="NewRegistro" class="btn btn-danger">
+                        Nuevo registro
+                    </a>
+                    @*<a id="NewUpload" class="btn btn-success">
+                        Subir Archivo Excel
+                    </a>*@
+                    <a id="NewUpload2" href='@Url.Action("UploadCustom", "Producto")' class="btn btn-success">
+                        Subir Archivo Excel
+                    </a>
+                    
+                </div>
+                <table class="table table-striped table-hover table-bordered" >
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_producto)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_proveedor)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_marca)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_subfamilia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_familia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_tipo_moneda)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.descripcion_tipo_moneda)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.cod_producto)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.codigo_sku)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.nom_producto)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.descripcion_producto_marca)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.codigo_producto_familia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.descripcion_producto_familia)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.codigo_producto_subfamilia)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.descripcion_producto_subfamilia)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.embalaje)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.preciocomprafinal)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.image_url)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.image_url)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NEstado)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_producto)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_proveedor)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_marca)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_subfamilia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_producto_familia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.fk_tipo_moneda)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.descripcion_tipo_moneda)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.codigo_producto_familia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_familia)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.codigo_producto_subfamilia)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_subfamilia)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.embalaje)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.preciocomprafinal)
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.image_url)
+                                </td>
+                                <td>
+                                    @if (item.image_url.ToString() != "")
+                                    {
+                                        <button class="btn btn-success .shiny ver" style="padding:0;font-size:small;margin-top:-5px" value="@item.image_url.ToString()">Ver Imagen</button> <br />
+                                    }
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td>
+                                    <button class="btn btn-success .shiny edita" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button> <br />
+                                    @if (item.NEstado == "ACTIVO")
+                                    {
+                                        <button class="btn btn-warning .shiny elimina" style="padding: 2px; font-size: small; margin-top: -5px">Desactivar</button><br />
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-palegreen .shiny activa" style="padding: 2px; font-size: small; margin-top: -5px">Activar</button><br />
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:600px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalFoto' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:500px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentFoto'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalUpload' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentUpload'></div>
+        </div>
+    </div>
+</div>
+<div id="spinnera" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+
+    @*<script src="~/assets/js/jqueryui/jquery-ui.js"></script>*@
+    <script src="~/assets/js/validation/bootstrapValidator.js"></script>
+    @*<script src="~/assets/css/autocomplete/jquery-2.1.4.min.js"></script>*@
+    <link href="~/assets/css/autocomplete/jquery-ui-1.11.1/jquery-ui.min.css" rel="stylesheet" />
+    <script src="~/assets/css/autocomplete/jquery-ui-1.11.1/jquery-ui.min.js"></script>
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <script>
+        var id_producto = 0;
+        $(document).ready(function () {
+            //$('#spinner').bind("ajaxSend", function () {
+            //    $(this).show();
+            //}).bind("ajaxComplete", function () {
+            //    $(this).hide();
+            //    });
+
+            //$('#spinnera').show();
+            //Inicia();
+            $('#spinnera').hide();
+        });
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+        function CalculaPrecioFinalD1(obj) {
+            if (obj.value != "") {
+                var pc = $("#precio_compra").val();
+                var d2 = $("#dsctodosp").val();
+                var d3 = $("#dsctotresp").val();
+                var d4 = $("#dsctocuatrop").val();
+                if (pc == "") {
+                    pc = 0;
+                }
+                if (d2 == "") {
+                    d2 = 0;
+                }
+                if (d3 == "") {
+                    d3 = 0;
+                }
+                if (d4 == "") {
+                    d4 = 0;
+                }
+                var d1 = obj.value;
+                var pfinal = (pc - ((pc / 100) * d1));
+                pfinal = (pfinal - ((pfinal / 100) * d2));
+                pfinal = (pfinal - ((pfinal / 100) * d3));
+                pfinal = (pfinal - ((pfinal / 100) * d4));
+                $("#preciocomprafinal").val(Math.round(pfinal));
+            }
+        }
+        function CalculaPrecioFinalD2(obj) {
+            if (obj.value != "") {
+                var pc = $("#precio_compra").val();
+                var d1 = $("#dsctounop").val();
+                var d3 = $("#dsctotresp").val();
+                var d4 = $("#dsctocuatrop").val();
+                if (pc == "") {
+                    pc = 0;
+                }
+                if (d1 == "") {
+                    d1 = 0;
+                }
+                if (d3 == "") {
+                    d3 = 0;
+                }
+                if (d4 == "") {
+                    d4 = 0;
+                }
+                var d2 = obj.value;
+                var pfinal = (pc - ((pc / 100) * d1));
+                pfinal = (pfinal - ((pfinal / 100) * d2));
+                pfinal = (pfinal - ((pfinal / 100) * d3));
+                pfinal = (pfinal - ((pfinal / 100) * d4));
+                $("#preciocomprafinal").val(Math.round(pfinal));
+            }
+        }
+        function CalculaPrecioFinalD3(obj) {
+            if (obj.value != "") {
+                var pc = $("#precio_compra").val();
+                var d1 = $("#dsctounop").val();
+                var d2 = $("#dsctodosp").val();
+                var d4 = $("#dsctocuatrop").val();
+                if (pc == "") {
+                    pc = 0;
+                }
+                if (d1 == "") {
+                    d1 = 0;
+                }
+                if (d2 == "") {
+                    d2 = 0;
+                }
+                if (d4 == "") {
+                    d4 = 0;
+                }
+                var d3 = obj.value;
+                var pfinal = (pc - ((pc / 100) * d1));
+                pfinal = (pfinal - ((pfinal / 100) * d2));
+                pfinal = (pfinal - ((pfinal / 100) * d3));
+                pfinal = (pfinal - ((pfinal / 100) * d4));
+                $("#preciocomprafinal").val(Math.round(pfinal));
+            }
+        }
+        function CalculaPrecioFinalD4(obj) {
+            if (obj.value != "") {
+                var pc = $("#precio_compra").val();
+                var d1 = $("#dsctounop").val();
+                var d3 = $("#dsctotresp").val();
+                var d2 = $("#dsctodosp").val();
+                if (pc == "") {
+                    pc = 0;
+                }
+                if (d1 == "") {
+                    d1 = 0;
+                }
+                if (d3 == "") {
+                    d3 = 0;
+                }
+                if (d2 == "") {
+                    d2 = 0;
+                }
+                var d4 = obj.value;
+                var pfinal = (pc - ((pc / 100) * d1));
+                pfinal = (pfinal - ((pfinal / 100) * d2));
+                pfinal = (pfinal - ((pfinal / 100) * d3));
+                pfinal = (pfinal - ((pfinal / 100) * d4));
+                $("#preciocomprafinal").val(Math.round(pfinal));
+            }
+        }
+        function CalculaPrecioFinal(obj) {
+            if (obj.value != "") {
+                var d1 = $("#dsctounop").val();
+                var d2 = $("#dsctodosp").val();
+                var d3 = $("#dsctotresp").val();
+                var d4 = $("#dsctocuatrop").val();
+                if (d1 == "") {
+                    d1 = 0;
+                }
+                if (d2 == "") {
+                    d2 = 0;
+                }
+                if (d3 == "") {
+                    d3 = 0;
+                }
+                if (d4 == "") {
+                    d4 = 0;
+                }
+                var pcompra = obj.value;
+                var pfinal = (pcompra - ((pcompra / 100) * d1));
+                pfinal = (pfinal - ((pfinal / 100) * d2));
+                pfinal = (pfinal - ((pfinal / 100) * d3));
+                pfinal = (pfinal - ((pfinal / 100) * d4));
+                $("#preciocomprafinal").val(Math.round(pfinal));
+            }
+        }
+        $("#NewRegistro").click(function () {
+            //debugger;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Registro", "Producto")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_save: id_producto },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+        $("#NewUpload").click(function () {
+            //debugger;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Upload", "Producto")',
+                contentType: "application/json; charset=utf-8",
+                //data: { id_save: id_producto },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentUpload').html(response);
+                    $('#myModalUpload').modal(options);
+                    $('#myModalUpload').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        function Handlechange() {
+            //debugger;
+            var fileinput = document.getElementById("FileUpload1");
+            var textinput = document.getElementById("lblNombArch");
+            fullPath = fileinput.value;
+            var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+            var filename = fullPath.substring(startIndex);
+            if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+                filename = filename.substring(1);
+            }
+            textinput.value = filename;
+        };
+        $('#myModalNew').on('hide.bs.modal', function (e) {
+            window.location.reload();
+        });
+        $('#myModalUpload').on('hide.bs.modal', function (e) {
+            window.location.reload();
+        });
+        $('#myModalUpload').on('shown.bs.modal', function (e) {
+            $(document).ready(function () {
+                $('#spinner').hide();
+            });
+            $("#Importar").click(function () {
+                //debugger;
+                var fileUpload = $("#excelfile").get(0);
+                var files = fileUpload.files;
+
+                var fileData = new FormData();
+                var flgSaveOk = 0;
+                if (files.length > 0) { //Guardamos la Imagen
+                    console.log("en el if de importar");
+                    for (var i = 0; i < files.length; i++) {
+                        fileData.append(files[i].name, files[i]);
+                    }
+                    $.when(
+                        $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("Import", "Producto")',
+                        contentType: false,
+                        processData: false,
+                        data: fileData,
+                        dataType: 'json',
+                        traditional: true,
+                        beforeSend: function () {
+                            $('#spinner').show();
+                        },
+                        success: function (data) {
+                            console.log("data: " + data);
+                            console.log("data.length: " + data.length);
+                            if (data.length > 10) {
+                                swal({
+                                    title: 'Error!',
+                                    text: 'Porfavor revise el archivo de excel!. Error: ' + data,
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                })
+                                console.log("salirs");
+                                //$("#btnCancelU").click();
+                            }
+                            else if (parseInt(data, 10) > 0 && parseInt(data, 10) < 999999) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registraron '+ data + ' productos satisfactoriamente!',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                })
+                                console.log("salirs");
+                                $("#btnCancelU").click();
+                            } else if (parseInt(data, 10) == 999999) {
+                                swal({
+                                    title: 'Error!',
+                                    text: 'Porfavor revise el archivo de excel!',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                })
+                                console.log("salirs");
+                                $("#btnCancelU").click();
+                            } else if (parseInt(data, 10) == 0) {
+                                swal({
+                                    title: 'Error!',
+                                    text: 'No se registró ningun producto!',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }, function () {
+
+                                })
+                                console.log("salirs");
+                                $("#btnCancelU").click();
+                            }
+
+                        },
+                        error: function (data) {
+                            sweetAlert("Error: ", data.responseText, "error");
+                        },
+                        complete: function () {
+                            //check that it does exist and remove
+                            if ($('#spinner').length > 0) {
+                                $('#spinner').hide();
+                            }
+                        }
+                    })).then(function (response) {
+
+                    });
+                }
+
+            });
+        });
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+
+            var idx = $("#id_productox").val();
+
+            var fk_proveedorsxx = $("#fk_proveedorsx").val();
+            var fk_producto_marcasxx = $("#fk_producto_marcasx").val();
+            var fk_producto_subfamiliasxx = $("#fk_producto_subfamiliasx").val();
+            var fk_tipo_monedasxx = $("#fk_tipo_monedasx").val();
+            var embalajesxx = $("#embalajesx").val();
+            var cod_productosxx = $("#cod_productosx").val();
+            var nom_productosxx = $("#nom_productosx").val();
+            var codigo_skusxx = $("#codigo_skusx").val();
+            var image_urlsxx = $("#image_urlsx").val();
+            var descripcion_producto_marcasxx = $("#descripcion_producto_marcasx").val();
+            var codigo_producto_subfamiliasxx = $("#codigo_producto_subfamiliasx").val();
+            var descripcion_producto_subfamiliasxx = $("#descripcion_producto_subfamiliasx").val();
+            var codigo_producto_familiasxx = $("#codigo_producto_familiasx").val();
+            var descripcion_producto_familiasxx = $("#descripcion_producto_familiasx").val();
+
+            var id_precio_comprax = $("#id_precio_comprax").val();
+            var preciocomprasxx = $("#preciocomprasx").val();
+            var dscto1sxx = $("#dscto1sx").val();
+            var dscto2sxx = $("#dscto2sx").val();
+            var dscto3sxx = $("#dscto3sx").val();
+            var dscto4sxx = $("#dscto4sx").val();
+            var preciofinalsxx = $("#preciofinalsx").val();
+
+
+            if (idx != "0") {
+                //debugger;
+                console.log("idxxx: " + idx);
+                $("#txtValBus_Proveedor").val(fk_proveedorsxx);
+                $("#txtValBus_Marca").val(fk_producto_marcasxx);
+                $('#txtValBus_Marca').trigger('change');
+                $("#txtValBus_MarcaSf").val(fk_producto_subfamiliasxx);
+                $("#txtValBus_TipoMoneda").val(fk_tipo_monedasxx);
+
+                $("#nom_producto").val(nom_productosxx);
+                $("#codigo_sku").val(codigo_skusxx);
+                $("#precio_compra").val(preciocomprasxx);
+                $("#dsctounop").val(dscto1sxx);
+                $("#dsctodosp").val(dscto2sxx);
+                $("#dsctotresp").val(dscto3sxx);
+                $("#dsctocuatrop").val(dscto4sxx);
+                $("#preciocomprafinal").val(preciofinalsxx);
+            }
+
+            $(document).ready(function () {
+                var marcaax = "0";
+                try {
+                    marcaax = $("#txtValBus_Marca").val();
+                    console.log("marcaax: " + marcaax);
+                }
+                catch (e) {
+
+                }
+                //if (marcaax != "0") {
+                //    $.when(
+                //         LlenaSubFamilias(marcaax)
+                //         ).then(
+                //         CargaSubFa()
+                //         );
+                //    //var subfa = $("#fk_producto_subfamiliasx").val();
+                //    //if (subfa != "") {
+                //    //    console.log("subfa marcaxx:" + subfa);
+                //    //    $("#txtValBus_MarcaSf").val(subfa);
+                //    //}
+                //}
+
+
+                $("#txtValBus_Marca").change(function () {
+                    var opcion = $(this).val();
+                    console.log("opcion: " + opcion);
+                    //LlenaSubFamilias(opcion);
+                    //var subfa = $("#fk_producto_subfamiliasx").val();
+                    //if (subfa != "") {
+                    //    console.log("subfa change:" + subfa);
+                    //    $("#txtValBus_MarcaSf").val(subfa);
+                    //}
+                });
+
+            });
+
+            function LlenaSubFamilias(opcion) {
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        //url: "Filter_ZonaEmbarque",
+                        url: '@Url.Action("Filter_ProductoMarcaSubFamiliaAsync", "Producto")',
+                        data: JSON.stringify({ id: opcion }),
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        success: function (response) {
+                            $('#txtValBus_MarcaSf option').remove();
+                            var dataLen = response.length;
+                            $('#txtValBus_MarcaSf').append('<option value=""></option>');
+                            for (i = 0; i < dataLen; i++) {
+                                $('#txtValBus_MarcaSf').append('<option value="' + response[i].id_producto_marca_subfamilia + '">' + response[i].NSubFamilia +' - '+ response[i].fami + '</option>');
+                            }
+                        }
+                    })).then(function (response) {
+                        CargaSubFa();
+                    });
+            }
+            function CargaSubFa() {
+                var subfa = $("#fk_producto_subfamiliasx").val();
+                if (subfa != "") {
+                    console.log("subfa change when:" + subfa);
+                    $("#txtValBus_MarcaSf").val(subfa);
+                }
+            };
+
+            $("#Guardar").click(function () {
+                var nomArc = $("#lblNombArch").val();
+                console.log("nomArc: " + nomArc);
+                var id_save = 0;
+                var fkproveedor = $("#txtValBus_Proveedor").val();
+                var fkproductomarca = $("#txtValBus_Marca").val();
+                var fkproductosubfamilia = $("#txtValBus_MarcaSf").val();
+                var fktipomoneda = $("#txtValBus_TipoMoneda").val();
+                var nomproducto = $("#nom_producto").val();
+                var codigosku = $("#codigo_sku").val();
+                var embalaje = $("#embalaje").val();
+
+                var id_precio = $("#id_precio_comprax").val();
+                if (id_precio == '') {
+                    id_precio = 0;
+                }
+                var preciocompra = $("#precio_compra").val();
+                if (preciocompra == '') {
+                    preciocompra = 0;
+                }
+                var dscto1 = $("#dsctounop").val();
+                if (dscto1 == '') {
+                    dscto1 = 0;
+                }
+                var dscto2 = $("#dsctodosp").val();
+                if (dscto2 == '') {
+                    dscto2 = 0;
+                }
+                var dscto3 = $("#dsctotresp").val();
+                if (dscto3 == '') {
+                    dscto3 = 0;
+                }
+                var dscto4 = $("#dsctocuatrop").val();
+                if (dscto4 == '') {
+                    dscto4 = 0;
+                }
+                var preciofinal = $("#preciocomprafinal").val();
+                if (preciofinal == '') {
+                    preciofinal = 0;
+                }
+
+                if (fkproductosubfamilia === '' && nomproducto === '' && fkproductomarca === '' && fkproveedor === '') {
+                    sweetAlert("", "Datos Incompletos", "error");
+                    $("#nom_producto").focus();
+                    return false;
+                }
+
+                id_save = parseInt($("#id_productox").val(), 10);
+                var codproduct = $("#cod_productosx").val();
+                var image_urlsx = $("#image_urlsx").val();
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Guarda", "Producto")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save, fk_proveedor: fkproveedor, fk_producto_marca: fkproductomarca, fk_producto_subfamilia: fkproductosubfamilia, nom_producto: nomproducto, codigo_sku: codigosku, embalaje:embalaje,
+                            id_precio: id_precio, preciocompra: preciocompra, dscto1: dscto1, dscto2: dscto2, dscto3: dscto3, dscto4: dscto4, preciocomprafinal: preciofinal, fktipomoneda: fktipomoneda, codproduct: codproduct, nomArc: nomArc, image_urlsx: image_urlsx
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto = data;
+                            if (parseInt(id_producto, 10) > 0) {
+                                var nomArc = $("#lblNombArch").val();
+                                if (nomArc != "") {
+                                    GuardaTodo(id_producto);
+                                } else {
+                                    swal({
+                                        title: 'Exito!',
+                                        text: 'Producto se registró correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function () {
+                                        window.location.reload();
+                                    });
+                                //console.log("salirs");
+                                //$("#btnCancel").click();
+                                }
+
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto = 0;
+                            }
+                        }
+                    })).then(function (response) {
+
+                    });
+            });
+
+            function GuardaTodo(id_producto) {
+            var nomArc = $("#lblNombArch").val();
+            var fileUpload = $("#FileUpload1").get(0);
+            var files = fileUpload.files;
+            var fileData = new FormData();
+            var flgSaveOk = 0;
+            if (files.length > 0) { //Guardamos la Imagen
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+                fileData.append(id_producto, files[i]);
+            }
+            $.when(
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GuardarImagenProducto", "Producto")',
+                contentType: false,
+                processData: false,
+                data: fileData,
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                    ActualizaProducto(data);
+                     },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            })).then(function (response) {
+                //GuardaTodo()
+            });
+        }
+        }
+
+        function ActualizaProducto(urls) {
+            if (id_producto > 0) { //Guardamos la Imagen
+            $.when(
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ActualizaProducto", "Producto")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    id_save: id_producto, image_url: urls
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                    id_producto = data;
+                    if (parseInt(id_producto, 10) > 0) {
+                        swal({
+                            title: 'Exito!',
+                            text: 'Producto se registró correctamente',
+                            type: 'success',
+                            showCancelButton: false,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Ok'
+                        }).then(function () {
+                            window.location.reload();
+                        });
+
+
+                    } else {
+                        sweetAlert("", "No se pudo registrar!", "error");
+                        id_producto = 0;
+                    }
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            })).then(function (response) {
+                //GuardaTodo()
+            });
+        }
+        }
+        });
+
+        $(document).on('click', '.ver', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    //console.log("thiscloses: " + JSON.stringify(tableRow));
+                    var foto = tableRow.find("td:eq(17)").text();
+                    foto = foto.trim();
+                    console.log("foto: " + foto);
+                    var options = { "backdrop": "static", keyboard: true };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("VerFoto", "Producto")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { foto: foto },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentFoto').html(response);
+                            $('#myModalFoto').modal(options);
+                            $('#myModalFoto').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+
+        $(document).on('click', '.edita', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    //console.log("thiscloses: " + JSON.stringify(tableRow));
+                    id_producto = tableRow.find("td:eq(0)").text();
+                    console.log("id_producto: " + id_producto);
+                    id_producto = id_producto.trim();
+                    console.log("idgeneral: " + id_producto);
+                    var options = { "backdrop": "static", keyboard: false };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("Registro", "Producto")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { id_save: id_producto },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentNew').html(response);
+                            $('#myModalNew').modal(options);
+                            $('#myModalNew').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+        $(document).on('click', '.elimina', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    var id_save = tableRow.find("td:eq(0)").text();
+                    id_save = id_save.trim();
+                    var statux = tableRow.find("td:eq(19)").text();
+                    statux = statux.trim();
+                    console.log("status: " + statux);
+                    var options = { "backdrop": "static", keyboard: false };
+                    if (statux == "ACTIVO") {
+                        $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("Elimina", "Producto")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto = data;
+                            if (parseInt(id_producto, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Producto se desactivó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function () {
+                                    window.location.reload();
+                                });
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto = 0;
+                            }
+                        }
+                    });
+                    }
+
+                    return false;
+                });
+        $(document).on('click', '.activa', function () {
+            //debugger;
+            var tableRow = $(this).closest("tr");
+            var id_save = tableRow.find("td:eq(0)").text();
+            id_save = id_save.trim();
+            var statux = tableRow.find("td:eq(19)").text();
+            statux = statux.trim();
+            console.log("status: " + statux);
+            var options = { "backdrop": "static", keyboard: false };
+            if (statux == "INACTIVO") {
+                $.ajax({
+                    type: 'POST',
+                    //url: "SaveTraslado",
+                    url: '@Url.Action("Elimina", "Producto")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_save: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (data) {
+                        console.log(data);
+                        id_producto = data;
+                        if (parseInt(id_producto, 10) > 0) {
+                            swal({
+                                title: 'Exito!',
+                                text: 'Producto se activó correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                            }).then(function () {
+                                window.location.reload();
+                            });
+                        } else {
+                            sweetAlert("", "No se pudo registrar!", "error");
+                            id_producto = 0;
+                        }
+                    }
+                });
+            }
+
+            return false;
+        });
+
+
+        //$(document).ready(function () {
+        //    if ($('#spinner').length > 0) {
+        //        $('#spinner').hide();
+        //        Inicia();
+        //    }
+        //    //Inicia();
+        //});
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                        //,
+                        //{
+                        //    "sExtends": "collection",
+                        //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                        //    "aButtons": ["csv", "xls", "pdf"]
+                        //}
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+            var isEditing = null;
+
+            $('#spinnera').hide();
+        }
+    </script>
+
+}

@@ -1,0 +1,422 @@
+﻿@model IEnumerable<ERP.Admin.Models.ProyectoErp>
+@using ERP.Admin.Models
+@{
+    decimal preciofin = (decimal)ViewBag.PrecioFinal;
+
+    string Codigoproyecto = ViewBag.Codigoproyecto;
+    string Cliente = ViewBag.Cliente;
+    string RucCliente = ViewBag.Ruccliente;
+    string Descripcion = ViewBag.Descripcion;
+    string Observacion = ViewBag.Observacion;
+    string Inicio = ViewBag.Inicio;
+    string Fin = ViewBag.Fin;
+    string Montoservicio = ViewBag.Montoservicio;
+    string Moneda = ViewBag.Moneda;
+    string Servicios = ViewBag.Servicios;
+    List<string> Lservicios = ViewBag.Lservicios;
+    List<ServicioTomadoErp> lstServicioTomado = new List<ServicioTomadoErp>();
+
+    decimal preciocompratotal = 0;
+    if (ViewBag.ServiciosTomados != null)
+    {
+        lstServicioTomado = (List<ServicioTomadoErp>)ViewBag.ServiciosTomados;
+        precioserviciototal = lstServicioTomado.Sum(x => x.total);
+    }
+    decimal precioserviciototal = 0;
+    List<CompraDetalle> lstComprasDetalles = new List<CompraDetalle>();
+    if (ViewBag.CompraDetalles != null)
+    {
+        lstComprasDetalles = (List<CompraDetalle>)ViewBag.CompraDetalles;
+        preciocompratotal = lstComprasDetalles.Sum(x => x.precio);
+    }
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+<script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+<script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+<script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+<script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+<script src="~/assets/js/datatable/datatables-init.js"></script>
+<div class="row" id="printTable">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom: 0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Servicio -  </span>
+                <button type="button" class="btn btn-default btn-xs" rel="tooltip" data-placement="bottom" data-original-title="Cerrar" style="float: right; line-height: 2.4;" data-dismiss="modal" aria-hidden="true">
+                    <i class="glyphicon glyphicon-remove"></i>
+                </button>
+                <a href="#" onclick="printData()">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/PDF_32.ico" />
+                </a>
+            </div>
+            <div class="widget-body" style="padding-top:0">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h5>Datos</h5>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1" style="text-align: right; font-weight: bold">
+                                CODIGO
+                            </div>
+                            <div class="col-md-1">
+                                @Codigoproyecto
+                            </div>
+                            <div class="col-md-2" style="text-align: right; font-weight: bold">
+                                DESCRIPCION
+                            </div>
+                            <div class="col-md-8">
+                                @Descripcion
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1" style="text-align: right; font-weight: bold">
+                                RUC
+                            </div>
+                            <div class="col-md-1">
+                                @RucCliente
+                            </div>
+                            <div class="col-md-2" style="text-align: right; font-weight: bold">
+                                CLIENTE
+                            </div>
+                            <div class="col-md-8">
+                                @Cliente
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1" style="text-align: right; font-weight: bold">
+                                INICIO
+                            </div>
+                            <div class="col-md-1">
+                                @Inicio
+                            </div>
+                            <div class="col-md-1" style="text-align: right; font-weight: bold">
+                                FIN
+                            </div>
+                            <div class="col-md-1">
+                                @Fin
+                            </div>
+                            <div class="col-md-1" style="text-align: right; font-weight: bold">
+                                MONTO
+                            </div>
+                            <div class="col-md-2">
+                                @Montoservicio
+                            </div>
+                            <div class="col-md-1" style="text-align: right; font-weight: bold">
+                                MONEDA
+                            </div>
+                            <div class="col-md-2">
+                                @Moneda
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12" style="text-align: center; font-weight: bold">
+                                <label style="margin-bottom: 2px; font-weight: bolder !important">SERVICIOS</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12" style="text-align: center;">
+                                <table style="width: 100%">
+                                    <tbody>
+                                        @foreach (var ite in Lservicios)
+                                        {
+                                            <tr>
+                                                <td>- @ite</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1" style="text-align: right; font-weight: bold">
+                                OBSERVACIONES
+                            </div>
+                            <div class="col-md-11">
+                                @Observacion
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:15px">
+                            <div class="col-md-12">
+                                <h5>Compras</h5>
+                                <table class="table table-striped table-hover table-bordered" id="comprasproyecto" style="font-size: 10px">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="font-size: 11px">
+                                                FECHA
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                PROVEEDOR
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                SOLICITANTE
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                COD PRODUCTO
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                COD SKU
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                FAMILIA
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                MARCA
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                PRODUCTO
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                CANT
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                PRECIO
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                TOTAL
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @{
+                                            foreach (var item in lstComprasDetalles)
+                                            {
+
+                                                decimal total = Convert.ToDecimal(item.cantidad) * Convert.ToDecimal(item.precio);
+
+                                                string fcompra = @item.f_compra; //.ToString("dd/MM/yyyy");
+
+                                                string solicita = @item.nombres + " " + @item.A_PATERNO + " " + @item.A_MATERNO;
+                                                int idcompra = @item.id_compra;
+
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.f_compra)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.razon_social)
+                                                    </td>
+                                                    <td>
+                                                        @solicita
+                                                    </td>
+
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.cod_producto)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.codigo_sku)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.descripcion_producto_familia)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.nom_producto)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => item.cantidad)
+                                                    </td>
+                                                    <td style="text-align: right">
+                                                        @Html.DisplayFor(modelItem => item.precio)
+                                                    </td>
+                                                    <td style="text-align: right">
+                                                        @total.ToString("N")
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="10" style="font-weight: bolder; text-align: right; font-size: 12px">TOTAL</td>
+                                            <td style="font-weight: bolder; text-align: right; font-size: 12px">
+                                                @preciocompratotal.ToString("N")
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top:15px">
+                            <div class="col-md-12">
+                                <h5>Servicios Terceros</h5>
+                                <table class="table table-striped table-hover table-bordered" id="serviciostomaproyecto" style="font-size: 10px">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="font-size: 11px">
+                                                FECHA
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                PROVEEDOR
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                SOLICITANTE
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                SERVICIO
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                CANT
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                PRECIO
+                                            </th>
+                                            <th style="font-size: 11px">
+                                                TOTAL
+                                            </th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @{
+                                            foreach (var itemx in lstServicioTomado)
+                                            {
+
+                                                decimal total = Convert.ToDecimal(itemx.cantidad) * Convert.ToDecimal(itemx.precio);
+
+                                                string fcompra = itemx.f_servicio.ToString("dd/MM/yyyy");
+
+                                                string solicita = itemx.nombres + " " + itemx.A_PATERNO + " " + itemx.A_MATERNO;
+                                                int idcompra = itemx.id_servicio_tomado;
+
+                                                <tr>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => itemx.df_servicio)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => itemx.razon_social_compra)
+                                                    </td>
+                                                    <td>
+                                                        @solicita
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => itemx.nombre_servicio)
+                                                    </td>
+                                                    <td>
+                                                        @Html.DisplayFor(modelItem => itemx.cantidad)
+                                                    </td>
+                                                    <td style="text-align: right">
+                                                        @Html.DisplayFor(modelItem => itemx.precio)
+                                                    </td>
+                                                    <td style="text-align: right">
+                                                        @total.ToString("N")
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="6" style="font-weight: bolder; text-align: right; font-size: 12px">TOTAL</td>
+                                            <td style="font-weight: bolder; text-align: right; font-size: 12px">
+                                                @precioserviciototal.ToString("N")
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<style>
+    tr.group,
+    tr.group:hover {
+        background-color: #ddd !important;
+        text-align: center;
+    }
+</style>
+<script>
+    function printData() {
+        var divToPrint = document.getElementById("printTable");
+        newWin = window.open("");
+        newWin.document.write(divToPrint.outerHTML);
+        newWin.print();
+        newWin.close();
+    }
+    $(document).ready(function () {
+        var groupColumn = 1;
+        var groupColumn2 = 1;
+        var table = $('#comprasproyecto').DataTable({
+            "columnDefs": [
+                { "visible": false, "targets": groupColumn }
+            ],
+            "order": [[groupColumn, 'asc']],
+            "displayLength": -1,
+            "sDom": "",
+            "drawCallback": function (settings) {
+                var api = this.api();
+                var rows = api.rows({ page: 'current' }).nodes();
+                var last = null;
+
+                api.column(groupColumn, { page: 'current' }).data().each(function (group, i) {
+                    if (last !== group) {
+                        $(rows).eq(i).before(
+                            '<tr class="group"><td colspan="10">PROVEEDOR: ' + group + '</td></tr>'
+                        );
+
+                        last = group;
+                    }
+                });
+            }
+        });
+
+        // Order by the grouping
+        $('#comprasproyecto tbody').on('click', 'tr.group', function () {
+            var currentOrder = table.order()[0];
+            if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
+                table.order([groupColumn, 'desc']).draw();
+            }
+            else {
+                table.order([groupColumn, 'asc']).draw();
+            }
+        });
+
+        var table2 = $('#serviciostomaproyecto').DataTable({
+            "columnDefs": [
+                { "visible": false, "targets": groupColumn2 }
+            ],
+            "order": [[groupColumn2, 'asc']],
+            "displayLength": -1,
+            "sDom": "",
+            "drawCallback": function (settings) {
+                var api2 = this.api();
+                var rows2 = api2.rows({ page: 'current' }).nodes();
+                var last2 = null;
+
+                api2.column(groupColumn2, { page: 'current' }).data().each(function (group, i) {
+                    if (last2 !== group) {
+                        $(rows2).eq(i).before(
+                            '<tr class="group"><td colspan="10">PROVEEDOR: ' + group + '</td></tr>'
+                        );
+
+                        last2 = group;
+                    }
+                });
+            }
+        });
+
+        //// Order by the grouping
+        $('#serviciostomaproyecto tbody').on('click', 'tr.group', function () {
+            var currentOrder2 = table2.order()[0];
+            if (currentOrder2[0] === groupColumn2 && currentOrder2[1] === 'asc') {
+                table2.order([groupColumn2, 'desc']).draw();
+            }
+            else {
+                table2.order([groupColumn2, 'asc']).draw();
+            }
+        });
+    });
+</script>

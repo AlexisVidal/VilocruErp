@@ -1,0 +1,334 @@
+﻿@{
+    ViewBag.Title = "Registro de Solicitud de Traslados";
+    ViewBag.Description = "Solicitud de Traslados";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                Estado:
+                @Html.DropDownList("cmbSoliTras_FilterEstado", new SelectList(ViewBag.EstadosFilter, "estado", "Nestado", selectedValue: "-1"), new { id = "cmbSoliTras_FilterEstado" })
+            <div class="widget-buttons">
+                @if (Request.UrlReferrer != null)
+                {
+                    <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                }
+                <a href="#" data-toggle="maximize">
+                    <i class="fa fa-expand"></i>
+                </a>
+                <a href="#" data-toggle="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+                <a href="#" data-toggle="dispose">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+            </div>
+            <div id="DivTblSoliTraslado"></div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalSoliTraslado' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:90%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentSoliTraslado'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalListProducto' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentListProducto'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script>
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).ready(function () {
+            loadDivTblSoliTraslado();
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+            $("#cmbSoliTras_FilterEstado").change(function () {
+                loadDivTblSoliTraslado();
+            });
+        });
+
+        function loadDivTblSoliTraslado() {
+            var EstaFilt = $("#cmbSoliTras_FilterEstado").val();
+            var url = "../SolicitudTraslado/ListIndex?EstaFilt=" + EstaFilt;
+            $('#DivTblSoliTraslado').html('');
+            $('#DivTblSoliTraslado').load(url);
+        }
+
+        $(document).on('click', '.editar', function () {
+            var tableRow = $(this).closest("tr");
+            IdSoliTras = tableRow.find("td:eq(0)").text();
+            IdSoliTras = IdSoliTras.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "SolicitudTrasladoEditar";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "SolicitudTraslado")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdSoliTras: IdSoliTras, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentSoliTraslado').html(response);
+                    $('#myModalSoliTraslado').modal(options);
+                    $('#myModalSoliTraslado').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+        @*$(document).on('click', '.revertir', function () {
+            var tableRow = $(this).closest("tr");
+            IdCompVent = tableRow.find("td:eq(0)").text();
+            IdCompVent = IdCompVent.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "ComprobanteVentaRevertir";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCompVent: IdCompVent, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentSoliTraslado').html(response);
+                    $('#myModalSoliTraslado').modal(options);
+                    $('#myModalSoliTraslado').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });*@
+
+        $(document).on('click', '.ver', function () {
+            var tableRow = $(this).closest("tr");
+            IdSoliTras = tableRow.find("td:eq(0)").text();
+            IdSoliTras = IdSoliTras.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "SolicitudTrasladoVer";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "SolicitudTraslado")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdSoliTras: IdSoliTras, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentSoliTraslado').html(response);
+                    $('#myModalSoliTraslado').modal(options);
+                    $('#myModalSoliTraslado').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.anular', function () {
+            var tableRow = $(this).closest("tr");
+            var IdSoliTras = tableRow.find("td:eq(0)").text();
+            IdSoliTras = IdSoliTras.trim();
+            swal({
+                //html: true,
+                title: 'ANULAR',
+                text: "¿Seguro de Anular Solicitud de Traslado?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si!',
+                cancelButtonText: 'No!'
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        SaveAnularSolicitudTraslado(IdSoliTras)
+                    }
+                });
+        });
+
+        function SaveAnularSolicitudTraslado(IdSoliTras) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveDeleteSolicitudTraslado", "SolicitudTraslado")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdSoliTras: IdSoliTras
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    location.reload();
+                },
+                error: function (request) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        }
+
+        function FnListaProducto(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            var EstaProd = "1";
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaProductos", "Producto")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy, EstaProd: EstaProd
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentListProducto').html(response);
+                    $('#myModalListProducto').modal(options);
+                    $('#myModalListProducto').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        }
+
+        $(document).on('click', '.cerrar', function () {
+            var tableRow = $(this).closest("tr");
+            var IdSoliTras = tableRow.find("td:eq(0)").text();
+            var FechST = tableRow.find("td:eq(1)").text();
+            var NroST = tableRow.find("td:eq(2)").text();
+            var AlmST = tableRow.find("td:eq(3)").text();
+            IdSoliTras = IdSoliTras.trim();
+            var strDiv = '<div style="font-weight: bold">ESTÁ CERRANDO LA SIGUIENTE SOLICITUD DE TRASLADO</div><br>';
+            strDiv = strDiv + '<table style="width: 100%;">';
+            strDiv = strDiv + '<tr style="text-align: left;"><td class="input-xs" style="padding-left: 30px; font-size: 1.2em;"><br>NRO:  <b>' + NroST + '</b></td></tr>';
+            strDiv = strDiv + '<tr style="text-align: left;"><td class="input-xs" style="padding-left: 30px; font-size: 1.2em;">FECHA:  <b>' + FechST + '</b></td></tr>';
+            strDiv = strDiv + '<tr style="text-align: left;"><td class="input-xs" style="padding-left: 30px; font-size: 1.2em;">ALMACEN SOLICITANTE:  <b>' + AlmST + '</b></td></tr>';
+            strDiv = strDiv + '</table>';
+            strDiv = strDiv + '</div></br></br>';
+            strDiv = strDiv + '<div><big>¿CONFIRMA EL CIERRE?</big></div></br>';
+            swal({
+                html: true,
+                title: 'AVISO!',
+                text: strDiv,
+                type: "input",
+                showCancelButton: true,
+                closeOnConfirm: false,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si!',
+                cancelButtonText: 'No!'
+            },
+            function (inputValue) {
+                if (inputValue === false) return false;
+
+                if (inputValue.trim() === "") {
+                    swal.showInputError("Para proceder a cerrar la ST es necesario ingresar un motivo!");
+                    return false
+                }
+                FnCerraOC(IdSoliTras, inputValue);
+                swal.close();
+            });
+        });
+
+        function FnCerraOC(IdSoliTras, inputValue) {
+            var EstaSoliTras = '4';
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveChangeEstadoSolicitudTraslado", "SolicitudTraslado")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdSoliTras: IdSoliTras, EstaSoliTras: EstaSoliTras, MotiCier: inputValue
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    window.location.reload();
+                },
+                error: function (request) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        }
+    </script>
+}

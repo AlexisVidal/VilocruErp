@@ -1,0 +1,85 @@
+﻿
+@using ERP.Admin.Models
+@{
+    List<GastoPersonalLiquidacionErp> listaliquidacion = new List<GastoPersonalLiquidacionErp>();
+    var _liquidaciones = (List<GastoPersonalLiquidacionErp>)ViewBag.Liquidaciones;
+    decimal total = 0;
+    decimal ingrexo = 0;
+    decimal salduxx = 0;
+    if (_liquidaciones.Any())
+    {
+        listaliquidacion = _liquidaciones;
+        total = _liquidaciones.Where(y => y.estado.Equals("1")).Sum(x => x.monto);
+        ingrexo = _liquidaciones[0].ingreso;
+        salduxx = ingrexo - total;
+    }
+    else
+    {
+        salduxx = (decimal)ViewBag.Saldox;
+    }
+    string tipousuario = (string)ViewBag.IDUSUARIOTIPO;
+}
+<div class="col-md-12" style="text-align: center; ">
+    <table class="table table-striped table-hover table-bordered" id="tblDetalle" style="margin: 0 auto;height:25em;display:inline-block;overflow-y:scroll">
+        <thead>
+            <tr>
+                <th style="display:none">ID</th>
+                <th style="text-align: center">ID</th>
+                <th style="text-align: center">Fecha</th>
+                <th style="text-align: center">Proveedor</th>
+                <th style="text-align: center">Documento</th>
+                <th style="text-align: center">Concepto</th>
+                <th style="text-align: center">Destino</th>
+                <th style="text-align: center">Centro Costo</th>
+                <th style="text-align: center">Monto</th>
+                <th style="text-align: center;width:160px">...</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in listaliquidacion.Where(x => x.estado.Equals("1")).ToList())
+            {
+                <tr>
+                    <td style="display: none;font-size: 11px; padding-bottom: 1px; padding-top: 1px;vertical-align: middle">@item.id_gasto_personal_liquidacion</td>
+                    <td style="font-size: 11px; padding-bottom: 1px; padding-top: 1px;vertical-align: middle">@item.ITEM</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.sf_emision</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.ruc - @item.razon_social</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.documento</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.concepto</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.destino</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.proyecto</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle">@item.monto.ToString("N")</td>
+                    <td style="font-size: 11px; padding-bottom: 1px;padding-top: 1px;vertical-align: middle;width:160px">
+
+                        @if (tipousuario == "ADM")
+                        {
+                            <label style="width:36px;height:27px;padding-top:6px"><input type="checkbox" @item.brevisado id="chk-@item.id_gasto_personal_liquidacion" onclick="FnVerificaLiqui(@item.id_gasto_personal_liquidacion)"><span class="text"></span></label>
+                            @*@Html.Bootstrap().DropDownList("cmdiddetalle", new SelectList(ViewBag.Ingresos, "id_gasto_personal_detalle", "nro_operacion")).HtmlAttributes(new { @style = "width:160px" }).Size(InputSize.Small)*@
+                            <button type="button" class="btn btn-default btn-sm" onclick="DeleteDetalle(@item.id_gasto_personal_liquidacion)">
+                                <span class="glyphicon glyphicon-minus"></span> Eliminar
+                            </button>
+                        }
+                        else if (item.brevisado == "")
+                        {
+                            <button type="button" class="btn btn-default btn-sm" onclick="DeleteDetalle(@item.id_gasto_personal_liquidacion)">
+                                <span class="glyphicon glyphicon-minus"></span> Eliminar
+                            </button>
+                        }
+
+                    </td>
+                </tr>
+            }
+        </tbody>
+        <tfoot>
+            <tr>
+                <td colspan="7" style="text-align: right; color: red;font-weight: bold;vertical-align: middle">LIQUIDACION TOTAL DE GASTOS </td>
+                <td style="text-align: left;color: red;font-weight: bold;vertical-align: middle">@total.ToString("N")</td>
+            </tr>
+        </tfoot>
+    </table>
+</div>
+<div class="row" style="margin-bottom: 5px">
+    <div class="form-group" style="margin: 1px;margin-bottom: 0 !important">
+        <label class="col-sm-12 control-label" style="text-align: center; font-size: 14px; font-weight: bold; color: red;" id="tsaldo">SALDO DE EFECTIVO EN CAJA S/. @salduxx.ToString("N")</label>
+    </div>
+    <hr style="margin:2px" />
+</div>

@@ -1,0 +1,174 @@
+﻿@model IEnumerable<ERP.Admin.Models.Proveedor>
+@{
+    string IdTrProv = "";
+    string TDIdProv = "";
+    string TDCodiProv = "";
+    string TDRucProv = "";
+    string TDRazoSociProv = "";
+
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("txtProvList_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Clientes > Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableProveedor">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id_Proveedor
+                            </th>
+                            <th>
+                                Código
+                            </th>
+                            <th>
+                                RUC
+                            </th>
+                            <th>
+                                Razón Social
+                            </th>
+                            <th>
+                                Contacto
+                            </th>
+                            <th>
+                                Teléfono
+                            </th>
+                            <th style="width: 130px;">
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            IdTrProv = "TrProv" + item.id_proveedor;
+                            TDIdProv = "TDIdProv" + IdTrProv;
+                            TDCodiProv = "TDCodiProv" + IdTrProv;
+                            TDRucProv = "TDRucProv" + IdTrProv;
+                            TDRazoSociProv = "TDRazoSociProv" + IdTrProv;
+                            <tr id="@IdTrProv">
+                                <td id="@TDIdProv" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_proveedor)
+                                </td>
+                                <td id="@TDCodiProv" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.cod_proveedor)
+                                </td>
+                                <td id="@TDRucProv" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.ruc)
+                                </td>
+                                <td id="@TDRazoSociProv" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.contacto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.telefono)
+                                </td>
+                                <td style="text-align: center;">
+                                    <a class="btn btn-success btn-xs" onclick="FnSelecProveedor(this)"> Seleccionar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-2" style="text-align:right; vertical-align: middle; width:60%">
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnSelecProveedor(obj) {
+        var IdTrsele = obj.parentElement.parentElement.id;
+        var IdProv = document.getElementById("TDIdProv" + IdTrsele).innerHTML.trim();
+        var CodiProv = document.getElementById("TDCodiProv" + IdTrsele).innerHTML.trim();
+        var RucProv = document.getElementById("TDRucProv" + IdTrsele).innerHTML.trim();
+        var RazoSociProv = document.getElementById("TDRazoSociProv" + IdTrsele).innerHTML.trim();
+        var CallBy = $("#txtProvList_CallBy").val();
+        if (IdProv.trim() != "") {
+            if (CallBy.trim() == "OrdeCompCreate") {
+                FnAddDataProvedor(IdProv, CodiProv, RucProv, RazoSociProv);
+            } else if (CallBy.trim() == "OrdeCompEdit") {
+                FnAddDataProvedor(IdProv, CodiProv, RucProv, RazoSociProv);
+            } else if (CallBy.trim() == "ReporteCompras") {
+                FnAddDataRepoCompraProvedor(IdProv, RucProv, RazoSociProv);
+            }
+            $('#myModalProveedor').modal('hide');
+        }
+    }
+
+    //InitiateeditableProveedor.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editableProveedor').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editableProveedor')));
+        var isEditing = null;
+    }
+</script>
+
+

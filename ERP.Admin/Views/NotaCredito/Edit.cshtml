@@ -1,0 +1,445 @@
+﻿@model ERP.Admin.Models.NotaCredito
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    var NroTrVD = 1;
+    var arrSaveIDGuiaRemi = new Array();
+    var IdTRDistribuir = "";
+    var CantDistribuir = 0;
+    var NombProdDistribuir = "";
+    var arraInitAlmaCant = new Array();
+    var FkProdDistribuir = 0;
+
+    $(document).ready(function () {
+        FnGetCorrelativo();
+        FnCalculTotalesIni();
+        var flgAfecStoc = $("#HiddNotaCred_FlgAfecStoc").val();
+        if (flgAfecStoc.trim() == "1") {
+            document.getElementById("ChkNotaCred_AfecStoc").checked = true;
+        }
+    });
+
+    function FnCalculTotalesIni() {
+        var IndArr = 0;
+        var table = document.getElementById('tBodyNotaCredDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkProd = "";
+        var Cant = "";
+        var Prec = "";
+        var Brut = 0;
+        var pFlgAfecIgv = "";
+        var pPorcIgv = "";
+        var pTotaNeto = 0;
+        var pTotaIgv = 0;
+        document.getElementById("THBtnDeleteDeta").style.display = "none";
+        document.getElementById("TDTotaVaci").style.display = "none";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    //Cant = document.getElementById("TDCant" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDCant" + newTr).children;
+                    Cant = objTxt[0].value;
+                    objTxt[0].readOnly = true;
+                    //Prec = document.getElementById("TDPrec" + newTr).innerHTML;
+                    objTxt = document.getElementById("TDPrec" + newTr).children;
+                    Prec = objTxt[0].value;
+                    objTxt[0].readOnly = true;
+                    pFlgAfecIgv = document.getElementById("TDFlgAfecIgv" + newTr).innerHTML;
+                    pPorcIgv = document.getElementById("TDPorcIgv" + newTr).innerHTML;
+                    Brut = parseFloat(Cant) * parseFloat(Prec);
+                    if (pFlgAfecIgv.trim() == "1") {
+                        pTotaIgv = CalculaIgv(Brut, pPorcIgv);
+                    }
+                    pTotaNeto = (parseFloat(Brut) - parseFloat(pTotaIgv)).toFixed(2);
+                    document.getElementById("TDTotaNeto" + newTr).innerHTML = pTotaNeto;
+                    document.getElementById("TDTotaIgv" + newTr).innerHTML = parseFloat(pTotaIgv).toFixed(2);
+                    document.getElementById("TDTotaBruto" + newTr).innerHTML = parseFloat(Brut).toFixed(2);
+                    document.getElementById("TDBtnDeleteDeta" + newTr).style.display = "none";
+                }
+            }
+        }
+    }
+
+    function FnDeleteDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+        FnCalculaTotaleComprobanteVenta();
+    }
+
+    function FnValidaPrecio(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newPrec = parseInt(obj.value);
+        if (newPrec <= 0) {
+            sweetAlert("", "Precio no válido", "error");
+            obj.value = obj.oldvalue;
+        } else {
+            FnCalculaSubtotal(IdTRsele);
+        }
+    }
+
+    function FnValidaCantidad(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var CantHidd = document.getElementById('TDHiddCant' + IdTRsele).innerHTML;
+        var newCant = parseInt(obj.value);
+        var newPrec = 0;
+        if (newCant <= 0) {
+            sweetAlert("", "Cantidad no válida", "error");
+            obj.value = obj.oldvalue;
+        }
+        else if (parseFloat(newCant) > parseFloat(CantHidd)) {
+            sweetAlert("", "Cantidad no válida", "error");
+            obj.value = obj.oldvalue;
+        }
+        else {
+            FnCalculaSubtotal(IdTRsele);
+        }
+    }
+
+    function FnCalculaSubtotal(IdTRsele) {
+        var objTxt = document.getElementById("TDCant" + IdTRsele).children;
+        var newCant = objTxt[0].value;
+        objTxt = document.getElementById("TDPrec" + IdTRsele).children;
+        var newPrec = objTxt[0].value;
+
+        var newFlgAfecIgv = "";
+        var newTotaBruto = 0;
+        var newTotaNeto = 0;
+        var newTotaIgv = 0;
+        var newPorcIgv = 0;
+
+        newTotaBruto = (parseFloat(newCant) * parseFloat(newPrec)).toFixed(2);
+        newFlgAfecIgv = document.getElementById("TDFlgAfecIgv" + IdTRsele).innerHTML;
+        if (newFlgAfecIgv.trim() == "1") {
+            newPorcIgv = document.getElementById("TDPorcIgv" + IdTRsele).innerHTML;
+            newTotaIgv = CalculaIgv(newTotaBruto, newPorcIgv);
+        }
+        newTotaNeto = newTotaBruto - newTotaIgv;
+
+        document.getElementById("TDTotaNeto" + IdTRsele).innerHTML = parseFloat(newTotaNeto).toFixed(2);
+        document.getElementById("TDTotaIgv" + IdTRsele).innerHTML = parseFloat(newTotaIgv).toFixed(2)
+        document.getElementById("TDTotaBruto" + IdTRsele).innerHTML = parseFloat(newTotaBruto).toFixed(2)
+        FnCalculaTotaleComprobanteVenta();
+    }
+
+    function FnCalculaTotaleComprobanteVenta() {
+        var table = document.getElementById('tBodyNotaCredDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newTotaNeto = "";
+        var newTotaIgv = "";
+        var newTotaBruto = "";
+        var ventSumaTotaNeto = 0;
+        var ventSumaTotaIgv = 0;
+        var ventSumaTotaBruto = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newTotaNeto = document.getElementById("TDTotaNeto" + newTr).innerHTML;
+                    newTotaIgv = document.getElementById("TDTotaIgv" + newTr).innerHTML;
+                    newTotaBruto = document.getElementById("TDTotaBruto" + newTr).innerHTML;
+                    ventSumaTotaNeto = parseFloat(ventSumaTotaNeto) + parseFloat(newTotaNeto);
+                    ventSumaTotaIgv = parseFloat(ventSumaTotaIgv) + parseFloat(newTotaIgv);
+                    ventSumaTotaBruto = parseFloat(ventSumaTotaBruto) + parseFloat(newTotaBruto);
+                }
+            }
+            document.getElementById("TDCompVentTotaNeto").innerHTML = ventSumaTotaNeto.toFixed(2);
+            document.getElementById("TDCompVentTotaIgv").innerHTML = ventSumaTotaIgv.toFixed(2);
+            document.getElementById("TDCompVentTotaBruto").innerHTML = ventSumaTotaBruto.toFixed(2);
+        }
+    }
+
+    function FnGetCorrelativo() {
+        var FkCompTipo = $("#cmbNotaCred_FkCompTipo").val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_Correlativo_ByComprobanteTipo", "Correlativo")',
+            data: JSON.stringify({
+                FkCompTipo: FkCompTipo
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                var dataLen = response.length;
+                $("#txtNotaCred_NroComp").val(response.nro_correlativo);
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+		});
+    }
+</script>
+@{
+    string strFechEmisNC = Convert.ToDateTime(Model.f_emision).ToString("dd/MM/yyyy");
+    string strFechEmis = Convert.ToDateTime(Model.f_emision_comprobante_venta).ToString("dd/MM/yyyy");
+    string CallBy = ViewBag.CallBy;
+    string strUsuaVenta = Model.nombre_usuario_venta + " " + Model.apellido_paterno_usuario_venta + " " + Model.apellido_materno_usuario_venta;
+    string DniRuc = "";
+    string NombRazoSoci = "";
+    int FkClie = 0;
+    int FkClieTipo = Model.fk_cliente_tipo;
+    if (Model.id_cliente_juridico.Equals(0))
+    {
+        FkClie = Model.id_cliente_natural;
+        DniRuc = Model.dni_cliente_natural;
+        NombRazoSoci = Model.nombre_cliente_natural + " " + Model.apellido_paterno_cliente_natural + " " + Model.apellido_materno_cliente_natural;
+    }
+    else
+    {
+        FkClie = Model.id_cliente_juridico;
+        DniRuc = Model.ruc_empresa_cliente_juridico;
+        NombRazoSoci = Model.razon_social;
+    }
+    string FlgAfecStoc = Model.flg_afecta_stock;
+}
+@Html.Hidden("HiddNotaCred_FkCompVent", Model.id_comprobante_venta)
+@Html.Hidden("HiddNotaCred_CallBy", CallBy)
+@Html.Hidden("HiddNotaCred_FlgAfecStoc", FlgAfecStoc)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">NOTA DE CRÉDITO</span>
+            </div>
+            @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+            {
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Tipo <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().DropDownList("cmbNotaCred_FkCompTipo", new SelectList(ViewBag.ComprobanteTipo, "id_comprobante_tipo", "descripcion", selectedValue: ViewBag.FkCompTipoNotaCredito)).HtmlAttributes(new { @disabled = "disabled" }).Size(InputSize.Small)
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Nro <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input type="text" id="txtNotaCred_NroComp" value="@Model.nro_comprobante" data-mask="9999-9999999" class="form-control" disabled>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right;">Fecha Emision <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtNotaCred_FechEmis" value="@strFechEmisNC" type="text" disabled>
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().CheckBox("ChkNotaCred_AfecStoc").Text("Afecta Stock").IsChecked(false).HtmlAttributes(new { @class = "colored-default", disabled = "disabled" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-header bordered-bottom bordered-blue">
+                    <span class="widget-caption">Comprobante al que afecta</span>
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Tipo</label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompVent_CompTipo").Value(Model.descripcion_comprobante_tipo).Placeholder("Nro Pedido").Disable()
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Nro</label>
+                                <div class="col-md-2">
+                                    <input type="text" id="txtCompComp_NroComp1" value="@Model.nro_comprobante_comprobante_venta" data-mask="9999-9999999" class="form-control" disabled>
+                                </div>
+                                <label class="col-sm-4 control-label" style="text-align: right;">Fecha Emision</label>
+                                <div class="col-md-2">
+                                    <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtCompVent_FechEmis" value="@strFechEmis" type="text" disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Pedido </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompVent_NroPedi").Value(Model.n_pedido).Placeholder("Nro Pedido").Disable()
+                                    @Html.Hidden("txtVentEdit_FkPedi", Model.fk_pedido)
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Cliente </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtVentEdit_DniRucClie").Value(DniRuc).Placeholder("DNI / RUC").Disable().Size(InputSize.Small)
+                                    @Html.Hidden("txtVentEdit_FkClie", FkClie)
+                                    @Html.Hidden("txtVentEdit_FkClieTipo", FkClieTipo)
+                                </div>
+                                <div class="col-md-6">
+                                    @Html.Bootstrap().TextBox("txtVentEdit_NombRazoSocialClie").Value(NombRazoSoci).Placeholder("Nombres / Razón Social").HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Size(InputSize.Small)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-header bordered-bottom bordered-blue">
+                    <span class="widget-caption">Detalles</span>
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblVentDetalle">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="display: none;">
+                                                Fk_producto
+                                            </th>
+                                            <th style="text-align: center;">
+                                                Código
+                                            </th>
+                                            <th style="text-align: center;">
+                                                SKU
+                                            </th>
+                                            <th>
+                                                Producto
+                                            </th>
+                                            <th>
+                                                Marca
+                                            </th>
+                                            <th>
+                                                SubFamilia
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Cantidad
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Precio
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Valor Venta
+                                            </th>
+                                            <th style="width: 70px; text-align: right;">
+                                                IGV
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Importe
+                                            </th>
+                                            <th id="THBtnDeleteDeta" style="width: 50px; text-align: center;">
+                                                ...
+                                            </th>
+                                            <th style="display: none;">
+                                                FK_TIPO_AFECTACION_IGV
+                                            </th>
+                                            <th style="display: none;">
+                                                FLG_AFECTO_IGV
+                                            </th>
+                                            <th style="display: none;">
+                                                PORCENTAJE_IGV
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyNotaCredDetalle">
+                                        @foreach (var item in ViewBag.NotaCreditoDetalle)
+                                        {
+                                            var IdTrVD = "IdTrEditVD" + item.id_venta_detalle;
+                                            var TDIdVentDeta = "TDIdVentDeta" + IdTrVD;
+                                            var TDNombProd = "TDNombProd" + IdTrVD;
+                                            var TDCant = "TDCant" + IdTrVD;
+                                            var TDPrec = "TDPrec" + IdTrVD;
+                                            var TDTotaNeto = "TDTotaNeto" + IdTrVD;
+                                            var TDTotaIgv = "TDTotaIgv" + IdTrVD;
+                                            var TDTotaBruto = "TDTotaBruto" + IdTrVD;
+                                            var TDBtnDeleteDeta = "TDBtnDeleteDeta" + IdTrVD;
+                                            var TDFkTipoAfecIgv = "TDFkTipoAfecIgv" + IdTrVD;
+                                            var TDFlgAfecIgv = "TDFlgAfecIgv" + IdTrVD;
+                                            var TDPorcIgv = "TDPorcIgv" + IdTrVD;
+                                            var TDHiddCant = "TDHiddCant" + IdTrVD;
+
+                                            <tr id='@IdTrVD'>
+                                                <td id='@TDIdVentDeta' class='input-xs' style='display: none;'>@item.id_venta_detalle</td>
+                                                <td class='input-xs' style='text-align: center;'>@item.cod_producto</td>
+                                                <td class='input-xs' style='text-align: center;'>@item.codigo_sku</td>
+                                                <td id="@TDNombProd" class='input-xs'>@item.nom_producto</td>
+                                                <td class='input-xs'>@item.descripcion_marca</td>
+                                                <td class='input-xs'>@item.descripcion_producto_subfamilia</td>
+                                                <td id='@TDCant' class='input-xs' style='text-align: right;'>
+                                                    @Html.Bootstrap().TextBox("txtCant").Value(@item.cantidad).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantidad(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })
+                                                </td>
+                                                <td id='@TDPrec' class='input-xs' style='text-align: right;'>
+                                                    @Html.Bootstrap().TextBox("txtCant").Value(@item.precio).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaPrecio(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })
+                                                </td>
+                                                <td id='@TDTotaNeto' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDTotaIgv' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDTotaBruto' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDBtnDeleteDeta' class='input-xs' style='text-align: center;'>
+                                                    @Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title = "Eliminar Detalle", @onclick = "FnDeleteDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)
+                                                </td>
+                                                <td id='@TDFkTipoAfecIgv' class='input-xs' style='display: none;'>@item.fk_tipo_afectacion_igv</td>
+                                                <td id='@TDFlgAfecIgv' class='input-xs' style='display: none;'>@item.flag_afecto_igv</td>
+                                                <td id='@TDPorcIgv' class='input-xs' style='display: none;'>@item.porcentaje</td>
+                                                <td id='@TDHiddCant' class='input-xs' style='text-align: right; display: none;'>
+                                                    @item.cantidad
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover table-bordered" id="tblCompVentaTotal">
+                                    <thead>
+                                        <tr role="row">
+                                            <td style="text-align: right; font-weight: bold;">
+                                                TOTAL
+                                            </td>
+                                            <td id="TDCompVentTotaNeto" style="width: 100px; font-weight: bold; text-align: right;">@Model.total_neto</td>
+                                            <td id="TDCompVentTotaIgv" style="width: 70px; font-weight: bold; text-align: right;">@Model.total_igv</td>
+                                            <td id="TDCompVentTotaBruto" style="width: 100px; font-weight: bold; text-align: right;">@Model.total_bruto</td>
+                                            <td id="TDTotaVaci" style="width: 50px; font-weight: bold; text-align: right;"></td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <div class="col-md-12">
+                                    <textarea rows="2" id="txtNotaCred_Moti" onblur="InputToUpper(this);" style="width: 100%; text-transform: uppercase;" maxlength="200">@Model.motivo</textarea>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            @*<div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Generar").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnSaveNewNotaCredito()" })
+                            </div>*@
+                            <div class="col-md-12">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right;">Cerrar</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<div id="spinnerNotaCredEdit" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    var arrNotaCredDeta = new Array();
+    $(document).ready(function () {
+        $("#spinnerNotaCredEdit").hide();
+        //Inicia();
+        $('#spinnerNotaCredEdit').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+</script>
+<style type="text/css">
+    .modal-backdrop {
+        z-index: -1;
+    }
+
+    .cssTrSinStock {
+        background-color: rgba(244,157,138,0.8) !important;
+    }
+</style>

@@ -1,0 +1,175 @@
+﻿@model IEnumerable<ERP.Admin.Models.NotaCredito>
+@{
+    string FechEmis = "";
+    string strClie = "";
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("ListNotaCred_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">LISTADO > NOTAS DE CREDITO</span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="tblNotaCredPendientes">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                ID_NOTA_CREDITO
+                            </th>
+                            <th>
+                                F. Emisión
+                            </th>
+                            <th>
+                                NC Nro
+                            </th>
+                            <th>
+                                Comprobante Afecta
+                            </th>
+                            <th>
+                                Cliente
+                            </th>
+                            <th>
+                                Importe
+                            </th>
+                            <th>
+                                Disponible
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                            //IdTrPedi = "TrPedi" + item.id_pedido;
+                            //TDIdPedi = "TDIdPedi" + IdTrPedi;
+                            //TDFkClie = "TDFkClie" + IdTrPedi;
+                            //TDFkClieTipo = "TDFkClieTipo" + IdTrPedi;
+                            //TDNroPedi = "TDNroPedi" + IdTrPedi;
+                            //TDDniRuc = "TDDniRuc" + IdTrPedi;
+                            //TDNombRazoSoci = "TDNombRazoSoci" + IdTrPedi;
+                            //TDFkUserVent = "TDFkUserVent" + IdTrPedi;
+                            //TDNombUserVent = "TDNombUserVent" + IdTrPedi;
+
+                            if (!item.id_cliente_natural.Equals(0))
+                            {
+                                strClie = item.dni_cliente_natural + " - " + item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                            }
+                            else if (!item.id_cliente_juridico.Equals(0))
+                            {
+                                strClie = item.ruc_empresa_cliente_juridico + " " + item.razon_social;
+                            }
+
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_nota_credito)
+                                </td>
+                                <td class="input-xs">
+                                    @FechEmis
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.nro_comprobante)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_comprobante_tipo) @Html.DisplayFor(modelItem => item.nro_comprobante_comprobante_venta)
+                                </td>
+                                <td class="input-xs">
+                                    @strClie
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.total_bruto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.saldo_disponible)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-success .shiny" style="padding:0;font-size:small;margin-top:-5px" onclick="FnAddNotaCredSele('@item.id_nota_credito', '@item.nro_comprobante', '@item.saldo_disponible')">SELECCIONAR</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="horizontal-space"></div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right; margin-right: 10px;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnAddNotaCredSele(IdNotaCred, NroNotaCred, MontDisp) {
+        var CallBy = $("#ListNotaCred_CallBy").val();
+        if (CallBy == "ComprobanteVentaCreate") {
+            FnInputDataNotaCredito(IdNotaCred, NroNotaCred, MontDisp);
+        }
+        $('#myModalListNotaCredito').modal('hide');
+    }
+
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#tblNotaCredPendientes').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>

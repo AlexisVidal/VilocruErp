@@ -1,0 +1,144 @@
+﻿
+@using ERP.Admin.Models
+@{
+    var _entidadv = (VariableErp)ViewBag.VariableDetalle;
+    string IDVARIABLE = "";
+    string ITEM = "";
+    string FECHA_INICIO = "";
+    string FECHA_FINAL = "";
+    string ESTADO = "";
+    string VALOR = "";
+    string IDPLANILLA = "";
+
+    string IDVARIABLEOLD = "";
+    string IDPLANILLAOLD = "";
+
+    if (_entidadv != null)
+    {
+        IDVARIABLE = _entidadv.IDVARIABLE;
+        ITEM = _entidadv.ITEM;
+        FECHA_INICIO = _entidadv.FECHA_INICIO.ToString("dd/MM/yyyy");
+        FECHA_FINAL = _entidadv.FECHA_FINAL.ToString("dd/MM/yyyy");
+        ESTADO = _entidadv.ESTADO;
+        VALOR = _entidadv.VALOR.ToString("N");
+        IDPLANILLA = _entidadv.IDPLANILLA;
+
+        IDVARIABLEOLD = _entidadv.IDVARIABLE;
+        IDPLANILLAOLD = _entidadv.IDPLANILLA;
+
+    }
+}
+
+
+@Html.Hidden("IDVARIABLEx", @IDVARIABLE)
+@Html.Hidden("ITEMx", @ITEM)
+@Html.Hidden("FECHA_INICIOx", @FECHA_INICIO)
+@Html.Hidden("FECHA_FINALx", @FECHA_FINAL)
+@Html.Hidden("ESTADOx", @ESTADO)
+@Html.Hidden("VALORx", @VALOR)
+@Html.Hidden("IDPLANILLAx", @IDPLANILLA)
+
+@Html.Hidden("sfecha_ini", "")
+@Html.Hidden("sfecha_fin", "")
+
+@Html.Hidden("IDVARIABLEOLDX", @IDVARIABLEOLD)
+@Html.Hidden("IDPLANILLAOLDX", @IDPLANILLAOLD)
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom: 0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de variable</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:5px">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">Planilla <sup>*</sup></label>
+                                <div class="col-md-6" style="width:400px">
+                                    @Html.DropDownList("txtValBus_Planilla", new SelectList(ViewBag.Planillas, "IDPLANILLA", "DESCRIPCION"), new { @class = "form-control dropdown - menu" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:5px">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">Variable <sup>*</sup></label>
+                                <div class="col-md-6" style="width:400px">
+                                    @Html.DropDownList("txtValBus_Variables", new SelectList(ViewBag.Variables, "IDVARIABLE", "DESCRIPCION"), new { @class = "form-control dropdown - menu" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:5px">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">Valor <sup>*</sup></label>
+                                <div class="col-md-2" style="width:400px">
+                                    @Html.Bootstrap().TextBox("txtValor").HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @type = "number", @step = "0.01", @min = "0.00", @max = "9999999999.99" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin: 5px">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:120px">Inicio <sup>*</sup></label>
+                                <div class="col-md-4" style="">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerIni' id='txtInicio' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-left: 0; margin-left: 0; font-size: 11px; padding-right: 0;width: 25px">Fin <sup>*</sup></label>
+                                <div class="col-md-4" style="">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerFini' id='txtFin' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4" style="margin: 5px;text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarEntidad").Color(BootstrapColors.Success).HtmlAttributes(new { @style = ";border-radius: 5px 5px;" })
+                            </div>
+                            <div class="col-md-2" style="margin: 5px;">
+                                <button class="btn bg-danger" type="button" id="btnCancel" style="color: white;border-radius: 5px 5px;" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}
+
+
+
+
+

@@ -1,0 +1,90 @@
+﻿@model ERP.Admin.Models.AlmacenStock
+<script type="text/javascript">
+</script>
+@Html.Hidden("HiddPtoLimiEdit_IdAlmaStoc", Model.id_almacen_stock)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Stock Mínimo</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-12 control-label" style="text-align: left; ">ALMACÉN: @Model.nombre </label>
+                                <label class="col-sm-12 control-label" style="text-align: left; ">PRODUCTO: @Model.nom_producto </label>
+                                <label class="col-sm-12 control-label" style="text-align: left; ">MARCA: @Model.descripcion_producto_marca </label>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="horizontal-space"></div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align: right; ">Pto Límite <sup>*</sup></label>
+                                <div class="col-md-6">
+                                    <input type="number" id="txtPtoLimiEdit_PtoLimi" value="@Model.pto_limite" class="form-control" style="text-align: right;">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Grabar").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnSavePtoLimite()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    function FnSavePtoLimite() {
+        var IdAlmaStoc = $("#HiddPtoLimiEdit_IdAlmaStoc").val();
+        var PtoLimi = $("#txtPtoLimiEdit_PtoLimi").val();
+        var flgError = 0;
+        if (PtoLimi == "") {
+            PtoLimi = 0;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveStockMinimo", "AlmacenStock")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdAlmaStoc: IdAlmaStoc, PtoLimi: PtoLimi
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            });
+        }
+    }
+
+</script>

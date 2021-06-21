@@ -1,0 +1,12 @@
+﻿@Html.DevExpress().GridView(settings =>
+    {
+        settings.Name = "ContactGrid";
+        settings.CallbackRouteValues = new { Controller = "Grid", Action = "AfpGridViewPartial" };
+        settings.KeyFieldName = "IDAFP";
+        settings.Width = 450;
+        settings.SettingsPager.PageSize = 20;
+
+
+
+    }).Bind(Model).GetHtml()
+

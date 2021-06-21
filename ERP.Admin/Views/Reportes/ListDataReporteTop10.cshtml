@@ -1,0 +1,233 @@
+﻿@{
+    string strFechEmis = "";
+    string strDniRuc = "";
+    string strNombRazoSoci = "";
+    string strCant = "";
+    string strNeto = "";
+    string strIgv = "";
+    string strBrut = "";
+    int optTop10 = ViewBag.OpcionTop10;
+    decimal TotaBruto = 0;
+    decimal SumaNeto = 0;
+    decimal SumaIgv = 0;
+    decimal SumaBruto = 0;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            @if (optTop10 == 1)
+            {
+                <div class="col-md-12">
+                    <table class="table" id="tableDataReportTop10" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                        <thead>
+                            <tr role="row">
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    CÓDIGO SKU
+                                </th>
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    PRODUCTO
+                                </th>
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    SUB-FAMILIA
+                                </th>
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    CANTIDAD
+                                </th>
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    TOTAL
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ViewBag.VentaDetalle)
+                            {
+                                strCant = item.cantidad.ToString("#,##0");
+                                strBrut = item.total_bruto.ToString("#,##0.00");
+                                SumaBruto = SumaBruto + item.total_bruto;
+                                <tr>
+                                    <td class="input-xs" style="text-align: center;">
+                                        @item.codigo_sku
+                                    </td>
+                                    <td class="input-xs" style="text-align: left;">
+                                        @item.nom_producto
+                                    </td>
+                                    <td class="input-xs" style="text-align: center;">
+                                        @item.descripcion_producto_subfamilia
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strCant
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strBrut
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="4" style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    TOTAL
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaBruto.ToString("#,##0.00")
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else if (optTop10 == 2)
+            {
+                SumaNeto = 0;
+                SumaIgv = 0;
+                SumaBruto = 0;
+                <div class="col-md-12">
+                    <table class="table" id="tableDataReportTop10" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                        <thead>
+                            <tr role="row">
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    DNI/RUC
+                                </th>
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    NOMBRE
+                                </th>
+                                <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    AFECTO
+                                </th>
+                                <th style="width: 80px; font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    IMPUESTO
+                                </th>
+                                <th style="width: 80px; font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    TOTAL
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ViewBag.ComprobanteVenta)
+                            {
+                                strNeto = item.total_neto.ToString("#,##0.00");
+                                strIgv = item.total_igv.ToString("#,##0.00");
+                                strBrut = item.total_bruto.ToString("#,##0.00");
+                                SumaNeto = SumaNeto + item.total_neto;
+                                SumaIgv = SumaIgv + item.total_igv;
+                                SumaBruto = SumaBruto + item.total_bruto;
+                                if (!item.id_cliente_natural.Equals(0))
+                                {
+                                    strDniRuc = item.dni_cliente_natural;
+                                    strNombRazoSoci = item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                                }
+                                else if (!item.id_cliente_juridico.Equals(0))
+                                {
+                                    strDniRuc = item.ruc_empresa_cliente_juridico;
+                                    strNombRazoSoci = item.razon_social;
+                                }
+                                <tr>
+                                    <td class="input-xs" style="text-align: center;">
+                                        @strDniRuc
+                                    </td>
+                                    <td class="input-xs" style="text-align: left;">
+                                        @strNombRazoSoci
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strNeto
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strIgv
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strBrut
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="2" style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    TOTAL
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaNeto.ToString("#,##0.00")
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaIgv.ToString("#,##0.00")
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaBruto.ToString("#,##0.00")
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else if (optTop10 == 3)
+            {
+                <div class="col-md-12">
+                    <table class="table" id="tableDataReportTop10" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                        <thead>
+                            <tr role="row">
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    RUC
+                                </th>
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    NOMBRE
+                                </th>
+                                <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    AFECTO
+                                </th>
+                                <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    IMPUESTO
+                                </th>
+                                <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    TOTAL
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in ViewBag.ComprobanteCompra)
+                            {
+                                strNeto = item.total_neto.ToString("#,##0.00");
+                                strIgv = item.total_igv.ToString("#,##0.00");
+                                strBrut = item.total_bruto.ToString("#,##0.00");
+
+                                SumaNeto = SumaNeto + item.total_neto;
+                                SumaIgv = SumaIgv + item.total_igv;
+                                SumaBruto = SumaBruto + item.total_bruto;
+                                <tr>
+                                    <td class="input-xs" style="text-align: center;">
+                                        @item.ruc
+                                    </td>
+                                    <td class="input-xs" style="text-align: left;">
+                                        @item.razon_social
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strNeto
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strIgv
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strBrut
+                                    </td>
+                                </tr>
+                            }
+                            <tr>
+                                <td colspan="2" style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    TOTAL
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaNeto.ToString("#,##0.00")
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaIgv.ToString("#,##0.00")
+                                </td>
+                                <td style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                    @SumaBruto.ToString("#,##0.00")
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
+

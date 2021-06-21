@@ -1,0 +1,619 @@
+﻿<script type="text/javascript">
+    var NroTrCTDCreate = 1;
+    var IndexAlmaOrig = 0;
+    var IndexAlmaDest = 0;
+
+    $(document).ready(function () {
+        FnGetValueRadio()
+    });
+
+    function FnGetValueRadio() {
+        var opcion = $('input[name=radioOpcionTraslado]:checked').val();
+        //var FkSoliTras = $("#HiddCompTrasNew_FkSoliTras").val();
+        if (parseInt(opcion) == 1) {
+            //Sin Solicitud de traslado
+            //if (parseInt(FkSoliTras) == 0) {
+                $("#HiddCompTrasNew_ConSinSolicitud").val(0);
+                $("#btnSelecSoliTraslado").prop('disabled', true);
+                $("#cmbCompTrasNew_FkAlmaSoli").prop('disabled', false);
+                $("#btnAddProd").prop('disabled', false);
+                document.getElementById("THSaldo").innerHTML = "Stock"
+            //} else {
+            //    swal({
+            //        title: 'AVISO',
+            //        text: "Si elige esta opción se perderán los datos cargados en el formulario ¿Desea continuar?",
+            //        type: 'warning',
+            //        showCancelButton: true,
+            //        confirmButtonColor: '#3085d6',
+            //        cancelButtonColor: '#d33',
+            //        confirmButtonText: 'Si!',
+            //        cancelButtonText: 'No!'
+            //    },
+            //        function (isConfirm) {
+            //            if (isConfirm) {
+            //                SaveAnularComprobanteVenta(IdCompVent)
+            //            }
+            //        });
+            //}
+        } else {
+            //Con Solicitud de traslado
+            $("#HiddCompTrasNew_ConSinSolicitud").val(1);
+            $("#btnSelecSoliTraslado").prop('disabled', false);
+            $("#cmbCompTrasNew_FkAlmaSoli").prop('disabled', true);
+            $("#btnAddProd").prop('disabled', true);
+            document.getElementById("THSaldo").innerHTML = "Saldo"
+        }
+    }
+
+    function FnGetPrevioAlmaOrigen(obj) {
+        IndexAlmaOrig = obj.selectedIndex;
+    }
+
+    function FnGetPrevioAlmaDestino(obj) {
+        IndexAlmaDest = obj.selectedIndex;
+    }
+
+    function FnGetUbicacionAlmacenOrigen(obj) {
+        var FkAlmaOrig = obj.value;
+        var FlAlmaDest = $("#cmbCompTrasNew_FkAlmaSoli").val();
+        var UbicAlma = "";
+        //Primero verificamos si el origen y el destino son diferentes
+        if (parseInt(FkAlmaOrig) != parseInt(FlAlmaDest)) {
+            var jsonObj = @Html.Raw(Json.Encode(ViewBag.AlmacenOrigen));
+            for (i = 0; i < jsonObj.length; i++) {
+                if (parseInt(FkAlmaOrig) == parseInt(jsonObj[i].id_almacen)) {
+                    UbicAlma = jsonObj[i].ubicacion;
+                    break;
+                }
+            }
+            $("#txtCompTrasNew_UbicAlmaOrig").val(UbicAlma);
+            IndexAlmaOrig = obj.selectedIndex;
+        }
+        else {
+            obj.selectedIndex = IndexAlmaOrig;
+            sweetAlert("", "El almacén de origen y el almacén de destino no deben de ser el mismo", "error");
+        }
+    }
+
+    function FnGetUbicacionAlmacenDestino(obj) {
+        var FkAlmaDest = obj.value;
+        var FkAlmaOrig = $("#cmbCompTrasNew_FkAlmaDesp").val();
+        var UbicAlma = "";
+        if (parseInt(FkAlmaOrig) != parseInt(FkAlmaDest)) {
+            var jsonObj = @Html.Raw(Json.Encode(ViewBag.AlmacenOrigen));
+            for (i = 0; i < jsonObj.length; i++) {
+                if (parseInt(FkAlmaDest) == parseInt(jsonObj[i].id_almacen)) {
+                    UbicAlma = jsonObj[i].ubicacion;
+                    break;
+                }
+            }
+            $("#txtCompTrasNew_UbicAlmaDest").val(UbicAlma);
+            IndexAlmaDest = obj.selectedIndex;
+        }
+        else {
+            obj.selectedIndex = IndexAlmaDest;
+            sweetAlert("", "El almacén de origen y el almacén de destino no deben de ser el mismo", "error");
+        }
+    }
+
+    function FnGet_SolicitudTrasladoDetalle(IdSoliTras, FkAlmaSoli) {
+        document.getElementById('cmbCompTrasNew_FkAlmaSoli').value = FkAlmaSoli;
+        $("#cmbCompTrasNew_FkAlmaSoli").change();
+        FnGetJson_SolicitudTrasladoDetalle(IdSoliTras)
+    }
+
+    function FnGetJson_SolicitudTrasladoDetalle(IdSoliTras) {
+        var pIdSoliTrasDeta = "";
+        var pFkProd = "";
+        var pCodiProd = "";
+        var pSkuProd = "";
+        var pNombProd = "";
+        var pDescMarc = "";
+        var pDescSubFami = "";
+        var pCantSoli = 0;
+        var pCantAten = 0;
+        var pCantPend = 0;
+        NroTrCTDCreate = 1;
+
+        $("#HiddCompTrasNew_FkSoliTras").val(IdSoliTras);
+        $("#tBodyCompTrasDetalle tr").remove();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_SolicitudTrasladoDetalle", "SolicitudTrasladoDetalle")',
+            data: JSON.stringify({
+                IdSoliTras: IdSoliTras
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                var dataLen = response.length;
+                for (i = 0; i < dataLen; i++) {
+                    pIdSoliTrasDeta = response[i].id_solicitud_traslado_detalle;
+                    pFkProd = response[i].fk_producto;
+                    pCodiProd = response[i].cod_producto;
+                    pSkuProd = response[i].codigo_sku;
+                    pNombProd = response[i].nom_producto;
+                    pDescMarc = response[i].descripcion_marca;
+                    pDescSubFami = response[i].descripcion_producto_subfamilia;
+                    pCantSoli = response[i].cantidad_solicitada;
+                    pCantAten = response[i].cantidad_atendida;
+                    pCantPend = parseFloat(pCantSoli) - parseFloat(pCantAten);
+
+                    if (parseFloat(pCantPend) > 0) {
+                        AddTRTableCompTrasladoDetalle(pIdSoliTrasDeta, pFkProd, pCodiProd, pSkuProd, pNombProd, pDescMarc, pDescSubFami,
+                            pCantPend);
+                    }
+                }
+
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+		});
+    }
+
+    function FnDeshabilitarRadio() {
+        var radios = document.getElementsByName("radioOpcionTraslado");
+        for (var i = 0, iLen = radios.length; i < iLen; i++) {
+            radios[i].disabled = true;
+        }
+    }
+
+    function AddTRTableCompTrasladoDetalle(pIdSoliTrasDeta, pFkProd, pCodiProd, pSkuProd, pNombProd, pDescMarc, pDescSubFami, pCantPend) {
+        var IdTrCTDCreate = "IdTrCTDCreate" + NroTrCTDCreate;
+        var TDFkSoliTrasDeta = "TDFkSoliTrasDeta" + IdTrCTDCreate;
+        var TDFkProd = "TDFkProd" + IdTrCTDCreate;
+        var TDTxtCantPend = "TDTxtCantPend" + IdTrCTDCreate;
+        var TDHiddCantPend = "TDHiddCantPend" + IdTrCTDCreate;
+        var TDBtnCTDDelete = "TDBtnCTDDelete" + IdTrCTDCreate;
+
+        var strTxtCantPend = '@Html.Bootstrap().TextBox("txtCant").Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantidad(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })';
+        var strBtnCTDDelete= '@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title="Eliminar Detalle", @onclick = "FnDeleteCompTrasDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)';
+
+        var row = $("<tr id='" + IdTrCTDCreate + "'>" +
+            "<td id='" + TDFkSoliTrasDeta + "' class='input-xs' style='display: none;'>" + pIdSoliTrasDeta + "</td>" +
+            "<td id='" + TDFkProd + "' class='input-xs' style='display: none;'>" + pFkProd + "</td>" +
+            "<td class='input-xs' style='text-align: center;'>" + pCodiProd + "</td>" +
+            "<td class='input-xs' style='text-align: center;'>" + pSkuProd + "</td>" +
+            "<td class='input-xs'>" + pNombProd + "</td>" +
+            "<td class='input-xs'>" + pDescMarc + "</td>" +
+            "<td class='input-xs'>" + pDescSubFami + "</td>" +
+            "<td id='" + TDHiddCantPend + "' class='input-xs' style='text-align: right;'>" + pCantPend + "</td>" +
+            "<td id='" + TDTxtCantPend + "' class='input-xs' style='text-align: right;'>" + strTxtCantPend + "</td>" +
+            "<td id='" + TDBtnCTDDelete + "' class='input-xs' style='text-align: center;'>" + strBtnCTDDelete + "</td>" +
+            "</tr>");
+        $("#tBodyCompTrasDetalle").append(row);
+        var objTxt = document.getElementById(TDTxtCantPend).children;
+        objTxt[0].value = pCantPend;
+        NroTrCTDCreate++;
+        FnDeshabilitarRadio();
+        FnDesactivarAlmacenOrigen()
+    }
+
+    function FnDesactivarAlmacenOrigen() {
+        var ConSinST = $("#HiddCompTrasNew_ConSinSolicitud").val();
+        if (parseInt(ConSinST) == 0) {
+            //Si no viene de solicitud de traslado
+            //Verifico si ya tiene productos agregados
+            var CantTrs = document.getElementById("tBodyCompTrasDetalle").rows.length;
+            if (parseInt(CantTrs) > 0) {
+                $("#cmbCompTrasNew_FkAlmaDesp").prop('disabled', true);
+            }
+            else {
+                $("#cmbCompTrasNew_FkAlmaDesp").prop('disabled', false);
+            }
+        }
+    }
+
+    function FnValidaExisteProducto(FkProd) {
+        var table = document.getElementById('tBodyCompTrasDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newFkPro = "";
+        var rptaReturn = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newFkPro = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    if (parseInt(FkProd) == parseInt(newFkPro)) {
+                        rptaReturn = 1;
+                        break;
+                    }
+                }
+            }
+        }
+        return rptaReturn;
+    }
+
+    function FnDeleteCompTrasDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+        FnDesactivarAlmacenOrigen()
+    }
+
+    function FnValidaCantidad(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var ConSinSoliTras = $("#HiddCompTrasNew_ConSinSolicitud").val();
+        var cantMaxi = document.getElementById("TDHiddCantPend" + IdTRsele).innerHTML;
+        var newCant = parseFloat(obj.value);
+        var StrMsgError = "";
+        if (ConSinSoliTras == 0) {
+            StrMsgError = "Cantidad supera el stock disponible"
+        }
+        else {
+            StrMsgError = "Cantidad supera el saldo por atender"
+        }
+        if (newCant <= 0) {
+            sweetAlert("", "Cantidad no válida", "error");
+            obj.value = obj.oldvalue;
+        } else if (newCant > cantMaxi) {
+            sweetAlert("", StrMsgError, "error");
+            obj.value = obj.oldvalue;
+        }
+    }
+</script>
+@{
+    string FechEmis = DateTime.Now.ToString("dd/MM/yyyy");
+}
+@Html.Hidden("HiddCompTrasNew_ConSinSolicitud", 1)
+@Html.Hidden("HiddCompTrasNew_FkSoliTras", 0)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo Comprobante Traslado</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row" style="display: none;">
+                            <div class="form-group" style="margin:0">
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().RadioButton("radioOpcionTraslado", null).Text("Sin Solicitud").HtmlAttributes(new { @class = "colored-danger", @onchange = "FnGetValueRadio()", @value = 1 }).IsChecked(true)
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().RadioButton("radioOpcionTraslado", null).Text("Atender Solicitud").HtmlAttributes(new { @class = "colored-success", @onchange = "FnGetValueRadio()", @value = 2 })
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().Button().Text("Solicitud").Id("btnSelecSoliTraslado").Color(BootstrapColors.Default).IconPrepend(FontAwesome.Search).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnListaSolicitudTraslado('ComprobanteTrasladoCreate')", @style = "margin-top: 5px;" })
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row">
+                            <label class="col-sm-1 control-label" style="text-align: right; display: none;">Tipo <sup>*</sup></label>
+                            <div class="col-md-2" style="display:none;">
+                                @Html.Bootstrap().DropDownList("cmbCompTrasNew_FkCompTipo", new SelectList(ViewBag.ComprobanteTipo, "id_comprobante_tipo", "descripcion", selectedValue: ViewBag.FkComprobanteTipoDefault)).Size(InputSize.Small)
+                                <div class="horizontal-space"></div>
+                            </div>
+                            <label class="col-sm-1 control-label" style="text-align: right; display: none;">Nro <sup>*</sup></label>
+                            <div class="col-md-2" style="display:none;">
+                                <input type="text" id="txtCompTrasNew_NroComp" data-mask="9999-9999999" class="form-control" placeholder="Nro Comprobante">
+                                <div class="horizontal-space"></div>
+                            </div>
+                            <label class="col-sm-10 control-label" style="text-align: right;">Fecha Emisión<sup>*</sup></label>
+                            <div class="col-md-2">
+                                <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtCompTrasNew_Fech" type="text" value="@FechEmis" readonly>
+                                <div class="horizontal-space"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Origen</label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().DropDownList("cmbCompTrasNew_FkAlmaDesp", new SelectList(ViewBag.AlmacenOrigen, "id_almacen", "nombre")).HtmlAttributes(new { @onfocus = "FnGetPrevioAlmaOrigen(this)", @onchange = "FnGetUbicacionAlmacenOrigen(this)", @style = "width: 100%;" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.Bootstrap().TextBox("txtCompTrasNew_UbicAlmaOrig").Placeholder("Dirección").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Destino</label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().DropDownList("cmbCompTrasNew_FkAlmaSoli", new SelectList(ViewBag.AlmacenDestino, "id_almacen", "nombre")).HtmlAttributes(new { @onfocus = "FnGetPrevioAlmaDestino(this)", @onchange = "FnGetUbicacionAlmacenDestino(this)", @style = "width: 100%;", @disabled = "disabled" }).Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.Bootstrap().TextBox("txtCompTrasNew_UbicAlmaDest").Placeholder("Dirección").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="widget-header bordered-bottom bordered-blue">
+                            <span class="widget-caption">Detalles</span>
+                            @Html.Bootstrap().Button().Text("Agregar").Id("btnAddProd").Color(BootstrapColors.Primary).IconPrepend(FontAwesome.ShoppingCart).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnListaAlmacenStock('ComprobanteTrasladoCreate')", @style = "margin-top: 5px;", @disabled = "disabled" })
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblCompTrasDetalle">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="display: none;">
+                                                Fk_SOLICITUD_TRASLADO_DETALLE
+                                            </th>
+                                            <th style="display: none;">
+                                                Fk_producto
+                                            </th>
+                                            <th style="text-align: center;">
+                                                Código
+                                            </th>
+                                            <th style="text-align: center;">
+                                                SKU
+                                            </th>
+                                            <th>
+                                                Producto
+                                            </th>
+                                            <th>
+                                                Marca
+                                            </th>
+                                            <th>
+                                                SubFamilia
+                                            </th>
+                                            <th id="THSaldo" style="width: 100px; text-align: right;">
+                                                Saldo
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Cantidad
+                                            </th>
+                                            <th style="width: 50px; text-align: center;">
+                                                ...
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyCompTrasDetalle"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnPrevioGuardarComprobateTraslado()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerCompTrasCreate" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    var arrCompTrasDeta = new Array();
+    $(document).ready(function () {
+        $("#spinnerCompTrasCreate").hide();
+        //Inicia();
+        $('#spinnerCompTrasCreate').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnPrevioGuardarComprobateTraslado() {
+        var FlgConSinSoliTras = $("#HiddCompTrasNew_ConSinSolicitud").val();
+        if (parseInt(FlgConSinSoliTras) == 1) {
+            //Si viene para atender una solicitud de traslado vefirico los stock para el almacen seleccionado
+            var CantTrs = document.getElementById("tBodyCompTrasDetalle").rows.length;
+            var FkAlmaDesp = $("#cmbCompTrasNew_FkAlmaDesp").val();
+            var flgError = 0;
+            if (CantTrs == 0) {
+                sweetAlert("", "No existen detalles para el comprobante", "error");
+                flgError = 1;
+            } else if (parseInt(FkAlmaDesp) < 1) {
+                sweetAlert("", "Seleccione almacén de origen", "error");
+                flgError = 1;
+            }
+            if (flgError == 0) {
+                FnValidaStockDisponible(FkAlmaDesp);
+            }
+        }
+        else {
+            //Si no para atender solicitud no verifico los stock, porque los productos se cargan en funcion al almacen seleccionado previamente
+            FnGuardarCompTraslado();
+        }
+    }
+
+    function FnValidaStockDisponible(FkAlma) {
+        FnResetClassTrDetalle();
+        var arraVali = new Array();
+        var Idx = 0;
+        var table = document.getElementById('tBodyCompTrasDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkProd = "";
+        var CantPedi = "";
+        var pFkProd = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDTxtCantPend" + newTr).children;
+                    CantPedi = objTxt[0].value;
+                    arraVali[Idx] = new Array(2);
+                    arraVali[Idx][0] = FkProd.trim();
+                    arraVali[Idx][1] = CantPedi.trim();
+                    Idx++;
+                }
+            }
+        }
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_ValidaStock", "ComprobanteVenta")',
+            data: JSON.stringify({
+                FkAlma: FkAlma, arraVali: arraVali
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                var dataLen = response.length;
+                for (i = 0; i < dataLen; i++) {
+                    pFkProd = response[i].fk_producto;
+                    FnChangeClassNameTr(pFkProd);
+                }
+                if (dataLen > 0){
+                    sweetAlert("", "El alamacén no cuenta con el stock suficiente para atender la cantidad solicitada de los productos marcados", "error");
+                } else {
+                    FnGuardarCompTraslado();
+                }
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+		});
+    }
+
+    function FnResetClassTrDetalle() {
+        var table = document.getElementById('tBodyCompTrasDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                document.getElementById(newTr).className = "";
+            }
+        }
+    }
+
+    function FnChangeClassNameTr(pFkProd) {
+        var table = document.getElementById('tBodyCompTrasDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newFkProd = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newFkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    if (parseInt(newFkProd) == parseInt(pFkProd)) {
+                        document.getElementById(newTr).className = "cssTrSinStock";
+                    }
+                }
+            }
+        }
+    }
+
+    function FnGuardarCompTraslado() {
+        var FlgConSinSoliTras = $("#HiddCompTrasNew_ConSinSolicitud").val();
+        var FkCompTipo = $("#cmbCompTrasNew_FkCompTipo").val();
+        var FkSoliTras = $("#HiddCompTrasNew_FkSoliTras").val();
+        var FkAlmaDesp = $("#cmbCompTrasNew_FkAlmaDesp").val();
+        var FkAlmaSoli = $("#cmbCompTrasNew_FkAlmaSoli").val();
+        var NroComp = $("#txtCompTrasNew_NroComp").val();
+        var CantTrs = document.getElementById("tBodyCompTrasDetalle").rows.length;
+        var flgError = 0;
+        if (CantTrs == 0) {
+            sweetAlert("", "No existen detalles para el comprobante", "error");
+            flgError = 1;
+        } else if (FkCompTipo == "" || FkCompTipo == null) {
+            sweetAlert("", "Seleccione tipo de comprobante", "error");
+            flgError = 1;
+        //} else if (NroComp == "") {
+        //    sweetAlert("", "Ingrese número de comprobante", "error");
+        //    flgError = 1;
+        } else if (parseInt(FkAlmaDesp) < 1) {
+            sweetAlert("", "Seleccione almacén de origen", "error");
+            flgError = 1;
+        } else if (parseInt(FkAlmaSoli) < 1) {
+            sweetAlert("", "Seleccione almacén de destino", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            FnLlenaArrayComprobanteTrasladoDetalle()
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveNewComprobanteTraslado", "ComprobanteTraslado")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    FlgConSinSoliTras: FlgConSinSoliTras, FkCompTipo: FkCompTipo, FkSoliTras: FkSoliTras, FkAlmaDesp: FkAlmaDesp, FkAlmaSoli: FkAlmaSoli, NroComp: NroComp,
+                    arrCompTrasDeta: arrCompTrasDeta
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCompTrasCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCompTrasCreate').length > 0) {
+                        $('#spinnerCompTrasCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    function FnLlenaArrayComprobanteTrasladoDetalle() {
+        arrCompTrasDeta = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyCompTrasDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkSoliTrasDeta
+        var FkProd = "";
+        var Cant = "";
+        var StrDisp = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkSoliTrasDeta = document.getElementById("TDFkSoliTrasDeta" + newTr).innerHTML;
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDTxtCantPend" + newTr).children;
+                    Cant = objTxt[0].value;
+
+                    arrCompTrasDeta[IndArr] = new Array(4);
+                    arrCompTrasDeta[IndArr][0] = "0"; //id_comprobante_traslado_detalle (se una en editar)
+                    arrCompTrasDeta[IndArr][1] = FkSoliTrasDeta.trim();
+                    arrCompTrasDeta[IndArr][2] = FkProd.trim();
+                    arrCompTrasDeta[IndArr][3] = Cant.trim();
+                    IndArr++;
+                }
+            }
+        }
+    }
+</script>
+<style type="text/css">
+    .modal-backdrop {
+        z-index: -1;
+    }
+
+    .cssTrSinStock {
+        background-color: rgba(244,157,138,0.8) !important;
+    }
+</style>

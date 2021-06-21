@@ -1,0 +1,114 @@
+﻿
+@using ERP.Admin.Models
+@{
+    var _entidad = (BancoErp)ViewBag.Entidad;
+    int id_banco = 0;
+    string idbanco = "";
+    string descripcions = "";
+    string codigo_sunats = "";
+    string direccions = "";
+    string telefonos = "";
+    if (_entidad != null)
+    {
+        id_banco = _entidad.id_banco;
+        idbanco = _entidad.idbanco;
+        descripcions = _entidad.descripcion;
+        codigo_sunats = _entidad.codigo_sunat;
+        direccions = _entidad.direccion;
+        telefonos = _entidad.telefono;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_banco", @id_banco)
+@Html.Hidden("idbancox", @idbanco)
+@Html.Hidden("descripcionsx", @descripcions)
+@Html.Hidden("codigo_sunatsx", @codigo_sunats)
+@Html.Hidden("direccionsx", @direccions)
+@Html.Hidden("telefonosx", @telefonos)
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de banco</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">ID <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("idbanco").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Abreviatura")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Nombre <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("descripcion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Nombre")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Codigo Sunat </label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("codigo_sunat").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Codigo Sunat")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Direccion</label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("direccion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Dirección")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Telefono </label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.Bootstrap().TextBox("telefono").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Telefono")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="width:100%;">
+                            <div class="col-md-4" style="vertical-align:middle;width:50%;text-align:center">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarEntidad").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-4" style="vertical-align:middle;width:50%;text-align:center">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+}

@@ -1,0 +1,168 @@
+﻿
+@{
+    ViewBag.Title = "Registro de Tipo de Trabajadores";
+    ViewBag.Description = "Tipo de Trabajadores";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.TipoTrabajadorErp>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    @*<a id="NewRegistro" class="btn btn-primary" style="width: 60px">
+            Nuevo
+        </a>*@
+                    <a href="#" onclick="return Exporter.export(editabledatatable2, 'TipoTrabajador.xls', 'TipoTrabajador')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable2" style="white-space: nowrap;">
+                    <thead>
+                        <tr role="row">
+                            <th style="display: none;text-align: center;font-size:11px">
+                                IDTIPOTRABAJADOR
+                            </th>
+                            <th style="text-align: center; font-size: 11px;width:30%">
+                                DESCRIPCION
+                            </th>
+                            <th style="text-align: center; font-size: 11px;width:14%">
+                                GRATIFICACION
+                            </th>
+                            <th style="text-align: center;font-size:11px;width:14%">
+                                CTS
+                            </th>
+                            <th style="text-align: center;font-size:11px;width:14%">
+                                VACACIONES
+                            </th>
+                            <th style="text-align: center; font-size: 11px;width:14%">
+                                DIAS VAC.
+                            </th>
+                            <th style="text-align: center; font-size: 11px;width:14%">
+                                DIAS MIN. VAC.
+                            </th>
+                            <th style="text-align: center;font-size:11px;width:14%;display: none">
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var identidad = "Tr" + item.IDTIPOTRABAJADOR;
+
+                            <tr id="@identidad">
+                                <td style="font-size: 11px;text-align: center;display: none">
+                                    @Html.DisplayFor(modelItem => item.IDTIPOTRABAJADOR)
+                                </td>
+                                <td style="font-size: 11px;text-align: left">
+                                    @Html.DisplayFor(modelItem => item.DESCRIPCION)
+                                </td>
+                                <td class="input-xs" style="font-size: 11px;text-align: center">
+                                    @Html.DisplayFor(modelItem => item.DGRATIFICACION)
+                                </td>
+                                <td class="input-xs" style="font-size: 11px;text-align: center">
+                                    @Html.DisplayFor(modelItem => item.DCTS)
+                                </td>
+                                <td class="input-xs" style="font-size: 11px;text-align: center">
+                                    @Html.DisplayFor(modelItem => item.DVACACIONES)
+                                </td>
+                                <td class="input-xs" style="font-size: 11px;text-align: center">
+                                    @Html.DisplayFor(modelItem => item.DIAS_VAC)
+                                </td>
+                                <td class="input-xs" style="font-size: 11px;text-align: center">
+                                    @Html.DisplayFor(modelItem => item.MINIMO_DIAS_VAC)
+                                </td>
+                                <td class="input-xs" style="font-size: 11px; text-align: center; vertical-align: middle;display: none">
+                                    <button class="btn btn-sm btn-primary edita" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+                                    <button class="btn btn-sm btn-danger elimina" style="padding: 2px; font-size: small; margin-top: -5px">Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:600px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <script>
+        
+
+        $(document).ready(function() {
+            Inicia();
+        });
+
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable2').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                }
+
+            });
+        }
+    </script>
+}

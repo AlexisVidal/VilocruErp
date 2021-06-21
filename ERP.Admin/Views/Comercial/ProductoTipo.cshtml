@@ -1,0 +1,376 @@
+﻿@{
+    ViewBag.Title = "Registro de tipos de productos";
+    ViewBag.Description = "tipos";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+
+@using System
+@model IEnumerable<ERP.Admin.Models.ProductoTipoErp>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="NewProductoTipo" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                @*<div class="table-toolbar">
+                        <a id="NewProductoTipo" class="btn btn-danger">
+                            Nuevo registro
+                        </a>
+                    </div>*@
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size:10px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_producto_tipo)
+                            </th>
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.fk_producto_linea)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.linea)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.codigo_tipo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.abreviatura_tipo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.producto_tipo)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.NEstado)
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                        <tr>
+                            <td style="display:none">
+                                @Html.DisplayFor(modelItem => item.id_producto_tipo)
+                            </td>
+                            <td style="display:none">
+                                @Html.DisplayFor(modelItem => item.fk_producto_linea)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.linea)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.codigo_tipo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.abreviatura_tipo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.producto_tipo)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.NEstado)
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary edita" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+
+                                <button class="btn btn-sm btn-danger elimina" style="padding: 2px; font-size: small; margin-top: -5px">Desactivar</button>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:750px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        var id_producto_tipo = 0;
+        $('#myModalNew').on('hide.bs.modal', function (e) {
+            window.location.reload();
+        });
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+            var idx = $("#id_producto_tipox").val();
+            var fk_producto_lineassx = $("#fk_producto_lineasx").val();
+            var codigo_tipox = $("#codigo_tipox").val();
+            var producto_tipossx = $("#producto_tipox").val();
+            var abreviatura_tipossx = $("#abreviatura_tipox").val();
+
+            if (idx != "0") {
+                $("#txtValBus_linea").val(fk_producto_lineassx);
+                $("#codigo_tipo").val(codigo_tipox);
+                $("#fk_producto_lineasx").val(fk_producto_lineassx);
+                $("#producto_tipo").val(producto_tipossx);
+                $("#abreviatura_tipo").val(abreviatura_tipossx);
+            }
+
+            $("#GuardarTipo").click(function () {
+                debugger;
+                var id_producto_tipo_save = 0;
+                var codigo_tipo = $("#codigo_tipo").val();
+                var fk_producto_linea = $("#txtValBus_linea").val();
+                var producto_tipo = $("#producto_tipo").val();
+                var abreviatura_tipo = $("#abreviatura_tipo").val();
+                if (codigo_tipo === '' || producto_tipo === '' || abreviatura_tipo === '' ) {
+                    sweetAlert("", "Datos Incompletos", "error");
+                    $("#codigo_tipo").focus();
+                    return false;
+                }
+                if (fk_producto_linea === '0' ) {
+                    sweetAlert("", "Seleccione linea", "error");
+                    $("#fk_producto_linea").focus();
+                    return false;
+                }
+                id_producto_tipo_save = parseInt($("#id_producto_tipox").val(), 10);
+                
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaProductoTipo", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_producto_tipo: id_producto_tipo, fk_producto_linea:fk_producto_linea, codigo_tipo: codigo_tipo, producto_tipo: producto_tipo, abreviatura_tipo:abreviatura_tipo
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto_tipo = data;
+                            if (parseInt(id_producto_tipo, 10) > 0 && parseInt(id_producto_tipo, 10) < 99999) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'ProductoTipo se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+                            } else if (parseInt(id_producto_tipo, 10) === 99999) {
+                                sweetAlert("", "El nombre de la familia ya existe en la Base de Datos!", "error");
+                                id_producto_tipo = 0;
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto_tipo = 0;
+                            }
+                        }
+                    });
+                
+            });
+            $("#codigo_tipo").blur(function () {
+                var codigox = $("#codigo_tipo").val();
+                var lengthd = 0;
+                try {
+                    lengthd = codigox.length;
+                } catch (e) {
+
+                }
+                if (codigox != "" && (lengthd > 0 && lengthd == 6)) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetProductoFamiliaCodigoAsync", "ProductoTipo")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ codigoc: codigox }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (response) {
+                            console.log("esta codigo_tipo: " + JSON.stringify(response));
+                            var respuesta = parseInt(response, 10);
+                            if (respuesta == 1) {
+                                console.log("dentro if ");
+                                swal("", "Codigo ya registrado", "error");
+                                $("#codigo_tipo").val('');
+                                $(this).focus();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            });
+        });
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).on('click', '.edita', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    id_producto_tipo = tableRow.find("td:eq(0)").text();
+                    id_producto_tipo = id_producto_tipo.trim();
+                    console.log("idgeneral: " + id_producto_tipo);
+                    var options = { "backdrop": "static", keyboard: false };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("RegistroProductoTipo", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { id_producto_tipo: id_producto_tipo },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentNew').html(response);
+                            $('#myModalNew').modal(options);
+                            $('#myModalNew').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+        $(document).on('click', '.elimina', function () {
+                    debugger;
+                    var tableRow = $(this).closest("tr");
+                    var id_producto_tipo_save = tableRow.find("td:eq(0)").text();
+                    id_producto_tipo_save = id_producto_tipo_save.trim();
+                    var statux = tableRow.find("td:eq(5)").text();
+                    statux = statux.trim();
+                    console.log("status: " + statux);
+                    var options = { "backdrop": "static", keyboard: false };
+                    if (statux == "ACTIVO") {
+                        $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("EliminaProductoFamilia", "ProductoTipo")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_producto_tipo: id_producto_tipo_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_producto_tipo = data;
+                            if (parseInt(id_producto_tipo, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'ProductoTipo se desactivó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    window.location.reload();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_producto_tipo = 0;
+                            }
+                        }
+                    });
+                    }
+
+                    return false;
+                });
+        $("#NewProductoTipo").click(function () {
+            //debugger;
+            id_producto_tipo = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroProductoTipo", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_producto_tipo: id_producto_tipo },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            Inicia();
+
+        });
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                }
+            });
+
+        }
+    </script>
+
+}
+
+
+
+
+

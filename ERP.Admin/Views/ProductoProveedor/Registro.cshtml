@@ -1,0 +1,126 @@
+﻿@using ERP.Admin.Models
+@{
+    var _productos = (List<ProductoSinProveedor>)ViewBag.Producto;
+    //int id_entidad = 0;
+    //string descripcions = "";
+    //int multiplos = 0;
+    //if (_entidad != null)
+    //{
+    //    id_entidad = _entidad.id_embalaje;
+    //    descripcions = _entidad.descripcion;
+    //    multiplos = Convert.ToInt32(_entidad.multiplo);
+    //}
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+<div class="row">
+
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:200px">Seleccionar Proveedor: <sup>*</sup></label>
+                                <div class="col-md-3" style="width:500px">
+                                    @Html.DropDownList("txtProveedor", new SelectList(ViewBag.Proveedor, "id_proveedor", "razon_social"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductomarca")
+                                    @Html.Hidden("productomarca")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="text-align: center;margin: 0">
+                                <div class="col-md-12" style="width:100%;">
+                                    <table class="table table-striped table-hover table-bordered" id="productstable">
+                                        <thead>
+                                            <tr role="row">
+                                                <th>
+                                                    Seleccion
+                                                </th>
+                                                <th style="display:none">
+
+                                                </th>
+                                                <th style="display:none">
+
+                                                </th>
+                                                <th>
+                                                    Codigo
+                                                </th>
+                                                <th>
+                                                    Nombre
+                                                </th>
+                                                <th>
+                                                    SKU
+                                                </th>
+                                                <th style="display:none">
+
+                                                </th>
+                                                <th style="display:none">
+
+                                                </th>
+                                                <th style="display:none">
+
+                                                </th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @foreach (var item in _productos)
+                                            {
+                                            <tr>
+                                                <td>
+                                                    <label><input type="checkbox" id="@item.id_producto"><span class="text"></span></label>
+                                                </td>
+                                                <td style="display:none">
+                                                    @Html.DisplayFor(modelItem => item.id_producto)
+                                                </td>
+                                                <td style="display:none">
+                                                    @Html.DisplayFor(modelItem => item.fk_producto_marca_subfamilia)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                                </td>
+                                                <td>
+                                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                                </td>
+                                                <td style="display:none">
+                                                    @Html.DisplayFor(modelItem => item.embalaje)
+                                                </td>
+                                                <td style="display:none">
+                                                    @Html.DisplayFor(modelItem => item.image_url)
+                                                </td>
+                                                <td style="display:none">
+                                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                                </td>
+                                            </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

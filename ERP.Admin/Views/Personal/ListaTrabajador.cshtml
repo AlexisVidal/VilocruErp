@@ -1,0 +1,79 @@
+﻿@model IEnumerable<ERP.Admin.Models.PersonalErp>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="table-scrollable" style="height: 200px; overflow: scroll">
+                    <table class="table table-striped table-hover table-bordered" id="editableList">
+                        <thead>
+                            <tr role="row">
+                                <th style="display:none">
+                                    IDCODIGOGENERAL
+                                </th>
+                                <th>
+                                    NRO DOCUMENTO
+                                </th>
+                                <th>
+                                    NOMBRES
+                                </th>
+                                <th>
+                                    A. PATERNO
+                                </th>
+                                <th>
+                                    A. MATERNO
+                                </th>
+                                <th>
+                                    SEXO
+                                </th>
+                                <th style="display: none;">
+                                    Estado
+                                </th>
+                                <th style="display: none;">
+                                    HiddEstado
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tBodyPedido">
+                            @foreach (var item in Model)
+                            {
+
+                                var idtrabajador = "TrTrab" + item.IDCODIGOGENERAL;
+
+                                <tr id="@idtrabajador">
+                                    <td id="@idtrabajador" style="display:none">
+                                        @Html.DisplayFor(modelItem => item.IDCODIGOGENERAL)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.NRODOCUMENTO)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.NOMBRES)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.A_PATERNO)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.A_PATERNO)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.SEXO)
+                                    </td>
+                                    <td style="display: none;">
+                                        @Html.DisplayFor(modelItem => item.ESTADO)
+                                    </td>
+                                    <td style="display: none;">
+                                        @Html.DisplayFor(modelItem => item.NEstado)
+                                    </td>
+                                    <td style="display: none;">
+                                        @Html.DisplayFor(modelItem => item.ESTADO)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,48 @@
+﻿@using ERP.Admin.Models
+@model UsuarioViewModel
+@{
+    ViewBag.Title = "Login Page";
+    ViewBag.Description = "login page";
+    Layout = "~/Views/Shared/_Empty.cshtml";
+    string connected = ViewBag.IsConnected;
+}
+
+<div class="login-container animated fadeIn" style="margin-top:5%">
+    <div class="loginbox bg-white">
+        <div class="loginbox-title">LOGIN</div>
+        @Html.Partial("_ExternalLoginsListPartial", new ExternalLoginListViewModel { ReturnUrl = ViewBag.ReturnUrl })
+        @Html.Hidden("conexion", @connected)
+        <div class="loginbox-or">
+            <div class="or-line"></div>
+            <div class="or"></div>
+        </div>
+        @using (var form = Html.Bootstrap().Begin(new Form().Type(FormType.Vertical)))
+        {
+            @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+            @*@Html.AntiForgeryToken()*@
+            <div class="loginbox-textbox">
+                @Html.Bootstrap().TextBoxFor(t => t.Usuario).Placeholder("Usuario")
+                @Html.ValidationMessageFor(m => m.Usuario, "", new { @class = "text-danger" })
+            </div>
+            <div class="loginbox-textbox">
+                @Html.Bootstrap().PasswordFor(t => t.Password).Placeholder("Contraseña")
+                @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+            </div>
+            <div class="loginbox-forgot">
+                <a href="">Recuperar Contraseña</a>
+            </div>
+            <div class="loginbox-submit">
+                @Html.Bootstrap().SubmitButton().Text("Login").Color(BootstrapColors.Danger).ButtonBlock()
+            </div>
+        }
+    </div>
+</div>
+@section PageScripts {
+    @Scripts.Render("~/bundles/jqueryval")
+<script type="text/javascript">
+    $(document).ready(function () {
+        var conectado = $("#conexion").val();
+        //console.log("conectado: " + conectado);
+    });
+    </script>
+}

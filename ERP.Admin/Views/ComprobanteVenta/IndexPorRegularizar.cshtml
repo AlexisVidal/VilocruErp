@@ -1,0 +1,170 @@
+﻿@{
+    ViewBag.Title = "Venta Por Regularizar";
+    ViewBag.Description = "Venta Por Regularizar";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Regularizar existencias </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div id="DivTblCompVenta"></div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalCompVenta' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:95%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentCompVenta'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).ready(function () {
+            loadDivTblCompVenta();
+            ValidaStockMinimo();
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+        });
+
+        function ValidaStockMinimo() {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetJson_AlmacenStockMinimo", "AlmacenStock")',
+			    contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+                    var dataLen = response.length;
+                    if (dataLen > 0) {
+                        $("#btnWarningStocMinimo").click();
+                    }
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+		    });
+        }
+
+        function loadDivTblCompVenta() {
+            var CallBy = "ComprobanteVentaPorRegularizar";
+            var EstaFilt = "2";
+            var url = "../ComprobanteVenta/ListIndex?EstaFilt=" + EstaFilt + "&CallBy=" + CallBy;
+            $('#DivTblCompVenta').html('');
+            $('#DivTblCompVenta').load(url);
+        }
+
+        $(document).on('click', '.regularizar', function () {
+            var tableRow = $(this).closest("tr");
+            IdCompVent = tableRow.find("td:eq(0)").text();
+            IdCompVent = IdCompVent.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            CallBy = "ComprobanteVentaPorRegularizar";
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdCompVent: IdCompVent, CallBy: CallBy },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCompVenta').html(response);
+                    $('#myModalCompVenta').modal(options);
+                    $('#myModalCompVenta').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+            return false;
+        });
+    </script>
+}

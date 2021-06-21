@@ -1,0 +1,287 @@
+﻿@model ERP.Admin.Models.ComprobanteTraslado
+<script type="text/javascript">
+    $(document).ready(function () {
+        FnInitFormCompVentaVer();
+    });
+
+    function FnInitFormCompVentaVer() {
+        var CallBy = $("#HiddCompTrasRece_CallBy").val();
+        if (CallBy == "ComprobanteTrasladoVer") {
+            document.getElementById("BtnReceCompTras").style.display = "none";
+            document.getElementById("btnCancel").innerHTML = "Cerrar";
+        }
+    }
+
+</script>
+@{
+    string FechEmis = Convert.ToDateTime(Model.f_emision).ToString("dd/MM/yyyy");
+    string CallBy = ViewBag.CallBy;
+    string strTitle = "";
+    if(CallBy == "ComprobanteTrasladoRecepcionar")
+    {
+        strTitle = "RECEPCIONAR TRASLADO";
+    }
+    else if(CallBy == "ComprobanteTrasladoVer")
+    {
+        strTitle = "DETALLE TRASLADO";
+    }
+
+    string IdTrCTDRece = "";
+    string TDIdCompTrasDeta = "";
+    string TDFkProd = "";
+    string TDCant = "";
+}
+@Html.Hidden("HiddCompTrasRece_CallBy", CallBy)
+@Html.Hidden("HiddCompTrasRece_IdCompTras", Model.id_comprobante_traslado)
+@Html.Hidden("HiddCompTrasRece_FkAlmaSoli", Model.fk_almacen_solicita)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">@strTitle</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <label class="col-sm-1 control-label" style="text-align: right; ">Tipo <sup>*</sup></label>
+                            <div class="col-md-2">
+                                @Html.Bootstrap().TextBox("txtCompTrasRece_CompTipo").Value(Model.descripcion_comprobante_tipo).Placeholder("Tipo de Comprobante").Disable().Size(InputSize.Small)
+                                <div class="horizontal-space"></div>
+                            </div>
+                            <label class="col-sm-1 control-label" style="text-align: right; ">Nro <sup>*</sup></label>
+                            <div class="col-md-2">
+                                <input type="text" id="txtCompTrasRece_NroComp" value="@Model.nro_comprobante" data-mask="9999-9999999" class="form-control" placeholder="Nro Comprobante" disabled>
+                                <div class="horizontal-space"></div>
+                            </div>
+                            <label class="col-sm-4 control-label" style="text-align: right;">Fecha Emisión<sup>*</sup></label>
+                            <div class="col-md-2">
+                                <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtCompTrasRece_Fech" type="text" value="@FechEmis" readonly>
+                                <div class="horizontal-space"></div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Origen</label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompTrasRece_NombAlmaOrig").Value(Model.nombre_almacen_origen).Placeholder("Dirección").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.Bootstrap().TextBox("txtCompTrasRece_UbicAlmaOrig").Value(Model.ubicacion_almacen_origen).Placeholder("Dirección").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Destino</label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompTrasRece_NombAlmaDest").Value(Model.nombre_almacen_destino).Placeholder("Dirección").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-3">
+                                    @Html.Bootstrap().TextBox("txtCompTrasRece_UbicAlmaDest").Value(Model.ubicacion_almacen_destino).Placeholder("Dirección").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="widget-header bordered-bottom bordered-blue">
+                            <span class="widget-caption">Detalles</span>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblCompTrasDetalle">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="display: none;">
+                                                Fk_SOLICITUD_TRASLADO_DETALLE
+                                            </th>
+                                            <th style="display: none;">
+                                                Fk_producto
+                                            </th>
+                                            <th style="text-align: center;">
+                                                Código
+                                            </th>
+                                            <th style="text-align: center;">
+                                                SKU
+                                            </th>
+                                            <th>
+                                                Producto
+                                            </th>
+                                            <th>
+                                                Marca
+                                            </th>
+                                            <th>
+                                                SubFamilia
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Cantidad
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyCompTrasRece_Detalle">
+                                        @if (ViewBag.ComprobanteTrasladoDetalle != null)
+                                        {
+                                            foreach (var item in ViewBag.ComprobanteTrasladoDetalle)
+                                            {
+                                                IdTrCTDRece = "IdTrCTDRece" + item.id_comprobante_traslado_detalle;
+                                                TDIdCompTrasDeta = "TDIdCompTrasDeta" + IdTrCTDRece;
+                                                TDFkProd = "TDFkProd" + IdTrCTDRece;
+                                                TDCant = "TDCant" + IdTrCTDRece;
+
+                                                <tr id="@IdTrCTDRece">
+                                                    <td id="@TDIdCompTrasDeta" class='input-xs' style='display: none;'>
+                                                        @item.id_comprobante_traslado_detalle
+                                                    </td>
+                                                    <td id="@TDFkProd" class='input-xs' style='display: none;'>
+                                                        @item.fk_producto
+                                                    </td>
+                                                    <td class='input-xs' style='text-align: center;'>
+                                                        @item.cod_producto
+                                                    </td>
+                                                    <td class='input-xs' style='text-align: center;'>
+                                                        @item.codigo_sku
+                                                    </td>
+                                                    <td class='input-xs'>
+                                                        @item.nom_producto
+                                                    </td>
+                                                    <td class='input-xs'>
+                                                        @item.descripcion_marca
+                                                    </td>
+                                                    <td class='input-xs'>
+                                                        @item.descripcion_producto_subfamilia
+                                                    </td>
+                                                    <td id="@TDCant" class='input-xs' style='text-align: right;'>
+                                                        @item.cantidad
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Recepcionar").Id("BtnReceCompTras").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnRecepcionarComprobateTraslado()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerCompTrasRece" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    var arrCompTrasDeta = new Array();
+    $(document).ready(function () {
+        $("#spinnerCompTrasRece").hide();
+        //Inicia();
+        $('#spinnerCompTrasRece').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnRecepcionarComprobateTraslado() {
+        var IdCompTras = $("#HiddCompTrasRece_IdCompTras").val();
+        var FkAlmaSoli = $("#HiddCompTrasRece_FkAlmaSoli").val();
+        var CantTrs = document.getElementById("tBodyCompTrasRece_Detalle").rows.length;
+        var flgError = 0;
+        if (CantTrs == 0) {
+            sweetAlert("", "No existen detalles para realizar la recepción", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            FnLlenaArrayComprobanteTrasladoDetalle()
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveRecepcionarComprobanteTraslado", "ComprobanteTraslado")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdCompTras: IdCompTras, FkAlma: FkAlmaSoli, arrCompTrasDeta: arrCompTrasDeta
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCompTrasRece').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCompTrasRece').length > 0) {
+                        $('#spinnerCompTrasRece').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    function FnLlenaArrayComprobanteTrasladoDetalle() {
+        arrCompTrasDeta = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyCompTrasRece_Detalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkCompTrasDeta
+        var FkProd = "";
+        var Cant = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkCompTrasDeta = document.getElementById("TDIdCompTrasDeta" + newTr).innerHTML;
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    Cant = document.getElementById("TDCant" + newTr).innerHTML;
+                    
+                    arrCompTrasDeta[IndArr] = new Array(3);
+                    arrCompTrasDeta[IndArr][0] = FkCompTrasDeta.trim();
+                    arrCompTrasDeta[IndArr][1] = FkProd.trim();
+                    arrCompTrasDeta[IndArr][2] = Cant.trim();
+                    IndArr++;
+                }
+            }
+        }
+    }
+</script>
+<style type="text/css">
+    .modal-backdrop {
+        z-index: -1;
+    }
+
+    .cssTrSinStock {
+        background-color: rgba(244,157,138,0.8) !important;
+    }
+</style>

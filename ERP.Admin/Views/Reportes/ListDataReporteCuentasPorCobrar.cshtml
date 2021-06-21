@@ -1,0 +1,100 @@
+﻿@model IEnumerable<ERP.Admin.Models.CuentasPorCobrar>
+@{
+    string strFechEmis = "";
+    string strDniRuc = "";
+    string strNombRazoSoci = "";
+    string strBrut = "";
+    string strAmort = "";
+    string strSaldo = "";
+
+    decimal TotaSaldo = 0;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="tableDataReportCtasCobrar" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                TIPO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                FECHA
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DNI/RUC
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                NOMBRE
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                IMPORTE
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                AMORTIZADO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                SALDO
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            strFechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                            strBrut = item.monto.ToString("#,##0.00");
+                            strAmort = item.monto_pago.ToString("#,##0.00");
+                            TotaSaldo = item.monto - item.monto_pago;
+                            strSaldo = TotaSaldo.ToString("#,##0.00");
+
+                            if (item.id_cliente_tipo.Equals(1))
+                            {
+                                strDniRuc = item.dni_cliente_natural;
+                                strNombRazoSoci = item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                            }
+                            else if (item.id_cliente_tipo.Equals(2))
+                            {
+                                strDniRuc = item.ruc_empresa_cliente_juridico;
+                                strNombRazoSoci = item.razon_social;
+                            }
+                            <tr>
+                                <td class="input-xs">
+                                    @strFechEmis
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.descripcion_comprobante_tipo
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.nro_comprobante
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @strDniRuc
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @strNombRazoSoci
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strBrut
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strAmort
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strSaldo
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
+

@@ -1,0 +1,127 @@
+﻿@model IEnumerable<ERP.Admin.Models.ComprobanteVenta>
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+
+</script>
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">BALANCE GENERAL</span>
+                <a href="#" onclick="return Exporter.export(tableBalanceGeneral, 'BALANCE GENERAL.xls', 'BALANCE GENERAL')">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                    <thead>
+                                        <tr style="text-align: center; border: none;">
+                                            <th colspan="3" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">
+                                                AÑO @Html.Bootstrap().DropDownList("cmbBalaGene_Anio", new SelectList(ViewBag.Anios, "id_anio", "nombre_anio")).HtmlAttributes(new { @onchange = "FnGetCorrelativo()", @autocomplete = "of" }).Size(InputSize.XSmall)
+                                            </th>
+                                            <th colspan="9" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">
+                                                MES @Html.Bootstrap().DropDownList("cmbBalaGene_Mes", new SelectList(ViewBag.Meses, "id_mes", "nombre_mes")).HtmlAttributes(new { @onchange = "FnGetCorrelativo()", @autocomplete = "of" }).Size(InputSize.XSmall)
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                            <div id="DivTblDataBalanceGeneral"></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            loadDivTblDataBalanceGeneral();
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+                });
+
+            $("#cmbBalaGene_Anio").change(function () {
+                loadDivTblDataBalanceGeneral();
+            });
+            $("#cmbBalaGene_Mes").change(function () {
+                loadDivTblDataBalanceGeneral();
+            });
+        });
+
+        function loadDivTblDataBalanceGeneral() {
+            var ContAnio = $("#cmbBalaGene_Anio").val();
+            var ContMes = $("#cmbBalaGene_Mes").val();
+            var url = "../ReportesContables/LoadDataBalanceGeneral?ContAnio=" + ContAnio + "&ContMes=" + ContMes;
+            $('#DivTblDataBalanceGeneral').html('');
+            $('#DivTblDataBalanceGeneral').load(url);
+        }
+    </script>
+}

@@ -1,0 +1,129 @@
+﻿@{
+    ViewBag.Title = "Reportes de presupuestos";
+    ViewBag.Description = "Reportes de presupuestos";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    Layout = "~/Views/Shared/_Default.cshtml";
+    
+}
+@using System
+@using System.Web.UI.WebControls
+@using BeyondThemes.Bootstrap.TypeExtensions
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                AÑO:
+                @Html.DropDownList("cmb_anio", new SelectList(new List<Object> { new { value = "0", text = "" }, new { value = "2019", text = "2019" }, new { value = "2020", text = "2020" }, new { value = "2021", text = "2021" }, new { value = "2022", text = "2022" } }, "value", "text", 0), new { id = "cmb_FilterReporte", @style = "margin-top:2px" })
+                MES:
+                @Html.DropDownList("cmd_mes", new SelectList(new List<Object> {
+                   new { value = "0", text = "" },
+                   new { value = "1", text = "ENERO" },
+                   new { value = "2", text = "FEBRERO" },
+                   new { value = "3", text = "MARZO" },
+                   new { value = "4", text = "ABRIL" },
+                   new { value = "5", text = "MAYO" },
+                   new { value = "6", text = "JUNIO" },
+                   new { value = "7", text = "JULIO" },
+                   new { value = "8", text = "AGOSTO" },
+                   new { value = "9", text = "SETIEMBRE" },
+                   new { value = "10", text = "OCTUBRE" },
+                   new { value = "11", text = "NOVIEMBRE" },
+                   new { value = "12", text = "DICIEMBRE" }
+               }, "value", "text", 0), new { id = "cmb_FilterReporte", @style = "margin-top:2px" })
+                <a id="btnBuscar" class="btn btn-primary" style="width:60px;margin-top:-3px">
+                    Buscar
+                </a>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a href="#" data - toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#"
+                       data - toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#"
+                       data - toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div id="DivTblPlanillon" onload="hidespinner()"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script>
+        $(document).ready(function () {
+
+            //$('#DivTblPlanillon').on('load',
+            //    function() {
+            //        $("#spinner").hide();
+            //    });
+
+            //loadDivTblPlanillon();
+
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend",
+                function () {
+                    $(this).show();
+                }).bind("ajaxComplete",
+                    function () {
+                        $(this).hide();
+                    });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+        });
+    </script>
+}

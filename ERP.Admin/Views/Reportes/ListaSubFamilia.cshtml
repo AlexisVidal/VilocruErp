@@ -1,0 +1,125 @@
+﻿@model IEnumerable<ERP.Admin.Models.ProductoSubFamilia>
+@{
+    string IdTrListFami = "";
+    string TDIdFami = "";
+    string TDDescFami = "";
+
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("txtFamiList_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">SubFamilia > Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableListFamilia">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id_FAMILIA
+                            </th>
+                            <th>
+                                DESCRIPCIÓN
+                            </th>
+                            <th style="width: 100px;">...</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            IdTrListFami = "IdTrListFami" + item.id_producto_familia;
+                            TDIdFami = "TDIdFami" + IdTrListFami;
+                            TDDescFami = "TDDescFami" + IdTrListFami;
+
+                            <tr id="@IdTrListFami">
+                                <td id="@TDIdFami" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_producto_subfamilia)
+                                </td>
+                                <td id="@TDDescFami" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion)
+                                </td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-success .shiny" style="padding:0;font-size:small;margin-top:-5px" onclick="FnAddFamilia('@IdTrListFami')">SELECCIONAR</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="horizontal-space"></div>
+            <div class="row">
+                <div class="col-md-2" style="float: right;">
+                    <button class="btn bg-blue shiny" type="button" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnAddFamilia(newTr) {
+        var CallBy = $("#txtFamiList_CallBy").val();
+        var FkFami = "";
+        var DescFami = "";
+
+        FkFami = document.getElementById("TDIdFami" + newTr).innerHTML.trim();
+        DescFami = document.getElementById("TDDescFami" + newTr).innerHTML.trim();
+        if (CallBy == "ReporteVentas") {
+            FnAgregaFamiliaReporteVenta(FkFami, DescFami);
+        } else if (CallBy == "ReporteCompras") {
+            FnAgregaFamiliaReporteCompra(FkFami, DescFami);
+        }
+        $('#myModalFamilia').modal('hide');
+    }
+
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editableListFamilia').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>

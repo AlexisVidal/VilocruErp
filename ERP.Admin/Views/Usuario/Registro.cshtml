@@ -1,0 +1,151 @@
+﻿@using ERP.Admin.Models
+@{
+    var _entidadp = (UsuarioErp)ViewBag.Usuario;
+    string IDUSUARIO = "";
+    string USR_NOMBRES = "";
+    string IDUSUARIOTIPO = "";
+    string IDCODIGOGENERAL = "";
+
+    string NOMBRESFULL = "";
+    string USR_INICIALES = "";
+    string BLOQUEO = "";
+    string EMAIL = "";
+
+    if (_entidadp != null)
+    {
+        IDUSUARIO = _entidadp.IDUSUARIO;
+        USR_NOMBRES = _entidadp.USR_NOMBRES;
+        IDUSUARIOTIPO = _entidadp.IDUSUARIOTIPO;
+        IDCODIGOGENERAL = _entidadp.IDCODIGOGENERAL;
+        NOMBRESFULL = _entidadp.NOMBRESFULL;
+        USR_INICIALES = _entidadp.USR_INICIALES;
+        BLOQUEO = _entidadp.BLOQUEO;
+        EMAIL = _entidadp.EMAIL;
+    }
+    string nuevoregistro = (string)ViewBag.Nuevo;
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("IDUSUARIOx", @IDUSUARIO)
+@Html.Hidden("USR_NOMBRESx", @USR_NOMBRES)
+@Html.Hidden("IDUSUARIOTIPOx", @IDUSUARIOTIPO)
+@Html.Hidden("IDCODIGOGENERALx", @IDCODIGOGENERAL)
+@Html.Hidden("NOMBRESFULLx", @NOMBRESFULL)
+@Html.Hidden("USR_INICIALESx", @USR_INICIALES)
+@Html.Hidden("BLOQUEOx", @BLOQUEO)
+@Html.Hidden("EMAILx", @EMAIL)
+@Html.Hidden("nuevoregistro",@nuevoregistro)
+
+<div class="row">
+    @Html.Hidden("fk_persona", 0)
+    @Html.Hidden("fk_trabajador", 0)
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de usuario</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">ID USUARIO <sup>*</sup></label>
+                                <div class="col-md-1" style="width:200px">
+                                    @Html.Bootstrap().TextBox("IDUSUARIO").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("IDUSUARIO")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">DNI <sup>*</sup></label>
+                                <div class="col-md-1" style="width:120px;padding-right:2px">
+                                    @Html.Bootstrap().TextBox("IDCODIGOGENERAL").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("DNI")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-8" style="width:290px;padding-left:0">
+                                    @Html.Bootstrap().TextBox("USR_NOMBRES").HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @disabled = "disabled", @style = "background:seashell" }).Placeholder("Nombres")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Email <sup>*</sup></label>
+                                <div class="col-md-3" style="width:410px">
+                                    @Html.Bootstrap().TextBox("EMAIL").HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @pattern="[a-zA-Z0-9.-_]{1,}@[a-zA-Z.-]{2,}[.]{1}[a-zA-Z]{2,}" }).Placeholder("Email")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Tipo <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.DropDownList("txtValBus_tipo", new SelectList(ViewBag.TipoUsuario, "IDTIPOUSUARIO", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idtipotrabajador")
+                                    @Html.Hidden("tipotrabajador")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Clave <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    <input type="password" id="password" class="form-control" name="password"
+                                           data-bv-notempty="true"
+                                           data-bv-notempty-message="The password is required and cannot be empty"
+                                           data-bv-identical="true"
+                                           data-bv-identical-field="confirmPassword"
+                                           data-bv-identical-message="The password and its confirm are not the same"
+                                           data-bv-different="true"
+                                           data-bv-different-field="username"
+                                           data-bv-different-message="The password cannot be the same as username" />
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var idx = $("#id_usuario").val();
+            alert(idx);
+        });
+        //--Bootstrap Date Picker--
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+            var idx = $("#id_usuario").val();
+            alert(idx);
+        });
+
+    </script>
+}
+
+
+
+

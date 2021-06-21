@@ -1,0 +1,2120 @@
+﻿@using System
+@model ERP.Admin.Models.PersonalErp
+@{
+    ViewBag.Title = "Mantenimiento de trabajador";
+    ViewBag.Description = "trabajador";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+
+@{
+    string idprovincias = "";
+    string iddistritos = "";
+    string fechanac = "";
+    string fechaafp = "";
+
+    if (Model != null)
+    {
+        idprovincias = Model.IDPROVINCIA;
+        iddistritos = Model.IDDISTRITO;
+        fechanac = Model.FECHA_NACIMIENTO.ToString("dd/MM/yyyy");
+        fechaafp = Model.INICIO_AFP.ToString("dd/MM/yyyy");
+    }
+
+    try
+    {
+        string fotografia = Model.PERSONAL_FOTO.ToString();
+    }
+    catch (Exception)
+    {
+        string fotografia = "";
+    }
+
+}
+
+@Html.HiddenFor(model => model.PERSONAL_FOTO)
+@Html.HiddenFor(model => model.IDCODIGOGENERAL)
+@Html.Hidden("strfotografia", "")
+@Html.Hidden("sfecha_nactra", fechanac)
+@Html.Hidden("sfecha_afptra", fechaafp)
+@Html.Hidden("sidprovincias", idprovincias)
+@Html.Hidden("siddistritos", iddistritos)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12">
+                <div class="widget flat radius-bordered">
+                    <div class="widget-header bg-danger">
+                        <span class="widget-caption">Informacion del trabajador</span>
+                    </div>
+                    <div class="widget-body">
+                        <div id="registration-form">
+                            <form role="form">
+                                <div class="form-title">
+                                    Datos personales  @*<button class="btn btn-sm btn-warning .shiny ver" style="margin-left:20px" value="@fotografia">Fotografia</button>*@
+                                    <a class="btn btn-sm btn-warning" onclick="fnAgregaFoto()" style="margin-left:20px">Fotografia</a>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Tipo Documento <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDDOCIDENTIDAD, new SelectList(ViewBag.DocIdentidad, "IDDOCIDENTIDAD", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDDOCIDENTIDADx")
+                                                @Html.Hidden("docidentidadx")
+                                                <i class="glyphicon glyphicon-pencil palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Documento <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.NRODOCUMENTO, new { @type = "number", @maxlength = "8", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Nombres <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.NOMBRES, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputName2">A. Paterno <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.A_PATERNO, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputName2">A. Materno <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.A_MATERNO, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Fecha Nacimiento <sup>*</sup></label>
+                                            <div class='input-group'>
+                                                <input class='form-control date-picker' id='txtCompCompNew_FechNacTra' type='text' data-date-format='dd/mm/yyyy' value="@fechanac">
+                                                <span class='input-group-addon'>
+                                                    <i class='fa fa-calendar'></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Nacionalidad <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDNACIONALIDAD, new SelectList(ViewBag.Nacionalidades, "IDNACIONALIDAD", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Sexo <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.SEXO, new SelectList(ViewBag.Sexos, "SEXO", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Estado Civil <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDESTADOCIVIL, new SelectList(ViewBag.EstadoCivil, "IDESTADOCIVIL", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDESTADOCIVILx")
+                                                @Html.Hidden("estadocivilx")
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Carga Familiar <sup>*</sup></label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.ASIGNACION, new SelectListItem[]{
+                                                    new SelectListItem() {Text = "NO", Value="NO"},
+                                                    new SelectListItem() {Text = "SI", Value="SI"}}, new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Codigo Essalud</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.AUTOGENERADOIPSS, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">SNP</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.SNP, new SelectListItem[]{
+                                                    new SelectListItem() {Text = "NO", Value="NO"},
+                                                    new SelectListItem() {Text = "SI", Value="SI"}}, new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Afp</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDAFP, new SelectList(ViewBag.Afps, "IDAFP", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDAFPx")
+                                                @Html.Hidden("afpx")
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Inicio AFP</label>
+                                            <div class='input-group'>
+                                                <input class='form-control date-pickerafp' id='txtAfp_FechEmis' type='text' data-date-format='dd/mm/yyyy' value="@fechaafp">
+                                                <span class='input-group-addon'>
+                                                    <i class='fa fa-calendar'></i>
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Codigo Afp</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.AUTOGENERADOAFP, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Licencia Auto</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.licencia_auto, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Licencia Moto</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.licencia_moto, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Otros</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.otros, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <!-- Default checked -->
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">SCRT</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.CheckBoxFor(model => model.bSCTRSALUD, new { @onkeyup = "InputToUpper(this)", @class = "form-control", @style="left:0; opacity:100;margin-top: 7px;margin-left:25px" }) 
+                                                <label style="margin-top: 6px;margin-left: 55px">Activo</label>
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">RUC</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.RUC, new { @type = "number", @maxlength = "11", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Telefono</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.TELEFONO, new { @type = "number", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Celular</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.CELULAR, new { @type = "number", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Email</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.EMAIL, new { @type = "email", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Domicilio: Jr/Av/Calle/Psje/Urb/AAHH</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.direccion_domicilio, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">N°</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.DIRECCION_NUMERO, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Mz</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.DIRECCION_MANZANA, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Int</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.DIRECCION_INTERIOR, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Lt</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.DIRECCION_LOTE, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Km</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.DIRECCION_KILOMETRO, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Departamento</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDDEPARTAMENTO, new SelectList(ViewBag.Departamentos, "IDDEPARTAMENTO", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDDEPARTAMENTOx")
+                                                @Html.Hidden("departamentox")
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Provincia</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDPROVINCIA, new List<SelectListItem>(), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDPROVINCIAx")
+                                                @Html.Hidden("provinciax")
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Distrito</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDDISTRITO, new List<SelectListItem>(), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDDISTRITOx")
+                                                @Html.Hidden("distritox")
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-title">
+                                    Estudios
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Nivel de estudios</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDNIVELESTUDIO, new SelectList(ViewBag.Niveles, "IDNIVELESTUDIO", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDNIVELESTUDIOx")
+                                                @Html.Hidden("nivelx")
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-4">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Especialidad</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.ESPECIALIDAD, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-5">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Centro de Estudios</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.CENTROESTUDIOS, new { @onkeyup = "InputToUpper(this)", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Año Egreso</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.ANIO_EGRESO, new { @type = "number", @maxlength = "4", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-title">
+                                    Cuenta Sueldo
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Banco</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDBANCO, new SelectList(ViewBag.Bancos, "idbanco", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Nro. Cuenta</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.CUENTA_BANCO, new { @type = "text", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Periodicidad</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDPERIODICIDAD, new SelectList(ViewBag.Periodos, "IDPERIODICIDAD", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Tipo Remuneracion</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.TIPOREMUNERACION, new SelectList(ViewBag.TiposRem, "TIPOREMUNERACION", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-title">
+                                    Cuenta CTS
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Banco</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDBANCOCTS, new SelectList(ViewBag.Bancos, "idbanco", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Nro. Cuenta</label>
+                                            <span class="input-icon icon-right">
+                                                @Html.TextBoxFor(model => model.CUENTA_CTS, new { @type = "text", @class = "form-control" })
+                                                <i class="glyphicon glyphicon-user palegreen"></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-title">
+                                    Referencias Personales <a class="btn btn-sm btn-warning" onclick="fnAgregaReferencia()" style="margin-left:20px">Agregar</a>
+                                </div>
+                                <div id="DivTblDataRegiRef"></div>
+
+                                <div class="form-title">
+                                    Derecho habientes <a class="btn btn-sm btn-warning" onclick="fnAgregaFamiliares()" style="margin-left:20px">Agregar</a>
+                                </div>
+                                <div id="DivTblDataRegiDere"></div>
+
+                                <div class="form-title">
+                                    Otros Documentos <a class="btn btn-sm btn-warning" onclick="fnAgregaOtrosDocs()" style="margin-left:20px">Agregar</a>
+                                </div>
+                                <div id="DivTblDataRegiOtros"></div>
+
+
+
+
+                                <div class="row">
+                                    <div class="col-sm-12">
+                                        <div class="col-sm-6" style="text-align:center">
+                                            <a class="btn btn-success guardartrabajador" style="margin-top:10px;">Guardar</a>
+                                        </div>
+                                        <div class="col-sm-6" style="text-align:center">
+                                            <button type="button" class="btn btn-danger" onclick="location.href='@Url.Action("Personal","Personal")'" style="margin-top:10px;">Cancelar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalFoto' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:400px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentFoto'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalRefe' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:400px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentRefe'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalFamiliar' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:650px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentFamiliar'></div>
+        </div>
+    </div>
+</div>
+
+<div id='myModalOtros' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:650px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentOtros'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalBaja' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:650px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentBaja'></div>
+        </div>
+    </div>
+</div>
+<div id="spinnerTrabajador" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 9999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/assets/css/beyond.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <script>
+    var iddocvinctemp = "";
+    var idprovinciatemp = "";
+    var iddistritotemp = "";
+    var idotrodoctemp = 0;
+    $(document).ready(function () {
+        $("#spinnerTrabajador").hide();
+
+        $('#spinnerTrabajador').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+        var update = $("#IDCODIGOGENERAL").val();
+        if (update != null) {
+            update = update.trim();
+            if (update != "") {
+                document.getElementById("IDDOCIDENTIDAD").disabled=true;
+                document.getElementById("NRODOCUMENTO").disabled=true;
+            } else {
+                document.getElementById("IDDOCIDENTIDAD").disabled=false;
+                document.getElementById("NRODOCUMENTO").disabled=false;
+            }
+        } else {
+            document.getElementById("IDDOCIDENTIDAD").disabled=false;
+            document.getElementById("NRODOCUMENTO").disabled=false;
+        }
+
+          $("#NRODOCUMENTO").blur(function () {
+                var dnix = $("#NRODOCUMENTO").val();
+                var lengthd = 0;
+                try {
+                    lengthd = dnix.length;
+                } catch (e) {
+
+                }
+                if (dnix != "" && (lengthd > 0 && lengthd == 8)) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetTrabajadorDniAsync", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ dnic: dnix }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (response) {
+                            console.log("esta dni: " + JSON.stringify(response));
+                            var respuesta = parseInt(response, 10);
+                            if (respuesta == 1) {
+                                console.log("dentro if ");
+                                swal("", "El documento ya se encuentra registrado", "error");
+                                $("#NRODOCUMENTO").val('');
+                                $("#NRODOCUMENTO").focus();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            });
+
+
+
+        $('.date-picker').datepicker(
+        {
+            format: 'dd/mm/yyyy',
+            dateFormat: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true
+        });
+        $('#txtCompCompNew_FechNacTra').on('changeDate', function (selected) {
+            $('#sfecha_nactra').val($(this).val());
+            $(this).datepicker('hide');
+        });
+
+        $('.date-pickerafp').datepicker(
+            {
+                format: 'dd/mm/yyyy',
+                dateFormat: 'dd/mm/yyyy',
+                autoclose: true,
+                todayHighlight: true
+            });
+            $('#txtAfp_FechEmis').on('changeDate', function (selected) {
+                $('#sfecha_afptra').val($(this).val());
+                $(this).datepicker('hide');
+            });
+
+            var IDDEPARTAMENTOx = "0";
+            try {
+                IDDEPARTAMENTOx = $("#IDDEPARTAMENTO").val();
+            }
+            catch (e) {
+
+            }
+            if (IDDEPARTAMENTOx != "") {
+                LlenaProvincias(IDDEPARTAMENTOx);
+            }
+        loadDivTblRegistroReferencias();
+        loadDivTblRegistroFamiliares();
+        loadDivTblRegistroOtrosDocs();
+        //loadDivTblRegistroCuentas();
+
+        var idprovinciax = $("#sidprovincias").val();
+        if (idprovinciax!="") {
+            LlenaProvincias2(IDDEPARTAMENTOx,idprovinciax);
+        } else {
+
+        }
+
+
+
+            $(document).on('click', '.eliminaref', function () {
+                debugger;
+                var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+                idcodigogeneral = idcodigogeneral.trim();
+                console.log("idcodigogeneral: " + idcodigogeneral);
+                if (idcodigogeneral==='') {
+                    swal("", "Se debe registrar primero al trabajador!", "error");
+                    return;
+                }
+                var tableRow = $(this).closest("tr");
+                var IDPERSONALREFERENCIA  = tableRow.find("td:eq(0)").text();
+                IDPERSONALREFERENCIA = IDPERSONALREFERENCIA.trim();
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminaReferencia", "Personal")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        idcodigogeneral:idcodigogeneral, IDPERSONALREFERENCIA: IDPERSONALREFERENCIA
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (data) {
+                        console.log(data);
+                        IDPERSONALREFERENCIA_ = data;
+                        if (parseInt(IDPERSONALREFERENCIA_, 10) > 0) {
+                            swal({
+                                title: 'Exito!',
+                                text: 'Referencia se eliminó correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                            }).then(function () {
+                                loadDivTblRegistroReferencias();
+                            });
+                        } else {
+                            swal("", "No se pudo eliminar!", "error");
+                            IDPERSONALREFERENCIA_ = 0;
+                        }
+                    }
+                });
+                return false;
+            });
+
+        var iddistritox = $("#siddistritos").val();
+        if (iddistritox!="") {
+            LlenaDistritos2(idprovinciax,iddistritox);
+        } else {
+
+        }
+
+    });
+
+
+    /*
+     *
+     *  GUARDAR TRABAJADOR
+     *
+     * */
+    $(document).on('click', '.guardartrabajador', function () {
+        var IDDOCIDENTIDAD = $("#IDDOCIDENTIDAD").val();        //*
+        var NRODOCUMENTO = $("#NRODOCUMENTO").val();        //*
+        var NOMBRES = $("#NOMBRES").val();        //*
+        var A_PATERNO = $("#A_PATERNO").val();        //*
+        var A_MATERNO = $("#A_MATERNO").val();        //*
+        var FECHANAC = $("#sfecha_nactra").val();        //*
+        var IDESTADOCIVIL = $("#IDESTADOCIVIL").val();        //*
+        var ASIGNACION = $("#ASIGNACION").val();        //*
+        var AUTOGENERADOIPSS = $("#AUTOGENERADOIPSS").val();
+        var SNP = $("#SNP").val();
+        var AFP = $("#IDAFP").val();
+        var sfecha_afptra = $("#sfecha_afptra").val();
+        var AUTOGENERADOAFP = $("#AUTOGENERADOAFP").val();
+        var licencia_auto = $("#licencia_auto").val();
+        var licencia_moto = $("#licencia_moto").val();
+        var otros = $("#otros").val();
+        var RUC = $("#RUC").val();
+        var TELEFONO = $("#TELEFONO").val();
+        var CELULAR = $("#CELULAR").val();
+        var EMAIL = $("#EMAIL").val();
+        var direccion_domicilio = $("#direccion_domicilio").val();
+        var DIRECCION_NUMERO = $("#DIRECCION_NUMERO").val();
+        var DIRECCION_MANZANA = $("#DIRECCION_MANZANA").val();
+        var DIRECCION_INTERIOR = $("#DIRECCION_INTERIOR").val();
+        var DIRECCION_LOTE = $("#DIRECCION_LOTE").val();
+        var DIRECCION_KILOMETRO = $("#DIRECCION_KILOMETRO").val();
+        var IDDEPARTAMENTO = $("#IDDEPARTAMENTO").val();
+        var IDPROVINCIA = $("#IDPROVINCIA").val();
+        var IDDISTRITO = $("#IDDISTRITO").val();
+        var IDNIVELESTUDIO = $("#IDNIVELESTUDIO").val();
+        var ESPECIALIDAD = $("#ESPECIALIDAD").val();
+        var CENTROESTUDIOS = $("#CENTROESTUDIOS").val();
+        var ANIO_EGRESO = $("#ANIO_EGRESO").val();
+        var IDNACIONALIDAD = $("#IDNACIONALIDAD").val();
+        var SEXO = $("#SEXO").val();
+        debugger;
+        var bSCTRSALUD = $("#bSCTRSALUD").val();
+        var SCTRSALUD = '0';
+        if (bSCTRSALUD) {
+            SCTRSALUD = '1';
+        }
+
+
+        var IDBANCO = $("#IDBANCO").val();
+        var CUENTA_BANCO = '';
+        try {
+            CUENTA_BANCO = document.getElementById("CUENTA_BANCO").value;
+            CUENTA_BANCO = CUENTA_BANCO.replaceAll('-');
+        } catch (e) {
+
+        }
+
+        var CUENTA_CTS = '';
+        try {
+            CUENTA_CTS = document.getElementById("CUENTA_CTS").value;
+            CUENTA_CTS = CUENTA_CTS.replaceAll('-');
+        } catch (e) {
+
+        }
+        //var CUENTA_CTS = $("#CUENTA_CTS").val();
+        //var CUENTA_BANCO = $("#CUENTA_BANCO").val();
+        var IDPERIODICIDAD = $("#IDPERIODICIDAD").val();
+        var TIPOREMUNERACION = $("#TIPOREMUNERACION").val();
+        var IDBANCOCTS = $("#IDBANCOCTS").val();
+        //var CUENTA_CTS = $("#CUENTA_CTS").val();
+
+        IDDOCIDENTIDAD = IDDOCIDENTIDAD.trim();
+        NRODOCUMENTO = NRODOCUMENTO.trim();
+        NOMBRES = NOMBRES.trim();
+        A_PATERNO = A_PATERNO.trim();
+        A_MATERNO = A_MATERNO.trim();
+        FECHANAC = FECHANAC.trim();
+        IDESTADOCIVIL = IDESTADOCIVIL.trim();
+        ASIGNACION = ASIGNACION.trim();
+        IDNACIONALIDAD = IDNACIONALIDAD.trim();
+        SEXO = SEXO.trim();
+
+        if (IDBANCO == null) {
+            IDBANCO = "";
+        } else {
+            IDBANCO = IDBANCO.trim();
+        }
+
+        if (CUENTA_BANCO == null) {
+            CUENTA_BANCO = "";
+        } else {
+            CUENTA_BANCO = CUENTA_BANCO.trim();
+        }
+
+        if (IDPERIODICIDAD == null) {
+            IDPERIODICIDAD = "";
+        } else {
+            IDPERIODICIDAD = IDPERIODICIDAD.trim();
+        }
+
+        if (TIPOREMUNERACION == null) {
+            TIPOREMUNERACION = "";
+        } else {
+            TIPOREMUNERACION = TIPOREMUNERACION.trim();
+        }
+
+        if (IDBANCOCTS == null) {
+            IDBANCOCTS = "";
+        } else {
+            IDBANCOCTS = IDBANCOCTS.trim();
+        }
+
+        if (CUENTA_CTS == null) {
+            CUENTA_CTS = "";
+        } else {
+            CUENTA_CTS = CUENTA_CTS.trim();
+        }
+
+        AUTOGENERADOIPSS = AUTOGENERADOIPSS.trim();
+        SNP = SNP.trim();
+        if (AFP == null) {
+            AFP = "";
+        } else {
+            AFP = AFP.trim();
+        }
+        sfecha_afptra = sfecha_afptra.trim();
+        AUTOGENERADOAFP = AUTOGENERADOAFP.trim();
+        licencia_auto = licencia_auto.trim();
+        licencia_moto = licencia_moto.trim();
+        otros = otros.trim();
+        RUC = RUC.trim();
+        TELEFONO = TELEFONO.trim();
+        CELULAR = CELULAR.trim();
+        EMAIL = EMAIL.trim();
+        direccion_domicilio = direccion_domicilio.trim();
+        DIRECCION_NUMERO = DIRECCION_NUMERO.trim();
+        DIRECCION_MANZANA = DIRECCION_MANZANA.trim();
+        DIRECCION_INTERIOR = DIRECCION_INTERIOR.trim();
+        DIRECCION_LOTE = DIRECCION_LOTE.trim();
+        DIRECCION_KILOMETRO = DIRECCION_KILOMETRO.trim();
+
+        if (IDDEPARTAMENTO == null) {
+            IDDEPARTAMENTO = "";
+        } else {
+            IDDEPARTAMENTO = IDDEPARTAMENTO.trim();
+        }
+        if (IDPROVINCIA == null) {
+            IDPROVINCIA = "";
+        } else {
+            IDPROVINCIA = IDPROVINCIA.trim();
+        }
+        if (IDDISTRITO == null) {
+            IDDISTRITO = "";
+        } else {
+            IDDISTRITO = IDDISTRITO.trim();
+        }
+        if (IDNIVELESTUDIO == null) {
+            IDNIVELESTUDIO = "";
+        } else {
+            IDNIVELESTUDIO = IDNIVELESTUDIO.trim();
+        }
+
+        ESPECIALIDAD = ESPECIALIDAD.trim();
+        CENTROESTUDIOS = CENTROESTUDIOS.trim();
+        ANIO_EGRESO = ANIO_EGRESO.trim();
+
+        var strfotografia = document.getElementById("strfotografia").value;
+
+        if (IDDOCIDENTIDAD === '' | NRODOCUMENTO === '' | NOMBRES === '' | A_PATERNO === '' | A_MATERNO === '' | FECHANAC === ''
+            | IDESTADOCIVIL === '' | ASIGNACION === '' | IDNACIONALIDAD === '' | SEXO === '') {
+            swal({
+                    title: '<strong>Datos faltantes!</strong>',
+                    type: 'error',
+                    html:
+                        '<span>Por favor revisar los siguientes datos:</span><ul>' +
+                            '<li>Tipo documento</li>' +
+                            '<li>Documento</li>' +
+                            '<li>Nombres</li>' +
+                            '<li>Apellido Paterno</li>' +
+                            '<li>Apellido Materno</li>' +
+                            '<li>Fecha de nacimiento</li>' +
+                            '<li>Estado Civil</li>' +
+                            '<li>Asignacion</li>' +
+                            '<li>Nacionalidad</li>' +
+                            '<li>Sexo</li>' +
+                            '</ul>'
+                }
+            );
+            return false;
+        }
+        swal({
+            title: '¿Está seguro?',
+            text: "Se van a registrar los datos del trabajador!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Si!'
+        }).then((result) => {
+            //console.log("result: " + result);
+            GuardaTrabajador(IDDOCIDENTIDAD, NRODOCUMENTO, NOMBRES, A_PATERNO, A_MATERNO, FECHANAC, IDESTADOCIVIL, ASIGNACION, AUTOGENERADOIPSS, SNP, AFP, sfecha_afptra, AUTOGENERADOAFP, licencia_auto,
+                licencia_moto, otros, RUC, TELEFONO, CELULAR, EMAIL, direccion_domicilio, DIRECCION_NUMERO, DIRECCION_MANZANA, DIRECCION_INTERIOR, DIRECCION_LOTE, DIRECCION_KILOMETRO, IDDEPARTAMENTO,
+                IDPROVINCIA, IDDISTRITO, IDNIVELESTUDIO, ESPECIALIDAD, CENTROESTUDIOS, ANIO_EGRESO, IDNACIONALIDAD, SEXO, IDBANCO, CUENTA_BANCO, IDPERIODICIDAD, TIPOREMUNERACION, IDBANCOCTS, CUENTA_CTS,strfotografia, SCTRSALUD);
+            //if (resultado == true) {
+
+            //} else {
+
+            //}
+
+        }, function (dismiss) {
+            if (dismiss === 'cancel' || dismiss === 'close') {
+                if ($('#spinnerTrabajador').length > 0) {
+                        $('#spinnerTrabajador').hide();
+                    }
+            }
+        });
+        });
+
+        function GuardaTrabajador(IDDOCIDENTIDAD, NRODOCUMENTO, NOMBRES, A_PATERNO, A_MATERNO, FECHANAC, IDESTADOCIVIL, ASIGNACION, AUTOGENERADOIPSS, SNP, AFP, sfecha_afptra, AUTOGENERADOAFP, licencia_auto,
+                licencia_moto, otros, RUC, TELEFONO, CELULAR, EMAIL, direccion_domicilio, DIRECCION_NUMERO, DIRECCION_MANZANA, DIRECCION_INTERIOR, DIRECCION_LOTE, DIRECCION_KILOMETRO, IDDEPARTAMENTO,
+                IDPROVINCIA,IDDISTRITO,IDNIVELESTUDIO,ESPECIALIDAD,CENTROESTUDIOS,ANIO_EGRESO,IDNACIONALIDAD,SEXO, IDBANCO, CUENTA_BANCO, IDPERIODICIDAD, TIPOREMUNERACION, IDBANCOCTS, CUENTA_CTS,strfotografia,SCTRSALUD) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.when(
+            $.ajax({
+                type: 'POST',
+                beforeSend: function () {
+                    $('#spinnerTrabajador').show();
+                },
+                url: '@Url.Action("GuardaTrabajador", "Personal")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IDDOCIDENTIDAD: IDDOCIDENTIDAD, NRODOCUMENTO: NRODOCUMENTO, NOMBRES: NOMBRES, A_PATERNO: A_PATERNO, A_MATERNO: A_MATERNO, FECHANAC: FECHANAC,
+                    IDESTADOCIVIL: IDESTADOCIVIL, ASIGNACION: ASIGNACION, AUTOGENERADOIPSS: AUTOGENERADOIPSS, SNP: SNP, AFP: AFP, sfecha_afptra: sfecha_afptra,
+                    AUTOGENERADOAFP: AUTOGENERADOAFP, licencia_auto: licencia_auto, licencia_moto: licencia_moto, otros: otros, RUC: RUC, TELEFONO: TELEFONO,
+                    CELULAR: CELULAR, EMAIL: EMAIL, direccion_domicilio: direccion_domicilio, DIRECCION_NUMERO: DIRECCION_NUMERO, DIRECCION_MANZANA: DIRECCION_MANZANA,
+                    DIRECCION_INTERIOR: DIRECCION_INTERIOR, DIRECCION_LOTE: DIRECCION_LOTE, DIRECCION_KILOMETRO: DIRECCION_KILOMETRO, IDDEPARTAMENTO: IDDEPARTAMENTO,
+                    IDPROVINCIA: IDPROVINCIA, IDDISTRITO: IDDISTRITO, IDNIVELESTUDIO: IDNIVELESTUDIO, ESPECIALIDAD: ESPECIALIDAD, CENTROESTUDIOS: CENTROESTUDIOS,
+                    ANIO_EGRESO: ANIO_EGRESO, IDNACIONALIDAD: IDNACIONALIDAD, SEXO: SEXO, IDBANCO: IDBANCO, CUENTA_BANCO: CUENTA_BANCO, IDPERIODICIDAD: IDPERIODICIDAD,
+                    TIPOREMUNERACION: TIPOREMUNERACION, IDBANCOCTS: IDBANCOCTS, CUENTA_CTS: CUENTA_CTS, PERSONAL_FOTO: strfotografia, SCTRSALUD : SCTRSALUD
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                    if (data === '1') {
+                        swal("", data, "error");
+                        return false;
+                    } else {
+                        swal({
+                                title: 'Exito!',
+                                text: 'Se registraron los datos correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                        }).then(function () {
+                            var url = '@Url.Action("GetTrabajadorById", "Personal")?IdTrabajador=' + NRODOCUMENTO;
+                            window.open(url, "_self")
+                            });
+
+                    }
+
+                },
+                error: function (request) {
+                    swal("", request.responseText, "error");
+                    if ($('#spinnerTrabajador').length > 0) {
+                        $('#spinnerTrabajador').hide();
+                    }
+                    return false;
+                }
+                })).then(function (response) {
+                    if ($('#spinnerTrabajador').length > 0) {
+                        $('#spinnerTrabajador').hide();
+                    }
+                });
+                return false;
+        }
+
+
+    /*
+     *
+     *  GUARDAR TRABAJADOR
+     *
+     * */
+
+
+
+        $("#IDDEPARTAMENTO").change(function () {
+            var opcion = $(this).val();
+            console.log("opcion: " + opcion);
+            LlenaProvincias(opcion);
+        });
+    function LlenaProvincias2(opcion,selected) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Filter_ProvinciaAsync", "Personal")',
+                data: JSON.stringify({ IDDEPARTAMENTO: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+
+                    $("#IDPROVINCIA").prop('disabled', false);
+                    $('#IDPROVINCIA option').remove();
+                    var dataLen = response.length;
+                    $('#IDPROVINCIA').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#IDPROVINCIA').append('<option value="' + response[i].IDPROVINCIA + '">' + response[i].DESCRIPCION + '</option>');
+                    }
+                     $('#IDPROVINCIA').val(selected);
+                }
+            });
+        }
+        function LlenaProvincias(opcion) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Filter_ProvinciaAsync", "Personal")',
+                data: JSON.stringify({ IDDEPARTAMENTO: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+
+                    $("#IDPROVINCIA").prop('disabled', false);
+                    $('#IDPROVINCIA option').remove();
+                    var dataLen = response.length;
+                    $('#IDPROVINCIA').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#IDPROVINCIA').append('<option value="' + response[i].IDPROVINCIA + '">' + response[i].DESCRIPCION + '</option>');
+                    }
+                }
+            });
+        }
+        $("#IDPROVINCIA").change(function () {
+            var opcion = $(this).val();
+            console.log("opcion: " + opcion);
+            LlenaDistritos(opcion);
+        });
+    function LlenaDistritos2(opcion,selected) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Filter_DistritoAsync", "Personal")',
+                data: JSON.stringify({ IDPROVINCIA: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+
+                    $("#IDDISTRITO").prop('disabled', false);
+                    $('#IDDISTRITO option').remove();
+                    var dataLen = response.length;
+                    $('#IDDISTRITO').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#IDDISTRITO').append('<option value="' + response[i].IDDISTRITO + '">' + response[i].DESCRIPCION + '</option>');
+                    }
+                    $('#IDDISTRITO').val(selected);
+                }
+            });
+        };
+        function LlenaDistritos(opcion) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Filter_DistritoAsync", "Personal")',
+                data: JSON.stringify({ IDPROVINCIA: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+
+                    $("#IDDISTRITO").prop('disabled', false);
+                    $('#IDDISTRITO option').remove();
+                    var dataLen = response.length;
+                    $('#IDDISTRITO').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#IDDISTRITO').append('<option value="' + response[i].IDDISTRITO + '">' + response[i].DESCRIPCION + '</option>');
+                    }
+                }
+            });
+        };
+
+        function loadDivTblRegistroReferencias() {
+            var NRODOCUMENTO = $("#NRODOCUMENTO").val();
+            var url = "../Personal/ListDataRegistroReferencias?NRODOCUMENTO=" + NRODOCUMENTO;
+            $('#DivTblDataRegiRef').html('');
+            $('#DivTblDataRegiRef').load(url);
+            }
+    function loadDivTblRegistroFamiliares() {
+            var NRODOCUMENTO = $("#NRODOCUMENTO").val();
+            var url = "../Personal/ListDataRegistroFamiliares?NRODOCUMENTO=" + NRODOCUMENTO;
+            $('#DivTblDataRegiDere').html('');
+            $('#DivTblDataRegiDere').load(url);
+    }
+    function loadDivTblRegistroCuentas() {
+            var NRODOCUMENTO = $("#NRODOCUMENTO").val();
+            var url = "../Personal/ListDataRegistroCuentas?NRODOCUMENTO=" + NRODOCUMENTO;
+            $('#DivTblDataRegiCuen').html('');
+            $('#DivTblDataRegiCuen').load(url);
+            }
+    function loadDivTblRegistroOtrosDocs() {
+            var NRODOCUMENTO = $("#NRODOCUMENTO").val();
+            var url = "../Personal/ListDataRegistroOtosDoc?NRODOCUMENTO=" + NRODOCUMENTO;
+            $('#DivTblDataRegiOtros').html('');
+            $('#DivTblDataRegiOtros').load(url);
+            }
+    function fnAgregaFoto() {
+        var fidcodigogeneral = $("#IDCODIGOGENERAL").val().trim(); //document.getElementById("IDCODIGOGENERAL").value();
+        if(fidcodigogeneral === ''){
+            swal("","Debe primero registrar al trabajador!","error");
+            return false;
+        }
+        var foto = $("#PERSONAL_FOTO").val().trim();
+        foto = foto.trim();
+        console.log("foto: " + foto);
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("VerFoto", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { foto: foto },
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentFoto').html(response);
+                $('#myModalFoto').modal(options);
+                $('#myModalFoto').modal('show');
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+        });
+        return false;
+    };
+    function Handlechange() {
+        debugger;
+        var fidcodigogeneral = $("#IDCODIGOGENERAL").val().trim(); //document.getElementById("IDCODIGOGENERAL").value();
+        var fileinput = document.getElementById("FileUpload1");
+        var textinput = document.getElementById("lblNombArch");
+        var tfotog = document.getElementById("fotog");
+        fullPath = fileinput.value;
+        var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+        var filename = fullPath.substring(startIndex);
+        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+            filename = filename.substring(1);
+        }
+        textinput.value = filename;
+        var indexformat = filename.lastIndexOf('.');
+        var tamanio = filename.length;
+        var formato = filename.substring(indexformat,tamanio);
+
+        var fileUpload = $("#FileUpload1").get(0);
+        var files = fileUpload.files;
+        var fileData = new FormData();
+        var flgSaveOk = 0;
+        if (files.length > 0) { //Guardamos la Imagen
+            for (var i = 0; i < files.length; i++) {
+                fileData.append(files[i].name, files[i]);
+                fileData.append(fidcodigogeneral, files[i]);
+            }
+        }
+
+        $.when(
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GuardarImagenPersonal", "Personal")',
+                contentType: false,
+                processData: false,
+                data: fileData,
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                    tfotog.src = 'http://190.117.115.183/uploads/fotopersonal/' + fidcodigogeneral + formato;
+                    $("#strfotografia").val(fidcodigogeneral + formato);
+                },
+                error: function (data) {
+                    $("#strfotografia").val('');
+                    swal("", data.responseText, "error");
+                }
+            })).then(function (response) {
+
+            });
+
+            };
+    $(document).on('click', '.guardaimagen', function () {
+        var foto = $("#strfotografia").val();
+        if (foto.trim()==='') {
+            swal("error","No se ha seleccionado ninguna fotografia!")
+        } else {
+            //swal("Se registró la fotografia!")
+            swal({
+                title: 'Exito!',
+                text: 'La imagen se registró',
+                type: 'success',
+                showCancelButton: false,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ok'
+            }, function () {
+
+            })
+            console.log("salirs");
+            $("#btnCancel").click();
+        }
+    });
+
+
+    function fnAgregaReferencia(){
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("EditReferencia", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, IDPERSONALREFERENCIA:0 },
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentRefe').html(response);
+                $('#myModalRefe').modal(options);
+                $('#myModalRefe').modal('show');
+            },
+            error: function (request, status, error) {
+                swal('',request.responseText,'error');
+            }
+        });
+        return false;
+    };
+
+    function fnAgregaCuenta(){
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("EditReferencia", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, id_personal_cuenta:0 },
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentRefe').html(response);
+                $('#myModalRefe').modal(options);
+                $('#myModalRefe').modal('show');
+            },
+            error: function (request, status, error) {
+                swal('',request.responseText,'error');
+            }
+        });
+        return false;
+    };
+    function fnAgregaOtrosDocs() {
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("EditOtrosDocs", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, IDPERSONALOTROSDOC:0 },
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentOtros').html(response);
+                $('#myModalOtros').modal(options);
+                $('#myModalOtros').modal('show');
+            },
+            error: function (request, status, error) {
+                swal('',request.responseText,'error');
+            }
+        });
+        return false;
+    }
+    function fnAgregaFamiliares(){
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var options = { "backdrop": "static", keyboard: true };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("EditDhabientes", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, IDPERSONALFAMILIAR:0 },
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentFamiliar').html(response);
+                $('#myModalFamiliar').modal(options);
+                $('#myModalFamiliar').modal('show');
+            },
+            error: function (request, status, error) {
+                swal('',request.responseText,'error');
+            }
+        });
+        return false;
+    };
+     $('#myModalBaja').on('hide.bs.modal', function (e) {
+            loadDivTblRegistroFamiliares();
+    });
+    $('#myModalBaja').on('shown.bs.hidden.bs.modal', function (e) {
+        $("#BajaDerec").click(function () {
+            var id_save_fam = 0;
+            var IDPERSONALFAMILIAR = $("#IDPERSONALFAMILIARx").val();
+            var IDBAJA = $("#IDBAJAFAM").val();
+
+            try {
+                id_save_fam = parseInt(IDPERSONALFAMILIAR, 10);
+            } catch (e) {
+                id_save_fam = 0;
+                swal("", "No se pudo registrar!", "error");
+                return false;
+            }
+
+            $.when(
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("BajaFamiliar", "Personal")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_save_fam: id_save_fam, IDBAJA: IDBAJA}),
+                    dataType: 'json',
+                        beforeSend: function () {
+                        $('#spinnerTrabajador').show();
+                        },
+                    traditional: true,
+                    success: function (data) {
+                        console.log(data);
+                        IDPERSONALFAMILIAR_ = data;
+                        if (parseInt(IDPERSONALFAMILIAR_, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró la baja correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function () {
+                                    loadDivTblRegistroFamiliares();
+                                    $("#btnCancelbfam").click();
+                                });
+                            } else {
+                            swal("", "No se pudo registrar!", "error");
+                            IDPERSONALFAMILIAR_ = 0;
+                        }
+                    }
+                })).then(function (response) {
+                    if ($('#spinnerTrabajador').length > 0) {
+                        $('#spinnerTrabajador').hide();
+                    }
+                });
+            });
+    });
+    $('#myModalOtros').on('hide.bs.modal', function (e) {
+            loadDivTblRegistroOtrosDocs();
+    });
+    $('#myModalOtros').on('shown.bs.modal', function (e) {
+        var idx = $("#IDPERSONALOTROSDOCx").val();
+
+        var IDCODIGOGENERALxx = $("#IDCODIGOGENERAL").val().trim();
+        var IDOTROSDOCxx = $("#IDOTROSDOCx").val();
+        var DOCUMENTO_ADJUNTOxx = $("#DOCUMENTO_ADJUNTOx").val();
+        var ESTADOxx = $("#ESTADOx").val();
+
+        if (idx != "") {
+            if (IDOTROSDOCxx!="") {
+                idotrodoctemp = IDOTROSDOCxx;
+            } else {
+                idotrodoctemp = 0;
+            }
+
+            $("#IDOTROSDOCP").val(IDOTROSDOCxx);
+            $("#IDCODIGOGENERALx").val(IDCODIGOGENERALxx);
+        }
+        //elimina
+
+        $(document).on('click', '.eliminaotro', function () {
+                debugger;
+                var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+                idcodigogeneral = idcodigogeneral.trim();
+                console.log("idcodigogeneral: " + idcodigogeneral);
+                if (idcodigogeneral==='') {
+                    swal("", "Se debe registrar primero al trabajador!", "error");
+                    return;
+                }
+                var tableRow = $(this).closest("tr");
+                var IDPERSONALOTROSDOC  = tableRow.find("td:eq(0)").text();
+                IDPERSONALOTROSDOC = IDPERSONALOTROSDOC.trim();
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminaOtrosDocs", "Personal")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        idcodigogeneral:idcodigogeneral, IDPERSONALOTROSDOC: IDPERSONALOTROSDOC
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function (data) {
+                        console.log(data);
+                        IDPERSONALOTROSDOC_ = data;
+                        if (parseInt(IDPERSONALOTROSDOC_, 10) > 0) {
+                            swal({
+                                title: 'Exito!',
+                                text: 'Otro Documento se eliminó correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                            }).then(function () {
+                                loadDivTblRegistroOtrosDocs();
+                            });
+                        } else {
+                            swal("", "No se pudo eliminar!", "error");
+                            IDPERSONALOTROSDOC_ = 0;
+                        }
+                    }
+                });
+                return false;
+            });
+
+        //
+
+
+        //GUARDAR
+         $("#GuardarOtros").click(function () {
+            var id_save_otro = 0;
+            var IDPERSONALOTROSDOC = $("#IDPERSONALOTROSDOCx").val();
+            var IDCODIGOGENERAL = $("#IDCODIGOGENERALx").val();
+            var IDOTROSDOCP = $("#IDOTROSDOCP").val();
+            var DOCUMENTO_ADJUNTO = $("#DOCUMENTO_ADJUNTOx").val();
+            if (IDOTROSDOCP=== '') {
+                    swal("", "NO HA SELECCIONADO EL TIPO DEL DOCUMENTO", "error");
+                    $("#IDOTROSDOCP").focus();
+                    return false;
+             }
+
+                try {
+                    id_save_otro = parseInt(IDPERSONALOTROSDOC, 10);
+                } catch (e) {
+                    id_save_otro = 0;
+                }
+
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaOtrosDocs", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save_otro: id_save_otro, IDCODIGOGENERAL: IDCODIGOGENERAL, IDOTROSDOCP : IDOTROSDOCP,
+                            DOCUMENTO_ADJUNTO: DOCUMENTO_ADJUNTO}),
+                        dataType: 'json',
+                         beforeSend: function () {
+                            $('#spinnerTrabajador').show();
+                         },
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            IDPERSONALOTROSDOC_ = data;
+                            if (parseInt(IDPERSONALOTROSDOC_, 10) > 0) {
+                                    swal({
+                                        title: 'Exito!',
+                                        text: 'Documento se registró correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function () {
+                                        loadDivTblRegistroOtrosDocs();
+                                        $("#btnCancelotros").click();
+                                    });
+                                } else {
+                                swal("", "No se pudo registrar!", "error");
+                                IDPERSONALOTROSDOC_ = 0;
+                            }
+                        }
+                    })).then(function (response) {
+                        if ($('#spinnerTrabajador').length > 0) {
+                            $('#spinnerTrabajador').hide();
+                        }
+                    });
+        });
+
+
+        //GUARDAR
+
+
+    });
+
+
+    $('#myModalFamiliar').on('hide.bs.modal', function (e) {
+            loadDivTblRegistroFamiliares();
+    });
+
+    $('#myModalFamiliar').on('shown.bs.modal', function (e) {
+
+        $("#CODIGOGENERALFAM").blur(function () {
+                var dnix = $("#CODIGOGENERALFAM").val();
+                var lengthd = 0;
+                try {
+                    lengthd = dnix.length;
+                } catch (e) {
+
+                }
+                if (dnix != "" && (lengthd > 0 && lengthd == 8)) {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GetFamiliarDniAsync", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({ dnic: dnix }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (response) {
+                            console.log("esta dni: " + JSON.stringify(response));
+                            var respuesta = parseInt(response, 10);
+                            if (respuesta == 1) {
+                                console.log("dentro if ");
+                                swal("", "El documento ya se encuentra registrado", "error");
+                                $("#CODIGOGENERALFAM").val('');
+                                $("#CODIGOGENERALFAM").focus();
+                            }
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                }
+            });
+
+
+
+
+        var idx = $("#IDPERSONALFAMILIARx").val();
+
+        var IDCODIGOGENERALxx = $("#IDCODIGOGENERALx").val();
+        var CODIGOGENERALxx = $("#CODIGOGENERALx").val();
+        var IDVINCULOxx = $("#IDVINCULOx").val();
+        var NOMBRESxx = $("#NOMBRESx").val();
+        var vinculoxx = $("#vinculox").val();
+        var TELEFONOxx = $("#TELEFONOx").val();
+        var IDDOCVINCxx = $("#IDDOCVINCx").val();
+        var DOCVINCxx = $("#DOCVINCx").val();
+        var fecha_nacimientoxx = $("#fecha_nacimientox").val();
+        var stradjuntoxx = $("#stradjunto").val();
+
+        if (idx != "") {
+            if (IDDOCVINCxx!="") {
+                iddocvinctemp = IDDOCVINCxx;
+            } else {
+                iddocvinctemp = "";
+            }
+            LlenaDocVinculos2(IDVINCULOxx);
+            $("#CODIGOGENERALFAM").val(CODIGOGENERALxx);
+            $("#NOMBRESFAM").val(NOMBRESxx);
+            $("#IDVINCULOFAM").val(IDVINCULOxx);
+            $("#txtfecha_nacDerec").val(fecha_nacimientoxx);
+            $("#sfecha_nac").val(fecha_nacimientoxx);
+            //$("#FileUpload2").val(stradjuntoxx);
+            $("#TELEFONOFAM").val(TELEFONOxx);
+            //$("#FileUpload2").val();
+            console.log("IDDOCVINCxx: " + IDDOCVINCxx);
+            $("#IDDOCVINCFAM").val(IDDOCVINCxx);
+        }
+        $("#IDVINCULOFAM").change(function () {
+            var opcion = $(this).val();
+            console.log("opcion: " + opcion);
+            LlenaDocVinculos(opcion);
+        });
+        function LlenaDocVinculos(opcion) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Filter_DocVinculoFamiliarAsync", "Personal")',
+                data: JSON.stringify({ IDVINCULO: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+
+                    $("#IDDOCVINCFAM").prop('disabled', false);
+                    $('#IDDOCVINCFAM option').remove();
+                    var dataLen = response.length;
+                    $('#IDDOCVINCFAM').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#IDDOCVINCFAM').append('<option value="' + response[i].IDDOCVINC + '">' + response[i].DESCRIPCION + '</option>');
+                    }
+                    console.log("opcion for: " + opcion);
+
+
+                }
+            });
+
+        }
+        function LlenaDocVinculos2(opcion) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Filter_DocVinculoFamiliarAsync", "Personal")',
+                data: JSON.stringify({ IDVINCULO: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function (response) {
+
+                    $("#IDDOCVINCFAM").prop('disabled', false);
+                    $('#IDDOCVINCFAM option').remove();
+                    var dataLen = response.length;
+                    $('#IDDOCVINCFAM').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#IDDOCVINCFAM').append('<option value="' + response[i].IDDOCVINC + '">' + response[i].DESCRIPCION + '</option>');
+                    }
+                    console.log("opcion for: " + opcion);
+                    console.log("iddocvinctemp for: " + iddocvinctemp);
+                    $("#IDDOCVINCFAM").val(iddocvinctemp);
+                }
+            });
+        }
+        $("#GuardarDerec").click(function () {
+            var id_save_fam = 0;
+            var IDPERSONALFAMILIAR = $("#IDPERSONALFAMILIARx").val();
+            var IDCODIGOGENERAL = $("#IDCODIGOGENERAL").val();
+            var TELEFONOFam = $("#TELEFONOx").val();
+            var CODIGOGENERALFam = $("#CODIGOGENERALFAM").val();
+            var NOMBRESFam= $("#NOMBRESFAM").val();
+            var IDVINCULOFam= $("#IDVINCULOFAM").val();
+            var IDDOCVINCFam= $("#IDDOCVINCFAM").val();
+            var stradjunto = $("#stradjunto").val();
+            var fecha_nacDerec = $("#sfecha_nac").val();
+
+
+                if (NOMBRESFam=== '' || CODIGOGENERALFam ==='' || IDVINCULOFam ==='') {
+                    swal("", "Datos Incompletos", "error");
+                    $("#NOMBRESFam").focus();
+                    return false;
+            }
+
+            if (CODIGOGENERALFam.trim().length == 8) {
+
+            } else {
+                swal("", "DNI NO VÁLIDO", "error");
+                return false;
+
+            }
+
+                try {
+                    id_save_fam = parseInt(IDPERSONALFAMILIAR, 10);
+                } catch (e) {
+                    id_save_fam = 0;
+                }
+
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaFamiliar", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save_fam: id_save_fam, IDCODIGOGENERAL: IDCODIGOGENERAL, CODIGOGENERALFam : CODIGOGENERALFam,
+                            TELEFONOFam: TELEFONOFam ,NOMBRESFam: NOMBRESFam, IDVINCULOFam: IDVINCULOFam, IDDOCVINCFam: IDDOCVINCFam, txtfecha_nacDerec: fecha_nacDerec, stradjunto:stradjunto}),
+                        dataType: 'json',
+                         beforeSend: function () {
+                            $('#spinnerTrabajador').show();
+                         },
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            IDPERSONALFAMILIAR_ = data;
+                            if (parseInt(IDPERSONALFAMILIAR_, 10) > 0) {
+                                    swal({
+                                        title: 'Exito!',
+                                        text: 'Familiar se registró correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function () {
+                                        loadDivTblRegistroFamiliares();
+                                        $("#btnCancelfam").click();
+                                    });
+                                } else {
+                                swal("", "No se pudo registrar!", "error");
+                                IDPERSONALFAMILIAR_ = 0;
+                            }
+                        }
+                    })).then(function (response) {
+                        if ($('#spinnerTrabajador').length > 0) {
+                            $('#spinnerTrabajador').hide();
+                        }
+                    });
+        });
+
+        $('.date-pickerf').datepicker(
+        {
+            format: 'dd/mm/yyyy',
+            dateFormat: 'dd/mm/yyyy',
+            autoclose: true,
+            todayHighlight: true
+            });
+            $('#txtfecha_nacDerec').on('changeDate', function (selected) {
+                $('#sfecha_nac').val($(this).val());
+                $(this).datepicker('hide');
+            });
+    });
+
+    function Handlechange3() {
+        //debugger;
+        //setTimeout(function(){ console.log("esperando"); }, 5000);
+        var fidcodigogeneral = $("#IDCODIGOGENERAL").val().trim(); //document.getElementById("IDCODIGOGENERAL").value();
+        var fileinput = document.getElementById("FileUpload3");
+        var textinput = document.getElementById("lblNombArcho");
+        //var tfotog = document.getElementById("fotog");
+        fullPath = fileinput.value;
+        var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+        var filename = fullPath.substring(startIndex);
+        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+            filename = filename.substring(1);
+        }
+        textinput.value = filename;
+        var indexformat = filename.lastIndexOf('.');
+        var tamanio = filename.length;
+        var formato = filename.substring(indexformat,tamanio);
+        var txtnombre = "";
+        var fileUpload = $("#FileUpload3").get(0);
+        var files = fileUpload.files;
+        var fileData = new FormData();
+        var flgSaveOk = 0;
+        if (files.length > 0) { //Guardamos la Imagen
+            for (var i = 0; i < files.length; i++) {
+                txtnombre = files[i].name;
+                fileData.append(files[i].name, files[i]);
+                fileData.append(fidcodigogeneral, files[i]);
+            }
+        }
+        setTimeout(function(){
+        $.when(
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GuardarAdjuntoOtros", "Personal")',
+                contentType: false,
+                processData: false,
+                data: fileData,
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+
+                    $("#DOCUMENTO_ADJUNTOx").val(txtnombre);
+                },
+                error: function (data) {
+                    $("#DOCUMENTO_ADJUNTOx").val('');
+                    swal("", data.responseText, "error");
+                }
+            })).then(function (response) {
+
+            });
+        }, 15000);
+            };
+
+    function Handlechange2() {
+        //debugger;
+        var fidcodigogeneral = $("#IDCODIGOGENERAL").val().trim(); //document.getElementById("IDCODIGOGENERAL").value();
+        var fileinput = document.getElementById("FileUpload2");
+        var textinput = document.getElementById("lblNombArchd");
+        //var tfotog = document.getElementById("fotog");
+        fullPath = fileinput.value;
+        var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+        var filename = fullPath.substring(startIndex);
+        if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+            filename = filename.substring(1);
+        }
+        textinput.value = filename;
+        var indexformat = filename.lastIndexOf('.');
+        var tamanio = filename.length;
+        var formato = filename.substring(indexformat,tamanio);
+        var txtnombre = "";
+        var fileUpload = $("#FileUpload2").get(0);
+        var files = fileUpload.files;
+        var fileData = new FormData();
+        var flgSaveOk = 0;
+        if (files.length > 0) { //Guardamos la Imagen
+            for (var i = 0; i < files.length; i++) {
+                txtnombre = files[i].name;
+                fileData.append(files[i].name, files[i]);
+                fileData.append(fidcodigogeneral, files[i]);
+            }
+        }
+
+        $.when(
+                $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GuardarAdjuntoDerecho", "Personal")',
+                contentType: false,
+                processData: false,
+                data: fileData,
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                   // tfotog.src = 'http://localhost/uploads/fotopersonal/' + fidcodigogeneral + formato;
+                    $("#stradjunto").val(txtnombre);
+                },
+                error: function (data) {
+                    $("#stradjunto").val('');
+                    swal("", data.responseText, "error");
+                }
+            })).then(function (response) {
+
+            });
+
+            };
+
+    $('#myModalRefe').on('hide.bs.modal', function (e) {
+            loadDivTblRegistroReferencias();
+    });
+
+    $('#myModalRefe').on('shown.bs.modal', function (e) {
+        //debugger;
+        var idx = $("#IDPERSONALREFERENCIAx").val();
+
+        var IDCODIGOGENERALxx = $("#IDCODIGOGENERALx").val();
+        var NOMBRESxx = $("#NOMBRESx").val();
+        var CARGOxx = $("#CARGOx").val();
+        var TELEFONOxx = $("#TELEFONOx").val();
+        if (idx != "") {
+            $("#NOMBRESREF").val(NOMBRESxx);
+            $("#CARGOREF").val(CARGOxx);
+            $("#TELEFONOREF").val(TELEFONOxx);
+        }
+
+
+        $("#GuardarRef").click(function () {
+                var id_save_ref = 0;
+                var IDPERSONALREFERENCIA = $("#IDPERSONALREFERENCIAx").val();
+                var IDCODIGOGENERAL = $("#IDCODIGOGENERAL").val();
+                var NOMBRESRef = $("#NOMBRESREF").val();
+                var CARGORef = $("#CARGOREF").val();
+                var TELEFONORef = $("#TELEFONOREF").val();
+
+                if (NOMBRESRef === '') {
+                    swal("", "Datos Incompletos", "error");
+                    $("#NOMBRESREF").focus();
+                    return false;
+                }
+
+                try {
+                    id_save_ref = parseInt(IDPERSONALREFERENCIA, 10);
+                } catch (e) {
+                    id_save_ref = 0;
+                }
+
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaReferencia", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save_ref: id_save_ref, IDCODIGOGENERAL: IDCODIGOGENERAL,
+                            NOMBRESRef: NOMBRESRef, CARGORef: CARGORef, TELEFONORef: TELEFONORef }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            IDPERSONALREFERENCIA_ = data;
+                            if (parseInt(IDPERSONALREFERENCIA_, 10) > 0) {
+                                    swal({
+                                        title: 'Exito!',
+                                        text: 'Referencia se registró correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function () {
+                                        loadDivTblRegistroReferencias();
+                                        $("#btnCancelref").click();
+                                    });
+                                } else {
+                                swal("", "No se pudo registrar!", "error");
+                                IDPERSONALREFERENCIA_ = 0;
+                            }
+                        }
+                    })).then(function (response) {
+
+                    });
+            });
+    });
+    function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+            }
+
+    $(document).on('click', '.editaref', function () {
+        //debugger;
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var tableRow = $(this).closest("tr");
+        console.log("thiscloses: " + JSON.stringify(tableRow));
+        var IDPERSONALREFERENCIA = tableRow.find("td:eq(0)").text();
+        console.log("IDPERSONALREFERENCIA: " + IDPERSONALREFERENCIA);
+        IDPERSONALREFERENCIA = IDPERSONALREFERENCIA.trim();
+        console.log("IDPERSONALREFERENCIA: " + IDPERSONALREFERENCIA);
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("EditReferencia", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, IDPERSONALREFERENCIA:IDPERSONALREFERENCIA },
+            dataType: 'html',
+            success: function (response) {
+            $('#myModalContentRefe').html(response);
+            $('#myModalRefe').modal(options);
+            $('#myModalRefe').modal('show');
+            },
+            error: function (request, status, error) {
+            swal('',request.responseText,'error');
+            }
+        });
+                    return false;
+    });
+    $(document).on('click', '.editafam', function () {
+        //debugger;
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var tableRow = $(this).closest("tr");
+        console.log("thiscloses: " + JSON.stringify(tableRow));
+        var IDPERSONALFAMILIAR = tableRow.find("td:eq(0)").text();
+        console.log("IDPERSONALFAMILIAR: " + IDPERSONALFAMILIAR);
+        IDPERSONALFAMILIAR = IDPERSONALFAMILIAR.trim();
+        console.log("IDPERSONALFAMILIAR: " + IDPERSONALFAMILIAR);
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("EditDhabientes", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, IDPERSONALFAMILIAR:IDPERSONALFAMILIAR },
+            dataType: 'html',
+            success: function (response) {
+            $('#myModalContentFamiliar').html(response);
+            $('#myModalFamiliar').modal(options);
+            $('#myModalFamiliar').modal('show');
+            },
+            error: function (request, status, error) {
+            swal('',request.responseText,'error');
+            }
+        });
+                    return false;
+    });
+     $(document).on('click', '.editaotro', function () {
+        //debugger;
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var tableRow = $(this).closest("tr");
+        console.log("thiscloses: " + JSON.stringify(tableRow));
+        var IDPERSONALOTROSDOC = tableRow.find("td:eq(0)").text();
+        console.log("IDPERSONALOTROSDOC: " + IDPERSONALOTROSDOC);
+        IDPERSONALOTROSDOC = IDPERSONALOTROSDOC.trim();
+        console.log("IDPERSONALOTROSDOC: " + IDPERSONALOTROSDOC);
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("EditOtrosDocs", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, IDPERSONALOTROSDOC:IDPERSONALOTROSDOC },
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentOtros').html(response);
+                $('#myModalOtros').modal(options);
+                $('#myModalOtros').modal('show');
+            },
+            error: function (request, status, error) {
+                swal('',request.responseText,'error');
+            }
+        });
+                    return false;
+    });
+     $(document).on('click', '.bajafam', function () {
+        //debugger;
+        var idcodigogeneral = $("#IDCODIGOGENERAL").val().trim();
+        idcodigogeneral = idcodigogeneral.trim();
+        console.log("idcodigogeneral: " + idcodigogeneral);
+        if (idcodigogeneral==='') {
+            swal("", "Se debe registrar primero al trabajador!", "error");
+            return;
+        }
+        var tableRow = $(this).closest("tr");
+        console.log("thiscloses: " + JSON.stringify(tableRow));
+        var IDPERSONALFAMILIAR = tableRow.find("td:eq(0)").text();
+        console.log("IDPERSONALFAMILIAR: " + IDPERSONALFAMILIAR);
+        IDPERSONALFAMILIAR = IDPERSONALFAMILIAR.trim();
+        console.log("IDPERSONALFAMILIAR: " + IDPERSONALFAMILIAR);
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("BajaDhabientes", "Personal")',
+            contentType: "application/json; charset=utf-8",
+            data: { idcodigogeneral: idcodigogeneral, IDPERSONALFAMILIAR:IDPERSONALFAMILIAR },
+            dataType: 'html',
+            success: function (response) {
+            $('#myModalContentBaja').html(response);
+            $('#myModalBaja').modal(options);
+            $('#myModalBaja').modal('show');
+            },
+            error: function (request, status, error) {
+            swal('',request.responseText,'error');
+            }
+        });
+                    return false;
+    });
+    </script>
+}

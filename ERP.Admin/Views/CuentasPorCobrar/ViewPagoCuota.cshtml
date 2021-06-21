@@ -1,0 +1,281 @@
+﻿@model ERP.Admin.Models.CuentasPorCobrar
+<script type="text/javascript">
+    function FnAddNotaCredito() {
+        var options = { "backdrop": "static", keyboard: false };
+        CallBy = "ComprobanteVentaCreate";
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ViewNotaCreditoPendientes", "NotaCredito")',
+            contentType: "application/json; charset=utf-8",
+            data: "{ 'CallBy': '" + CallBy + "'}",
+            datatype: "json",
+            success: function (response) {
+                $('#myModalContentListNotaCredito').html(response);
+                $('#myModalListNotaCredito').modal(options);
+                $('#myModalListNotaCredito').modal('show');
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+        });
+    }
+
+    function FnInputDataNotaCredito(IdNotaCred, NroNotaCred, MontDisp) {
+        $("#txtCobrCPCNew_NroCheqVoucNotaCred").val(NroNotaCred);
+        $("#txtCobrCPCNew_FkNotaCred").val(IdNotaCred);
+        $("#txtPagoCtasPorCobr_Monto").val(MontDisp);
+    }
+
+    function FnActivaMedioPago(obj) {
+        var FkMediPago = obj.value;
+        var MediPagoCheq = $("#HiddCompVentNew_FkMediPagoCheq").val();
+        var MediPagoDepo = $("#HiddCompVentNew_FkMediPagoDepo").val();
+        var MediPagoTarj = $("#HiddCompVentNew_FkMediPagoTarj").val();
+        var MediPagoNotaCred = $("#HiddCompVentNew_FkMediPagoNotaCred").val();
+        if (FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) {
+            document.getElementById('lblCobrCPCNew_BancTarj').style.display = "";
+            document.getElementById('cmbCobrCPCNew_FkBanco').style.display = "";
+            document.getElementById('cmbCobrCPCNew_FkTarj').style.display = "none";
+            document.getElementById('lblCobrCPCNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('txtCobrCPCNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('btnCPCAddNotaCred').style.display = 'none';
+            $("#txtCobrCPCNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCobrCPCNew_BancTarj').innerHTML = "Banco ";
+            if (FkMediPago == MediPagoCheq) {
+                document.getElementById('lblCobrCPCNew_NroCheqVoucNotaCred').innerHTML = "Cheque ";
+            } else {
+                document.getElementById('lblCobrCPCNew_NroCheqVoucNotaCred').innerHTML = "Voucher ";
+            }
+        } else if (FkMediPago == MediPagoTarj) {
+            document.getElementById('lblCobrCPCNew_BancTarj').style.display = "";
+            document.getElementById('cmbCobrCPCNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCobrCPCNew_FkTarj').style.display = "";
+            document.getElementById('lblCobrCPCNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('txtCobrCPCNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('btnCPCAddNotaCred').style.display = 'none';
+            $("#txtCobrCPCNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCobrCPCNew_BancTarj').innerHTML = "Tipo ";
+        } else if (FkMediPago == MediPagoNotaCred) {
+            document.getElementById('lblCobrCPCNew_BancTarj').style.display = "none";
+            document.getElementById('cmbCobrCPCNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCobrCPCNew_FkTarj').style.display = "none";
+            document.getElementById('lblCobrCPCNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('txtCobrCPCNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('btnCPCAddNotaCred').style.display = '';
+            $("#txtCobrCPCNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCobrCPCNew_NroCheqVoucNotaCred').innerHTML = "NC ";
+        } else {
+            document.getElementById('lblCobrCPCNew_BancTarj').style.display = "none";
+            document.getElementById('cmbCobrCPCNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCobrCPCNew_FkTarj').style.display = "none";
+            document.getElementById('lblCobrCPCNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('txtCobrCPCNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('btnCPCAddNotaCred').style.display = 'none';
+        }
+    }
+</script>
+@{ 
+    string FVenc = Model.f_vencimiento.ToString("yyyy/MM/dd");
+    int FkMediPagoEfec = ViewBag.MedioPagoEfectivo;
+    int FkMediPagoCheq = ViewBag.MedioPagoCheque;
+    int FkMediPagoDepo = ViewBag.MedioPagoDeposito;
+    int FkMediPagoTarj = ViewBag.MedioPagoTarjeta;
+    int FkMediPagoNotaCred = ViewBag.MedioPagoNotaCredito;
+    int FkMediPagoLineCred = ViewBag.MedioPagoLineaCredito;
+    int FkCaja = ViewBag.FkCaja;
+}
+@Html.Hidden("HiddPagoCout_FkCtasPorCobrar", Model.id_cuentas_por_cobrar)
+@Html.Hidden("HiddPagoCout_saldo", Model.saldo)
+@Html.Hidden("HiddCompVentNew_FkMediPagoCheq", FkMediPagoCheq)
+@Html.Hidden("HiddCompVentNew_FkMediPagoDepo", FkMediPagoDepo)
+@Html.Hidden("HiddCompVentNew_FkMediPagoTarj", FkMediPagoTarj)
+@Html.Hidden("HiddCompVentNew_FkMediPagoNotaCred", FkMediPagoNotaCred)
+@Html.Hidden("HiddCompVentNew_FkMediPagoLineCred", FkMediPagoLineCred)
+@Html.Hidden("HiddCompVentNew_FkCaja", FkCaja)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">COBRAR CUOTA</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-4 control-label" style="text-align: left; ">F. VENCIMIENTO: @FVenc</label>
+                                <label class="col-sm-4 control-label" style="text-align: left; ">MONTO: @Model.monto</label>
+                                <label class="col-sm-4 control-label" style="text-align: left; ">SALDO: @Model.saldo</label>
+                                <div class="horizontal-space"></div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row" id="DivAddCronograma">
+                            <div class="form-group" style="margin:0">
+                                <div class="row">
+                                    <div class="form-group" style="margin: 0">
+                                        <label class="col-sm-1 control-label" style="text-align: right; ">M. Pago</label>
+                                        <div class="col-md-2">
+                                            @Html.Bootstrap().DropDownList("cmbCobrCPCNew_FkMediPago", new SelectList(ViewBag.MedioPago, "id_medio_pago", "descripcion", selectedValue: FkMediPagoEfec)).HtmlAttributes(new { @id = "cmbCobrCPCNew_FkMediPago", @onchange = "FnActivaMedioPago(this)" }).Size(InputSize.Small)
+                                            <div class="horizontal-space"></div>
+                                        </div>
+                                        <label class="col-sm-1 control-label" id="lblCobrCPCNew_BancTarj" style="text-align: right; display: none;">Banco</label>
+                                        <div class="col-md-2">
+                                            @Html.Bootstrap().DropDownList("cmbCobrCPCNew_FkBanco", new SelectList(ViewBag.Banco, "id_banco", "descripcion", selectedValue: 0)).HtmlAttributes(new { @id = "cmbCobrCPCNew_FkBanco", style = "display: none;" }).Size(InputSize.Small)
+                                            @Html.Bootstrap().DropDownList("cmbCobrCPCNew_FkTarj", new SelectList(ViewBag.TarjetaCredito, "id_tarjeta_credito", "descripcion", selectedValue: 0)).HtmlAttributes(new { @id = "cmbCobrCPCNew_FkTarj", style = "display: none;" }).Size(InputSize.Small)
+                                            <div class="horizontal-space"></div>
+                                        </div>
+                                        <label class="col-sm-1 control-label" style="text-align: right; "> Monto: </label>
+                                        <div class="col-md-2" style="width: 12%;">
+                                            @Html.Bootstrap().TextBox("txtPagoCtasPorCobr_Monto").HtmlAttributes(new { type = "number", style = "text-align: right;" }).Size(InputSize.Small)
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin:0">
+                                        <label class="col-sm-1 control-label" id="lblCobrCPCNew_NroCheqVoucNotaCred" style="text-align: right; display: none;"># Nota Crédito </label>
+                                        <div class="col-md-2">
+                                            @Html.Bootstrap().TextBox("txtCobrCPCNew_NroCheqVoucNotaCred").HtmlAttributes(new { style = "display: none; text-transform: uppercase;" }).Size(InputSize.Small)
+                                            @Html.Hidden("txtCobrCPCNew_FkNotaCred", 0)
+                                            <div class="horizontal-space"></div>
+                                        </div>
+                                        <div class="col-md-1">
+                                            @Html.Bootstrap().Button().Text("").Id("btnCPCAddNotaCred").Color(BootstrapColors.Default).IconPrepend(FontAwesome.Search).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnAddNotaCredito()", @style = "margin-top: 5px; display: none;" })
+                                        </div>
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align: right; vertical-align: middle; width: 50%">
+                                @Html.Bootstrap().Button().Text("Grabar").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnSaveCutasPorCobrar()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerDistCantPedi" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#spinnerDistCantPedi").hide();
+        //Inicia();
+        $('#spinnerDistCantPedi').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnSaveCutasPorCobrar() {
+        //Medio de Pago
+        var FkMediPago = $("#cmbCobrCPCNew_FkMediPago").val();
+        var MediPagoCheq = $("#HiddCompVentNew_FkMediPagoCheq").val();
+        var MediPagoDepo = $("#HiddCompVentNew_FkMediPagoDepo").val();
+        var MediPagoTarj = $("#HiddCompVentNew_FkMediPagoTarj").val();
+        var MediPagoNotaCred = $("#HiddCompVentNew_FkMediPagoNotaCred").val();
+        var MediPagoLineCred = $("#HiddCompVentNew_FkMediPagoLineCred").val();
+        var FkBanc = $("#cmbCobrCPCNew_FkBanco").val();
+        var FkTarjCred = $("#cmbCobrCPCNew_FkTarj").val();
+        var FkNotaCred = $("#txtCobrCPCNew_FkNotaCred").val();
+        var NroDocuPago = $("#txtCobrCPCNew_NroCheqVoucNotaCred").val();
+        var PagoMonto = $("#txtPagoCtasPorCobr_Monto").val();
+        var SaldPend = $("#HiddPagoCout_saldo").val();
+        var FkCaja = $("#HiddCompVentNew_FkCaja").val();
+
+        if ((FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) && (parseInt(FkBanc) == 0 || NroDocuPago.trim() == "")) {
+            sweetAlert("", "No ha seleccionado banco, o no ha ingresado el Nro de documento", "error");
+            flgError = 1;
+        } else if (FkMediPago == MediPagoTarj && parseInt(FkTarjCred) == 0) {
+            sweetAlert("", "No ha seleccionado el Tipo de Tarjeta de Crédito", "error");
+            flgError = 1;
+        } else if (FkMediPago == MediPagoNotaCred && NroDocuPago.trim() == "") {
+            sweetAlert("", "No ha ingresado el Nro de la Nota de Crédito", "error");
+            flgError = 1;
+        } else if (PagoMonto.trim() == "") {
+            sweetAlert("", "Monto a abonar no válido", "error");
+            flgError = 1;
+        } else if (parseFloat(PagoMonto) == 0) {
+            sweetAlert("", "Monto a abonar no válido", "error");
+            flgError = 1;
+        } else if (parseFloat(PagoMonto) > parseFloat(SaldPend)) {
+            sweetAlert("", "Lo abonado supera el saldo pendiente", "error");
+            flgError = 1;
+        } else {
+            var FkCuenPorCobr = $("#HiddPagoCout_FkCtasPorCobrar").val();
+            if (FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) {
+                FkTarjCred = 0;
+                FkNotaCred = 0;
+            } else if (FkMediPago == MediPagoTarj) {
+                FkBanc = 0;
+                NroDocuPago = "";
+                FkNotaCred = 0;
+            } else if (FkMediPago == MediPagoNotaCred) {
+                FkBanc = 0;
+                FkTarjCred = 0;
+            } else {
+                FkBanc = 0;
+                FkTarjCred = 0;
+                FkNotaCred = 0;
+                NroDocuPago = "";
+                if (FkMediPago == MediPagoLineCred) {
+                    CVSaldBrut = CVTotaBrut;
+                }
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveNewPagoCuentasPorCobrar", "CuentasPorCobrar")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    FkCuenPorCobr: FkCuenPorCobr, FkCaja: FkCaja, FkMediPago: FkMediPago, FkTarjCred: FkTarjCred,
+                    FkNotaCred: FkNotaCred, FkBanc: FkBanc, NroDocuPago: NroDocuPago, PagoMonto: PagoMonto
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCompVentCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCompVentCreate').length > 0) {
+                        $('#spinnerCompVentCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+</script>

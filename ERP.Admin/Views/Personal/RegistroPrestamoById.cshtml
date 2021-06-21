@@ -1,0 +1,173 @@
+﻿@using ERP.Admin.Models
+@{
+    var _datos = (List<PersonalPrestamoDetalle>)ViewBag.datos;
+    string idpersonalprestamo = "";
+    string idcodigogeneral = "";
+    string nombres = "";
+    string apellido_paterno = "";
+    string apellido_materno = "";
+    string fecha_inicio = "";
+    string fecha_fin = "";
+    decimal monto = 0;
+    int cuotas = 0;
+    int tipocronograma = 0;
+    if (_datos != null)
+    {
+        idpersonalprestamo = _datos[0].id_personal_prestamo.ToString();
+        idcodigogeneral = _datos[0].IDCODIGOGENERAL;
+        nombres = _datos[0].NOMBRES;
+        apellido_paterno = _datos[0].A_PATERNO;
+        apellido_materno = _datos[0].A_MATERNO;
+        fecha_inicio = _datos[0].FECHAINICIO.ToString("dd/MM/yyyy");
+        fecha_fin = _datos[0].FECHAFIN.ToString("dd/MM/yyyy");
+        monto = _datos[0].MONTOTOTAL;
+        cuotas = _datos[0].CUOTAS;
+        tipocronograma = _datos[0].fk_tipo_check;
+    }
+}
+
+@Html.Hidden("idpersonalprestamox", @idpersonalprestamo)
+@Html.Hidden("idcodigogeneralx", @idcodigogeneral)
+@Html.Hidden("sfecha_inicio", @fecha_inicio)
+@Html.Hidden("sfecha_fin", @fecha_fin)
+@Html.Hidden("smonto", @monto)
+@Html.Hidden("icuotas", @cuotas)
+@Html.Hidden("stipocronograma", @tipocronograma)
+@Html.Hidden("sfecha_finactual", @fecha_fin)
+@Html.Hidden("smontonuevo", 0)
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de prestamo</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row" style="text-align:center;margin-bottom:5px">
+                            <div class="form-group" style="margin:1px;text-align:center">
+                                <label class="col-md-1" style="text-align:left;padding-top:8px;padding-right:0;width:100px"> Documento: </label>
+                                <label class="col-md-1" style="width:100px;text-align: left;padding-top: 8px;padding-right: 0;font-weight: bold;padding-left: 0"> @idcodigogeneral </label>
+                                <label class="col-md-1" style="width: 100px; text-align: left; padding-top: 8px; padding-right: 0"> Nombres: </label>
+                                <label class="col-md-1" style="width:100px;text-align: left;padding-top: 8px;padding-right: 0;font-weight: bold;padding-left: 0"> @nombres </label>
+                                <label class="col-md-1" style="width: 100px; text-align: left; padding-top: 8px; padding-right: 0"> A. Paterno: </label>
+                                <label class="col-md-1" style="width:100px;text-align: left;padding-top: 8px;padding-right: 0;font-weight: bold;padding-left: 0"> @apellido_paterno </label>
+                                <label class="col-md-1" style="width: 100px; text-align: left; padding-top: 8px; padding-right: 0"> A. Materno: </label>
+                                <label class="col-md-1" style="width:100px;text-align: left;padding-top: 8px;padding-right: 0;font-weight: bold;padding-left: 0"> @apellido_materno </label>
+                            </div>
+                        </div>
+                        <div class="row" style="text-align:center">
+                            <div class="form-group" style="margin:1px;text-align:center">
+                                <label class="col-sm-1 control-label" style="width: 100px; text-align: right; padding-top: 8px; margin-right: 0">Monto </label>
+                                <label class="col-sm-1" id="txtMonto" style="width:100px;text-align: left;padding-top: 8px;margin-right: 0;font-weight: bold;padding-left:0">
+                                    @monto.ToString("N2")
+                                </label>
+                                <label class="col-sm-1 control-label" style="width: 100px; text-align: left; padding-top: 8px; padding-right: 0; width: 50px; padding-left: 0">Inicio </label>
+                                <label class="col-sm-1" id="txtInicio" style="width:100px;text-align: left;padding-top: 8px;margin-right: 0;font-weight: bold;padding-left: 0;">
+                                    @fecha_inicio
+                                </label>
+                                <label class="col-sm-1 control-label" style="width: 100px; text-align: left; padding-top: 8px; padding-right: 0; width: 50px; padding-left: 0;">Fin </label>
+                                <label class="col-sm-1" id="txtFin" style="width:100px; text-align: left;padding-top: 8px;margin-right: 0;font-weight: bold;padding-left: 0">
+                                    @fecha_fin
+                                </label>
+                                <label class="col-sm-1 control-label" style="width: 100px; text-align: left; padding-top: 8px; width: 60px">Cuotas </label>
+                                <label class="col-sm-1" id="txtNro_letras" style="width:100px;text-align: left;padding-top: 8px;margin-right: 0;font-weight: bold;padding-left: 0">
+                                    @cuotas
+                                </label>
+                            </div>
+                        </div>
+                        <div class="row" id="div2" name="div2" style="margin-top:15px">
+                            <div class="form-group" style="margin: 1px;text-align:center">
+                                <button type="button" class="btn btn-default btn-sm" onclick="AgregaLetras()" style="margin-top:3px">
+                                    <span class="glyphicon glyphicon-plus"></span> Agregar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" id="div11" name="div11" style="margin: 1px;text-align:center;margin-bottom:20px; height:20em;margin-top:20px">
+                            <div class="form-group" style="margin: 1px;text-align:center">
+                                <table id="letrastables" class="pure-table pure-table-bordered table-sm" style="margin: 0 auto;height:18em;display:inline-block;overflow-y:scroll">
+                                    <thead>
+                                        <tr>
+                                            <th style="display:none">id</th>
+                                            <th>#</th>
+                                            <th style="display:none">Nro Cuota</th>
+                                            <th>Importe</th>
+                                            <th>Vencimiento</th>
+                                            <th>Estado</th>
+                                            <th>Opciones</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody id="letrastablesbody" style="">
+                                        @foreach (var item in _datos)
+                                        {
+                                            string idtr = "IdTr" + item.id_personal_prestamo_detalle.ToString();
+                                            string idLetraDetalle = "TdIdPago" + idtr;
+                                            string snrocuota = "Nro" + idtr;
+                                            string scuota = "Cuota" + idtr;
+                                            string svence = "Vence" + idtr;
+                                            string sestado = "Estado" + idtr;
+                                            <tr id=@idtr>
+                                                <td id=@idLetraDetalle style="display:none"><label>@item.id_personal_prestamo_detalle</label></td>
+                                                <td id=@snrocuota class='uneditable' style="text-align: center;cursor:not-allowed;" disable><label>@item.nrocuota</label></td>
+                                                <td id=@scuota style="text-align: center;"><label>@item.montodescuento</label></td>
+                                                <td id=@svence style="text-align: center;"><label>@item.df_descuento</label></td>
+                                                <td id=@sestado class='uneditable' style="text-align: center;cursor:not-allowed;" disable><label>@item.NDEstado</label></td>
+                                                <td class='uneditable'>
+                                                    @if (item.NDEstado.Equals("ACTIVO"))
+                                                    {
+                                                        <a href="#" class="btn btn-danger btn-xs " onclick="DeleteDetalle('@item.id_personal_prestamo_detalle')"><i class="glyphicon glyphicon-minus"></i> </a>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <center><label id="sumacuotas" style="font-size:13px;color:red;font-weight:bold;display: none;">Nuevo monto total:  </label></center>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align: right; vertical-align: middle; width: 80%">
+                                @Html.Bootstrap().Button().Text("Actualizar").Id("ActualizaEntidad").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <link href="~/assets/css/pure-min.css" rel="stylesheet" />
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/mindmup-editabletable.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+    <style>
+        .select2-container {
+            font-size: 10px;
+        }
+    </style>
+}
+
+

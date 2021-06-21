@@ -1,0 +1,639 @@
+﻿@using System
+@using System.Net.Http;
+@using System.Net.Http.Headers;
+@model ERP.Admin.Models.VehiculoErp
+@{
+    ViewBag.Title = "Registro de vehiculos";
+    ViewBag.Description = "trabajador";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    string virtualdir = (string)ViewBag.VirtualDir;
+    string urlpic = "~/img/vehiculos/";
+    int idequipo = 0;
+    int idtipoequipo = 0;
+    string fotografia = "/corcrusac/img/defaultimage.jpg";
+
+    if (Model != null)
+    {
+        idequipo = Model.fk_equipo;
+        idtipoequipo = Model.fk_tipo_equipo;
+        if (ViewBag.ImagenModel == null)
+        {
+            fotografia = "/corcrusac/img/vehiculos/defaultimage.jpg";
+        }
+        else
+        {
+            fotografia = (string)ViewBag.ImagenModel;
+        }
+
+    }
+    string patht = (string)ViewBag.Patth;
+}
+@Html.HiddenFor(model => model.id_vehiculo)
+@Html.Hidden("strfotografia", @fotografia)
+@Html.Hidden("idtipoequipo", @idtipoequipo)
+@Html.Hidden("patht", @patht)
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12">
+                <div class="widget flat radius-bordered">
+                    <div class="widget-header bg-danger">
+                        <span class="widget-caption">Informacion del vehiculo</span>
+                    </div>
+                    <div class="widget-body" style="padding-top:0">
+                        <div id="registration-form">
+                            <form role="form">
+                                <div class="form-title">
+                                    Datos generales
+                                </div>
+                                <table class="table-responsive" style="border: 0">
+                                    <tr>
+                                        <td style="width: 70%;">
+                                            <div class="col-sm-3" style="width: 250px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Equipo <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.DropDownListFor(model => model.fk_equipo, new SelectList(ViewBag.Equipo, "id_equipo", "descripcion"), new { @onchange = "LlenaTipoEquipos(this)", @class = "form-control select2ddl" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" style="width: 250px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Tipo Equipo <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.DropDownListFor(model => model.fk_tipo_equipo, new List<SelectListItem>(), new { @class = "form-control select2ddl" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 180px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Codigo <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.codigo, new { @type = "text", @maxlength = "7", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4" style="width:250px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Marca <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.DropDownListFor(model => model.fk_vehiculo_marca, new SelectList(ViewBag.Marcas, "id_vehiculo_marca", "descripcion"), new { @class = "form-control select2ddl" })
+
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 200px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Modelo <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.modelo, new { @type = "text", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 220px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Serie <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.serie, new { @type = "text", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 220px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Placa <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.placa, new { @type = "text", @maxlength = "7", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td style="width: 360px !important;height: 225px !important;text-align: center">
+                                            <img id="image_vehiculo" class="img-rounded img-fluid" src="@Url.Content(@fotografia)" style="width: 360px;height: 225px" />
+                                            <div class="col-md-12" style="text-align:center;margin-top:-35px">
+                                                <div class="form-group" style="margin:0" id="imagepick">
+                                                    <div class="col-md-6">
+                                                        <input type="text" id="lblNombArch" style="margin-top:15px; background-color: transparent; border: none;display:none" readonly="readonly" />
+                                                        <input type="file" name="FileUpload" id="FileUpload1" onChange="Handlechange();" style="margin-top:5px;" accept=".png , .jpg" />
+                                                        <div class="horizontal-space"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2">
+                                            <div class="form-title">
+                                                Especificaciones técnicas
+                                            </div>
+                                            <div class="col-sm-2" style="width: 250px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Motor <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.nro_motor, new { @type = "text", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 200px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Combustible <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.DropDownListFor(model => model.combustible, new SelectListItem[]{
+                                                            new SelectListItem() {Text = "DIESEL", Value="DIESEL"},
+                                                            new SelectListItem() {Text = "GASOLINA", Value="GASOLINA"}}, new { @class = "form-control select2ddl" })
+
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 200px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Potencia <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.potencia, new { @type = "text", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Año <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.anio_fabricacion, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-3" style="width: 250px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Carroceria <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.DropDownListFor(model => model.fk_carroceria, new SelectList(ViewBag.Carrocerias, "id_carroceria", "descripcion"), new { @class = "form-control select2ddl" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Pasajeros <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.pasajeros, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Ruedas <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.ruedas, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Peso Bruto <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.peso_bruto, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Peso Neto <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.peso_neto, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Longitud <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.longitud, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Altura <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.altura, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Ancho <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.ancho, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Ejes <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.ejes, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Asientos <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.asientos, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Cilindros <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.cilindros, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Cilindrada <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.cilindrada, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2" style="width: 140px">
+                                                <div class="form-group">
+                                                    <label for="exampleInputEmail2">Carga Util <sup>*</sup></label>
+                                                    <span class="input-icon icon-right">
+                                                        @Html.TextBoxFor(model => model.carga_util, new { @type = "number", @maxlength = "4", @onkeyup = "InputToUpper(this)", @class = "form-control input" })
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="2" style="text-align: center">
+                                            <div class="col-sm-6" style="text-align:right">
+                                                <a class="btn btn-lg btn-success guardarvehiculo" style="margin-top:10px;">Guardar</a>
+                                            </div>
+                                            <div class="col-sm-6" style="text-align:left">
+                                                <button type="button" class="btn btn-lg btn-danger" onclick="location.href = '@Url.Action("Vehiculos","TallerErp")'" style="margin-top:10px;">Cancelar</button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 9999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <link href="~/assets/css/beyond.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <script>
+        var fileData = new FormData();
+        var iddocvinctemp = "";
+        var idprovinciatemp = "";
+        var iddistritotemp = "";
+        var idotrodoctemp = 0;
+        $(document).ready(function () {
+            var id_vehiculo = $("#id_vehiculo").val().trim();
+            if (id_vehiculo==="0") {
+                $("#imagepick *").prop('disabled',true);
+            } else {
+                $("#imagepick *").prop('disabled',false);
+            }
+
+            $("#spinner").hide();
+
+            $('#spinner').bind("ajaxSend",
+                function() {
+                    $(this).show();
+                }).bind("ajaxComplete",
+                function() {
+                    $(this).hide();
+                });
+            $('#loading').hide().ajaxStart(function() {
+                $(this).show();
+            }).ajaxStop(function() {
+                $(this).hide();
+            });
+            $("#fk_tipo_equipo").prop('disabled', true);
+            $('#fk_vehiculo_marca').select2();
+
+            debugger;
+            var fk_equipo = $("#fk_equipo").val();
+            if (fk_equipo > 0) {
+                $.when(
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Filter_TipoEquipo", "TallerErp")',
+                    data: JSON.stringify({ idequipo: fk_equipo }),
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    success: function(response) {
+
+                        $("#fk_tipo_equipo").prop('disabled', false);
+                        $('#fk_tipo_equipo option').remove();
+                        var dataLen = response.length;
+                        $('#fk_tipo_equipo').append('<option value=""></option>');
+                        for (i = 0; i < dataLen; i++) {
+                            $('#fk_tipo_equipo').append('<option value="' + response[i].id_tipo_equipo +'">' + response[i].descripcion + '</option>');
+                        }
+                    }
+                })).then(function (response) {
+                    var idtipoequipo = $("#idtipoequipo").val();
+                    $("#fk_tipo_equipo").val(idtipoequipo);
+                });
+
+            }
+            var strfotografiax = $("#strfotografia").val();
+            var tfotog = document.getElementById("image_vehiculo");
+            tfotog.src = strfotografiax;
+        });
+
+        function LlenaTipoEquipos(opcion) {
+            debugger;
+            var opcion = opcion.selectedIndex;
+            opcion = parseInt(opcion, 10);
+            if (opcion === 0) {
+                $("#fk_tipo_equipo").prop('disabled', true);
+                $('#fk_tipo_equipo option').remove();
+                return;
+            }
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("Filter_TipoEquipo", "TallerErp")',
+                data: JSON.stringify({ idequipo: opcion }),
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                success: function(response) {
+
+                    $("#fk_tipo_equipo").prop('disabled', false);
+                    $('#fk_tipo_equipo option').remove();
+                    var dataLen = response.length;
+                    $('#fk_tipo_equipo').append('<option value=""></option>');
+                    for (i = 0; i < dataLen; i++) {
+                        $('#fk_tipo_equipo').append('<option value="' + response[i].id_tipo_equipo +'">' + response[i].descripcion + '</option>');
+                    }
+                }
+            });
+        }
+
+        function Handlechange() {
+            debugger;
+            var fileinput = document.getElementById("FileUpload1");
+            var textinput = document.getElementById("lblNombArch");
+            var tfotog = document.getElementById("image_vehiculo");
+
+            var id_vehiculo = $("#id_vehiculo").val().trim();
+            console.log("id_vehiculo: " + id_vehiculo);
+            if (id_vehiculo === "0") {
+                textinput.value = "Ningún archivo seleccionado";
+                fileinput.filename = "";
+                tfotog.value = "";
+                swal("", "Debe registrar primero el vehiculo para adjuntar imagen!", "error");
+                return false;
+            }
+            var filedatale = fileData.length;
+            fileData.length = 0;
+            var fcodigo = $("#codigo").val().trim();
+            //if (fcodigo === '') {
+            //    var fileinput = document.getElementById("FileUpload1");
+            //    fileinput.value = "";
+            //    var textinput = document.getElementById("lblNombArch");
+            //    textinput.value = "";
+            //    swal("", "Ingrese Codigo primero!", "error");
+            //    $("#strfotografia").val('');
+            //    return;
+            //} else {
+
+                fullPath = fileinput.value;
+                var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+                var filename = fullPath.substring(startIndex);
+                if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+                    filename = filename.substring(1);
+                }
+                textinput.value = filename;
+                var indexformat = filename.lastIndexOf('.');
+                var tamanio = filename.length;
+                var formato = filename.substring(indexformat,tamanio);
+
+                var fileUpload = $("#FileUpload1").get(0);
+                var files = fileUpload.files;
+
+            var flgSaveOk = 0;
+
+                if (files.length > 0) { //Guardamos la Imagen
+                    for (var i = 0; i < files.length; i++) {
+                        fileData.append(files[i].name, files[i]);
+                        fileData.append(fcodigo, files[i]);
+                    }
+                }
+                if (files && files[0]) {
+                    tfotog.src = URL.createObjectURL(files[0]); // set src to file url
+                }
+
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardarImagenVehiculo", "TallerErp")',
+                        contentType: false,
+                        processData: false,
+                        data: fileData,
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log("data: " + data);
+                            //tfotog.src = 'http://190.117.115.183/uploads/fotopersonal/' + fidcodigogeneral + formato;
+                            $("#strfotografia").val(data);
+                        },
+                        error: function (data) {
+                            $("#strfotografia").val('');
+                            swal("", data.responseText, "error");
+                        }
+                    })).then(function (response) {
+                    var fu = document.getElementById("FileUpload1");
+                    if (fu != null) {
+                        document.getElementById("FileUpload1").outerHTML = fu.outerHTML;
+                    }
+                });
+            //}
+        };
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+            }
+
+    $(document).on('click', '.guardarvehiculo', function () {
+        debugger;
+        var id_vehiculo = $("#id_vehiculo").val();
+        if (id_vehiculo ==="") {
+            id_vehiculo = 0;
+        }
+        var fk_equipo = $("#fk_equipo").val();
+        var fk_tipo_equipo = $("#fk_tipo_equipo").val();
+        var codigo = $("#codigo").val();
+        var fk_vehiculo_marca = $("#fk_vehiculo_marca").val();
+        var modelo = $("#modelo").val();
+        var serie = $("#serie").val();
+        var placa = $("#placa").val();
+        var nro_motor = $("#nro_motor").val();
+        var combustible = $("#combustible").val();
+        var potencia = $("#potencia").val();
+        var anio_fabricacion = $("#anio_fabricacion").val();
+        var fk_carroceria = $("#fk_carroceria").val();
+        var pasajeros = $("#pasajeros").val();
+        var ruedas = $("#ruedas").val();
+        var peso_bruto = $("#peso_bruto").val();
+        var peso_neto = $("#peso_neto").val();
+        var longitud = $("#longitud").val();
+        var altura = $("#altura").val();
+        var ancho = $("#ancho").val();
+        var ejes = $("#ejes").val();
+        var asientos = $("#asientos").val();
+        var cilindros = $("#cilindros").val();
+        var cilindrada = $("#cilindrada").val();
+        var carga_util = $("#carga_util").val();
+
+
+        var strfotografia = $("#strfotografia").val(); /*document.getElementById("strfotografia").value;*/
+        if(strfotografia ==='/corcrusac/img/vehiculos/defaultimage.jpg'){
+            strfotografia = 'defaultimage.jpg';
+        }
+        if (fk_equipo === '0' | fk_tipo_equipo === '' | codigo === '' | fk_vehiculo_marca === '0' ) {
+            swal("", "Datos faltantes!", "error");
+            return false;
+        }
+        if (anio_fabricacion === '0' ) {
+            swal("", "Ingrese un año valido!", "error");
+            return false;
+        }
+        swal({
+            title: '¿Está seguro?',
+            text: "Se van a registrar los datos del vehiculo!",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Si!'
+        }).then((result) => {
+            //console.log("result: " + result);
+            GuardaVehic(id_vehiculo, fk_equipo, fk_tipo_equipo, codigo, fk_vehiculo_marca, modelo, serie, placa, nro_motor, combustible, potencia, anio_fabricacion, fk_carroceria, pasajeros,
+                ruedas, peso_bruto, peso_neto, longitud, altura, ancho, ejes, asientos, cilindros, cilindrada, carga_util,strfotografia);
+        }, function (dismiss) {
+            if (dismiss === 'cancel' || dismiss === 'close') {
+                if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                    }
+            }
+        });
+    });
+
+        function GuardaVehic(id_vehiculo, fk_equipo, fk_tipo_equipo, codigo, fk_vehiculo_marca, modelo, serie, placa, nro_motor, combustible, potencia, anio_fabricacion, fk_carroceria, pasajeros,
+            ruedas, peso_bruto, peso_neto, longitud, altura, ancho, ejes, asientos, cilindros, cilindrada, carga_util,strfotografia) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.when(
+            $.ajax({
+                type: 'POST',
+                beforeSend: function () {
+                    $('#spinner').show();
+                },
+                url: '@Url.Action("GuardaVehiculo", "TallerErp")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    id_vehiculo: id_vehiculo, fk_equipo: fk_equipo, fk_tipo_equipo: fk_tipo_equipo, codigo: codigo, fk_vehiculo_marca: fk_vehiculo_marca,
+                    modelo: modelo, serie: serie, placa: placa, nro_motor: nro_motor, combustible: combustible, potencia: potencia, anio_fabricacion: anio_fabricacion,
+                    fk_carroceria: fk_carroceria, pasajeros: pasajeros, ruedas: ruedas, peso_bruto: peso_bruto, peso_neto: peso_neto, longitud: longitud, altura: altura,
+                    ancho:ancho, ejes:ejes, asientos:asientos, cilindros:cilindros, cilindrada:cilindrada, carga_util:carga_util, strfotografia:strfotografia
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    console.log("data: " + data);
+                    if (data === '0') {
+                        swal("", data, "error");
+                        return false;
+                    } else {
+                        id_save = parseInt(data, 10);
+                        swal({
+                                title: 'Exito!',
+                                text: 'Se registraron los datos correctamente',
+                                type: 'success',
+                                showCancelButton: false,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Ok'
+                        }).then(function () {
+                            var url = '@Url.Action("RegistroVehiculo", "TallerErp")?id_save=' + id_save;
+                            window.open(url, "_self")
+                        });
+
+                    }
+
+                },
+                error: function (request) {
+                    swal("", request.responseText, "error");
+                    if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                    }
+                    return false;
+                }
+                })).then(function (response) {
+                    if ($('#spinner').length > 0) {
+                        $('#spinner').hide();
+                    }
+                });
+                return false;
+        }
+    </script>
+}

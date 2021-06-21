@@ -1,0 +1,231 @@
+﻿
+@model IEnumerable<ERP.Admin.Models.Producto>
+@{
+    string IdTrProd = "";
+    string TDIdProd = "";
+    string TDCodiProd = "";
+    string TDCodiSkuProd = "";
+    string TDNombProd = "";
+    string TDDescMarc = "";
+    string TDDescSubFami = "";
+    string TDEmbaProd = "";
+    string TDPrecCompFinal = "";
+
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("txtProdList_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Productos > Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableProducto">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id_Proveedor
+                            </th>
+                            <th>
+                                Código
+                            </th>
+                            <th>
+                                SKU
+                            </th>
+                            <th>
+                                Producto
+                            </th>
+                            <th>
+                                Marca
+                            </th>
+                            <th>
+                                Sub Familia
+                            </th>
+                            <th>
+                                Empaque
+                            </th>
+                            <th>
+                                Stock Actual
+                            </th>
+                            <th>
+                                Precio Compra
+                            </th>
+                            <th style="width: 130px;">
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            IdTrProd = "TrProd" + item.id_producto;
+                            TDIdProd = "TDIdProd" + IdTrProd;
+                            TDCodiProd = "TDCodiProd" + IdTrProd;
+                            TDCodiSkuProd = "TDCodiSkuProd" + IdTrProd;
+                            TDNombProd = "TDNombProd" + IdTrProd;
+                            TDDescMarc = "TDDescMarc" + IdTrProd;
+                            TDDescSubFami = "TDDescSubFami" + IdTrProd;
+                            TDEmbaProd = "TDEmbaProd" + IdTrProd;
+                            TDPrecCompFinal = "TDPrecCompFinal" + IdTrProd;
+                            <tr id="@IdTrProd">
+                                <td id="@TDIdProd" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_producto)
+                                </td>
+                                <td id="@TDCodiProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                </td>
+                                <td id="@TDCodiSkuProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                </td>
+                                <td id="@TDNombProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                </td>
+                                <td id="@TDDescMarc" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+                                <td id="@TDDescSubFami" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+                                <td id="@TDEmbaProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.existencia)
+                                </td>
+                                <td id="@TDPrecCompFinal" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.preciocomprafinal)
+                                </td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-success" onclick="FnSelecProducto(this)" style="padding:0; font-size:small; margin-top:-5px"> Seleccionar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-2" style="text-align:right; vertical-align: middle; width:60%">
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnSelecProducto(obj) {
+        debugger;
+        var IdTrsele = obj.parentElement.parentElement.id;
+        var IdProd = document.getElementById("TDIdProd" + IdTrsele).innerHTML.trim();
+        var CodiProd = document.getElementById("TDCodiProd" + IdTrsele).innerHTML.trim();
+        var CodiSkuProd = document.getElementById("TDCodiSkuProd" + IdTrsele).innerHTML.trim();
+        var NombProd = document.getElementById("TDNombProd" + IdTrsele).innerHTML.trim();
+        var DescMarc = document.getElementById("TDDescMarc" + IdTrsele).innerHTML.trim();
+        var DescSubFami = document.getElementById("TDDescSubFami" + IdTrsele).innerHTML.trim();
+        var EmbaProd = document.getElementById("TDEmbaProd" + IdTrsele).innerHTML.trim();
+        var PrecCompFinal = document.getElementById("TDPrecCompFinal" + IdTrsele).innerHTML.trim();
+        var CallBy = $("#txtProdList_CallBy").val();
+        if (IdTrsele.trim() != "") {
+            if (CallBy.trim() == "OrdeCompCreate") {
+                flgExiste = FnValidaExisteAgregado(IdProd);
+                if (flgExiste == 1) {
+                    sweetAlert("", "Producto ya se encuentra Agregado", "error");
+                } else {
+                    AddTDTableOrdenCompraDetalle(IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescSubFami, EmbaProd, PrecCompFinal);
+                }
+            } else if (CallBy.trim() == "OrdeCompEdit") {
+                flgExiste = FnValidaExisteAgregado(IdProd);
+                if (flgExiste == 1) {
+                    sweetAlert("", "Producto ya se encuentra Agregado", "error");
+                } else {
+                    AddTDTableOrdenCompraDetalle(IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescSubFami, PrecCompFinal);
+                }
+            } else if (CallBy.trim() == "SolicitudTrasladoCreate" || CallBy.trim() == "SolicitudTrasladoEdit") {
+                flgExiste = FnValidaExisteProducto(IdProd);
+                if (flgExiste == 0) {
+                    FnAgregaNeProductoSolicitudTraslado(IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescSubFami);
+                }
+                else {
+                    sweetAlert("", "Producto ya se encuentra agregado", "error");
+                }
+            } else if (CallBy.trim() == "CompCreate") {
+                flgExiste = FnValidaExisteAgregado(IdProd);
+                if (flgExiste == 1) {
+                    sweetAlert("", "Producto ya se encuentra Agregado", "error");
+                } else {
+                    AddTDTableOrdenCompraDetalle(IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescSubFami, EmbaProd, PrecCompFinal);
+                }
+            }
+            $('#myModalProveedor').modal('hide');
+        }
+    }
+
+    //InitiateeditableProducto.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editableProducto').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editableProducto')));
+        var isEditing = null;
+    }
+</script>
+

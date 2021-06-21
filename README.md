@@ -1,2 +1,0 @@
-# VilocruErp
-Vilocru Erp

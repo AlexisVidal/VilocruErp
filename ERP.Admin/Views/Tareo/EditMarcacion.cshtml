@@ -1,0 +1,70 @@
+﻿@using ERP.Admin.Models
+@{
+    var _IDCONTROLINGRESO = (string)ViewBag.IDCONTROLINGRESO;
+    var _IDTABLA = (int)ViewBag.IDTABLA;
+    var _ITEM = (int)ViewBag.ITEM;
+}
+
+@Html.Hidden("IDCONTROLINGRESOx", @_IDCONTROLINGRESO)
+@Html.Hidden("IDTABLAx", @_IDTABLA)
+@Html.Hidden("ITEMx", @_ITEM)
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Modificación de marcación</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-10 control-label" style="text-align:left;width:200px">ITEM: @_ITEM</label>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:200px">Ingrese nueva hora: </label>
+                                <div class="col-md-3" style="padding-left: 4px; width: 120px">
+                                    <input type="text" id="txtHoramod" name="txtHora" data-mask="99:99:99" class="form-control" placeholder="00:00:00">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarMod").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" style="color:white" id="btnCancelmod" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}

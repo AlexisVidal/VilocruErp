@@ -1,0 +1,155 @@
+﻿@model IEnumerable<ERP.Admin.Models.Caja>
+@{
+    string FechInicio = "";
+    string FechFin = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="btnNewCaja" class="btn btn-danger">
+                        Aperturar
+                    </a>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                ID_CAJA
+                            </th>
+                            <th>
+                                INICIO
+                            </th>
+                            <th>
+                                FIN
+                            </th>
+                            <th>
+                                RESPONSABLE
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FechInicio = Convert.ToDateTime(item.f_inicio).ToString("dd/MM/yyyy HH:mm:ss");
+                            FechFin = Convert.ToDateTime(item.f_fin).ToString("dd/MM/yyyy HH:mm:ss");
+                            if(FechFin == "01/01/1900 00:00:00")
+                            {
+                                FechFin = "";
+                            }
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_caja)
+                                </td>
+                                <td class="input-xs">
+                                    @FechInicio
+                                </td>
+                                <td class="input-xs">
+                                    @FechFin
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.usuario_nombre_completo)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.estado)
+                                </td>
+                                <td>
+                                    @if (item.estado == "1")
+                                    {
+                                        <a href="#" class="btn btn-info btn-xs ingreso_egreso"><i class="fa fa-recycle"></i> Ingreso/Egreso</a>
+                                        <a href="#" class="btn btn-danger btn-xs cerrar"><i class="fa fa-ban"></i> Cerrar</a>
+                                    }
+                                    <a href="#" class="btn btn-default btn-xs ver"><i class="fa fa-search"></i> Ver</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    $("#btnNewCaja").click(function () {
+        //debugger;
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Create", "Caja")',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentCaja').html(response);
+                $('#myModalCaja').modal(options);
+                $('#myModalCaja').modal('show');
+            },
+            error: function (request, status, error) {
+                sweetAlert("", request.responseText, "error");
+            }
+        });
+    });
+
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>

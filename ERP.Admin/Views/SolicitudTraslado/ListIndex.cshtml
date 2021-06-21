@@ -1,0 +1,176 @@
+﻿@model IEnumerable<ERP.Admin.Models.SolicitudTraslado>
+@{
+    string FechSoliTras = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    <a id="btnNewSoliTraslado" class="btn btn-danger">
+                        Nuevo registro
+                    </a>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                ID_SOLICITUD_TRASLADO
+                            </th>
+                            <th>
+                                FECHA
+                            </th>
+                            <th>
+                                NRO
+                            </th>
+                            <th>
+                                ALM. SOLICITA
+                            </th>
+                            <th>
+                                REGISTRADA POR
+                            </th>
+                            <th>
+                                GENERADA
+                            </th>
+                            <th>
+                                ESTADO
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model != null)
+                        {
+                            foreach (var item in Model)
+                            {
+                                FechSoliTras = Convert.ToDateTime(item.f_solicitud_traslado).ToString("dd/MM/yyyy");
+                                <tr>
+                                    <td style="display:none">
+                                        @Html.DisplayFor(modelItem => item.id_solicitud_traslado)
+                                    </td>
+                                    <td class="input-xs">
+                                        @FechSoliTras
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.n_solicitud_traslado)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.nombre_almacen_destino)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.usuario_registro)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.descripcion_tipo)
+                                    </td>
+                                    <td class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.NEstado)
+                                    </td>
+                                    <td style="display: none;">
+                                        @Html.DisplayFor(modelItem => item.estado)
+                                    </td>
+                                    <td>
+                                        @if (item.tipo == "1")
+                                        {
+                                            if (item.estado == "1")
+                                            {
+                                                <a href="#" class="btn btn-success btn-xs editar"><i class="fa fa-edit"></i> Editar</a>
+                                                <a href="#" class="btn btn-danger btn-xs anular"><i class="fa fa-trash-o"></i> Anular</a>
+                                            }
+                                            else if (item.estado == "2")
+                                            {
+                                                <a href="#" class="btn btn-warning btn-xs cerrar"><i class="fa fa-ban"></i> Cerrar</a>
+                                            }
+                                        }
+                                        <a href="#" class="btn btn-default btn-xs ver"><i class="fa fa-search"></i> Ver</a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    $("#btnNewSoliTraslado").click(function () {
+        //debugger;
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("Create", "SolicitudTraslado")',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentSoliTraslado').html(response);
+                $('#myModalSoliTraslado').modal(options);
+                $('#myModalSoliTraslado').modal('show');
+            },
+            error: function (request, status, error) {
+                sweetAlert("", request.responseText, "error");
+            }
+        });
+    });
+
+    //InitiateEditableDataTable.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+            "aaSorting": [[0, "desc"]],
+            "aoColumns": [
+                { "bSortable": true },
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+            
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+        var isEditing = null;
+    }
+</script>

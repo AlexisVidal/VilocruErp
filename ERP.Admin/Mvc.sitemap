@@ -1,0 +1,197 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<mvcSiteMap xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0"
+            xsi:schemaLocation="http://mvcsitemap.codeplex.com/schemas/MvcSiteMap-File-4.0 MvcSiteMapSchema.xsd">
+
+  <mvcSiteMapNode title="Inicio" controller="Mantenimiento" action="Index" imageUrl="glyphicon glyphicon-home" description="inicio">
+    <mvcSiteMapNode title="Mantenimiento" controller="Mantenimiento" action="TrabajadorAsync" imageUrl="fa fa-table" description="MOD01">
+      <mvcSiteMapNode title="Usuario" controller="Mantenimiento" action="Usuario" imageUrl="fa fa-table" description="MOD011" />
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Almacén" controller="Home" action="Tables" imageUrl="fa fa-truck" description="MOD03">
+      <mvcSiteMapNode title="Almacen" controller="Comercial" action="Almacen" description="MOD031"/>
+      <mvcSiteMapNode title="Compras" controller="CompraErp" action="Index" description="MOD032"/>
+      <mvcSiteMapNode title="Existencias" controller="AlmacenStock" action="Almacen" description="MOD033"/>
+      <mvcSiteMapNode title="Marca Producto" controller="Comercial" action="ProductoMarca" description="MOD034"/>
+      <mvcSiteMapNode title="Linea Producto" controller="Comercial" action="ProductoLinea" description="MOD035"/>
+      <mvcSiteMapNode title="Tipo Producto" controller="Comercial" action="ProductoTipo" description="MOD036"/>
+      <mvcSiteMapNode title="Producto" controller="ProductoErp" action="Index" description="MOD037"/>
+      <mvcSiteMapNode title="Ingresos" controller="Comercial" action="AlmacenMovimientoIngreso" description="MOD038"/>
+      <mvcSiteMapNode title="Salidas" controller="Comercial" action="AlmacenMovimientoSalida" description="MOD039"/>
+      <mvcSiteMapNode title="Guias Salidas" controller="Comercial" action="GuiaRemisionSalida" description="MOD310"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Comercial" controller="Home" action="Tables" imageUrl="fa fa-truck" description="MOD02">
+      <mvcSiteMapNode title="Banco" controller="Personal" action="Banco" description="MOD022" />
+      <mvcSiteMapNode title="Clientes" controller="Comercial" action="Cliente" description="MOD024" />
+      <mvcSiteMapNode title="Proveedores" controller="Comercial" action="Empresa" description="MOD026" />
+      <mvcSiteMapNode title="Proyectos" controller="Comercial" action="Proyecto" description="MOD027" />
+      <mvcSiteMapNode title="Servicios" controller="Comercial" action="Servicio" description="MOD028" />
+      <mvcSiteMapNode title="Ctas. Gasto" controller="Comercial" action="CuentasGastosPersonal" description="MOD029"/>
+      <mvcSiteMapNode title="Ctas. Pagar" controller="Comercial" action="CuentaPagarProveedor" description="MOD023"/>
+      <mvcSiteMapNode title="Ctas. Cobrar" controller="CuentasPorCobrar" action="IndexCobrar" description="MOD0214"/>
+      <mvcSiteMapNode title="Liquidacion Gasto" controller="Comercial" action="GastosLiquidacion"  description="MOD0210" />
+      <mvcSiteMapNode title="Obligaciones" controller="Comercial" action="ObligacionesPagar" description="MOD0212"/>
+      <mvcSiteMapNode title="Ventas" controller="ComprobanteVenta" action="Index" description="MOD0213"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Taller" controller="Home" action="Tables" imageUrl="fa fa-truck" description="MOD09">
+      <mvcSiteMapNode title="Vehiculos" controller="TallerErp" action="Vehiculos" description="MOD091"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Personal" controller="Personal" action="Tables" imageUrl="fa fa-user" description="MOD04">
+        <mvcSiteMapNode title="AFP" controller="Personal" action="Afp"  description="MOD043" />
+        <mvcSiteMapNode title="Cargos" controller="Personal" action="Cargos"  description="MOD044" />
+        <mvcSiteMapNode title="Conceptos" controller="Personal" action="Concepto"  description="MOD045" />
+      <mvcSiteMapNode title="Contratos" controller="Personal" action="Contratos" description="MOD042" />
+      <mvcSiteMapNode title="Horarios" controller="Personal" action="PersonalHorarios" description="MOD0412" />
+        <mvcSiteMapNode title="Planillas" controller="Personal" action="PlanillaErp" description="MOD046" />
+        <mvcSiteMapNode title="Regimen Laboral" controller="Personal" action="RegimenLaboral"  description="MOD047" />
+      <mvcSiteMapNode title="Sedes" controller="Personal" action="SedeLaboral" description="MOD0413" />
+      <mvcSiteMapNode title="Trabajador" controller="Personal" action="Personal" description="MOD041" />
+        <mvcSiteMapNode title="Tipo Contratos" controller="Personal" action="TipoContrato"  description="MOD048" />
+        <mvcSiteMapNode title="Tipo Conceptos" controller="Personal" action="TipoConcepto"  description="MOD049" />
+        <mvcSiteMapNode title="Tipo Trabajador" controller="Personal" action="TipoTrabajador" description="MOD0410" />
+      <mvcSiteMapNode title="Variables" controller="Personal" action="Variables"  description="MOD0411" />
+      <mvcSiteMapNode title="Seguimiento" controller="Personal" action="Seguimiento"  description="MOD0414" />
+      
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Tareo" controller="Tareo" action="Tables" imageUrl="fa fa-user" description="MOD07">
+      <mvcSiteMapNode title="Manual" controller="Tareo" action="Index" imageUrl="fa fa-table" description="MOD071" />
+     </mvcSiteMapNode>
+    <mvcSiteMapNode title="Planillas" controller="Tareo" action="Tables" imageUrl="fa fa-user" description="MOD08">
+      <mvcSiteMapNode title="Asistencia Periodo" controller="Tareo" action="PlanillaAsistencia" imageUrl="fa fa-user" description="MOD081" />
+      <mvcSiteMapNode title="Horarios" controller="Tareo" action="PersonalHorarios" imageUrl="fa fa-user" description="MOD082" />
+    </mvcSiteMapNode>
+    <!--<mvcSiteMapNode title="Forms" controller="Home" action="Forms" imageUrl="fa fa-pencil-square-o" description="MOD01">
+      <mvcSiteMapNode title="Form Layouts" controller="Home" action="FormLayouts" description="Layouts"/>
+      <mvcSiteMapNode title="Form Inputs" controller="Home" action="FormInputs" description="Inputs"/>
+      <mvcSiteMapNode title="Data Pickers" controller="Home" action="DataPickers" description="Data Pickers"/>
+      <mvcSiteMapNode title="Wizards" controller="Home" action="Wizards" description="Wizards"/>
+      <mvcSiteMapNode title="Form Vlidation" controller="Home" action="FormValidation" description="Bootstrap Validator"/>
+      <mvcSiteMapNode title="Form Editors" controller="Home" action="FormEditors" description="Editors"/>
+      <mvcSiteMapNode title="Form Input Mask" controller="Home" action="FormInputMask" description="Input Mask"/>
+    </mvcSiteMapNode>-->
+
+
+    
+    
+    <!--<mvcSiteMapNode title="Solicitar Traslado" controller="SolicitudTraslado" action="Index" description=""/>-->
+    <!--
+      <mvcSiteMapNode title="Traslados" controller="ComprobanteTraslado" action="Index" description=""/>
+      <mvcSiteMapNode title="Ventas Por Regularizar" controller="ComprobanteVenta" action="IndexPorRegularizar" description=""/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Caja" controller="Home" action="Tables" imageUrl="fa fa-cart-plus" description="MOD04">
+      <mvcSiteMapNode title="Apertura - Operaciones" controller="Caja" action="Index" description=""/>
+      <mvcSiteMapNode title="Cobrar" controller="ComprobanteVenta" action="Index" description=""/>
+      <mvcSiteMapNode title="Nota de Crédito" controller="NotaCredito" action="Index" description=""/>
+    -->
+
+    <!--<mvcSiteMapNode title="Contabilidad" controller="Home" action="Tables" imageUrl="fa fa-cart-plus" description="MOD05">
+      <mvcSiteMapNode title="Compras Diversas" controller="ComprobanteCompra" action="ComprasDiversas" description=""/>
+      <mvcSiteMapNode title="Ctas Por Pagar" controller="CuentasPorPagar" action="Index" description=""/>
+      <mvcSiteMapNode title="Ctas Por Cobrar" controller="CuentasPorCobrar" action="Index" description=""/>
+      <mvcSiteMapNode title="provisión de comprobante" controller="Comercial" action="ComprobanteCompra" description=""/>
+      <mvcSiteMapNode title="Vincular flete" controller="MovimientoCaja" action="IndexFletes" description=""/>
+      <mvcSiteMapNode title="Nota de Crédito Compra" controller="NotaCreditoCompra" action="Index" description=""/>
+      <mvcSiteMapNode title="Registro de Compras" controller="ComprobanteCompra" action="RegistroCompras" description=""/>
+      <mvcSiteMapNode title="Registro de Ventas" controller="ComprobanteVenta" action="RegistroVentas" description=""/>
+      <mvcSiteMapNode title="Inventario Final" controller="Movimiento" action="InventarioFinal" description=""/>
+      <mvcSiteMapNode title="Libro Diario" controller="ReportesContables" action="LibroDiario" description=""/>
+      <mvcSiteMapNode title="Libro Mayor" controller="ReportesContables" action="LibroMayor" description=""/>
+      <mvcSiteMapNode title="Hoja de Trabajo" controller="ReportesContables" action="HojaTrabajo" description=""/>
+      <mvcSiteMapNode title="Balance General" controller="ReportesContables" action="BalanceGeneral" description=""/>
+    </mvcSiteMapNode>-->
+
+    <!--<mvcSiteMapNode title="Reportes" controller="Home" action="Tables" imageUrl="fa fa-cart-plus" description="MOD06">
+      <mvcSiteMapNode title="Ventas" controller="Reportes" action="ReporteVentas" description=""/>
+      <mvcSiteMapNode title="Compras" controller="Reportes" action="ReporteCompras" description=""/>
+      -->
+    <!--<mvcSiteMapNode title="Ctas Por Cobrar" controller="Reportes" action="ReporteCuentasPorCobrar" description=""/>
+      <mvcSiteMapNode title="Ctas Por Pagar" controller="Reportes" action="ReporteCuentasPorPagar" description=""/>-->
+    <!--
+      <mvcSiteMapNode title="Existencias Por Almacén" controller="Reportes" action="ReporteExistencias" description=""/>
+      <mvcSiteMapNode title="Producto-Existencias" controller="Reportes" action="ReporteProdExistencia" description=""/>
+      <mvcSiteMapNode title="Inventario" controller="Reportes" action="ReporteInventario" description=""/>
+      <mvcSiteMapNode title="Kardex" controller="Reportes" action="ReporteKardex" description=""/>
+      <mvcSiteMapNode title="TOP 10" controller="Reportes" action="ReporteTop10" description=""/>
+    </mvcSiteMapNode>-->
+
+    <!--<mvcSiteMapNode title="Palets" controller="Home" action="Tables" imageUrl="fa fa-calendar" description="">
+      <mvcSiteMapNode title="Registro" controller="Home" action="RegistroPalet" description="Registro de palets de producto"/>
+      <mvcSiteMapNode title="Salidas" controller="Home" action="SalidaPalet" description="Salidas de palet"/>
+      -->
+    <!--<mvcSiteMapNode title="Listado" controller="Home" action="ListarPalet" description="Listado e reimpresión de palets"/>-->
+    <!--
+      <mvcSiteMapNode title="Listado" controller="Home" action="ListarPaletLoad" description="Listado e reimpresión de palets"/>
+    </mvcSiteMapNode>-->
+
+    <!--<mvcSiteMapNode title="Databoxes" controller="Home" action="Databoxes" imageUrl="glyphicon glyphicon-tasks" description="beyond containers"/>
+    <mvcSiteMapNode title="Widgets" controller="Home" action="Widgets" imageUrl="fa fa-th" description="flexible containers"/>
+    <mvcSiteMapNode title="Elements" controller="Home" action="UIElements" imageUrl="fa fa-desktop" description="elements">
+      <mvcSiteMapNode title="Basic Elements" controller="Home" action="Elements" description="Basics"/>
+      <mvcSiteMapNode title="Icons" controller="Home" action="Icons" description="Icons">
+        <mvcSiteMapNode title="FontAwesome" controller="Home" action="FontAwesome" description="Iconic Fonts" imageUrl="fa fa-rocket"/>
+        <mvcSiteMapNode title="Glyph Icons" controller="Home" action="GlyphIcons" description="Sharp and clean symbols" imageUrl="glyphicon glyphicon-stats"/>
+        <mvcSiteMapNode title="Typicons" controller="Home" action="Typicons" description="Iconic Fonts" imageUrl="typcn typcn-location-outline"/>
+        <mvcSiteMapNode title="Weather Icons" controller="Home" action="WeatherIcons" description="Beautiful forcasting icons" imageUrl="wi wi-meteor"/>
+      </mvcSiteMapNode>
+      <mvcSiteMapNode title="Tabs and Accordions" controller="Home" action="Tabs" description="Tabs and Accordions"/>
+      <mvcSiteMapNode title="Alerts and Tooltips" controller="Home" action="Alerts" description="Notifications"/>
+      <mvcSiteMapNode title="Modals and Wells" controller="Home" action="Modals" description="excellent containers"/>
+      <mvcSiteMapNode title="Buttons" controller="Home" action="Buttons" description=""/>
+      <mvcSiteMapNode title="Nestable List" controller="Home" action="NestableList" description="dragable list items"/>
+      <mvcSiteMapNode title="TreeView" controller="Home" action="TreeView" description="Fuel UX's tree"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Tables" controller="Home" action="Tables" imageUrl="fa fa-table" description="">
+      <mvcSiteMapNode title="Simple and Responsive" controller="Home" action="SimpleTables" description="simple and responsive tables"/>
+      <mvcSiteMapNode title="Data Tables" controller="Home" action="DataTables" description="jquery plugin for data management"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Forms" controller="Home" action="Forms" imageUrl="fa fa-pencil-square-o" description="">
+      <mvcSiteMapNode title="Form Layouts" controller="Home" action="FormLayouts" description="Layouts"/>
+      <mvcSiteMapNode title="Form Inputs" controller="Home" action="FormInputs" description="Inputs"/>
+      <mvcSiteMapNode title="Data Pickers" controller="Home" action="DataPickers" description="Data Pickers"/>
+      <mvcSiteMapNode title="Wizards" controller="Home" action="Wizards" description="Wizards"/>
+      <mvcSiteMapNode title="Form Vlidation" controller="Home" action="FormValidation" description="Bootstrap Validator"/>
+      <mvcSiteMapNode title="Form Editors" controller="Home" action="FormEditors" description="Editors"/>
+      <mvcSiteMapNode title="Form Input Mask" controller="Home" action="FormInputMask" description="Input Mask"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Charts" controller="Home" action="Charts" imageUrl="fa fa-bar-chart-o" description="">
+      <mvcSiteMapNode title="Flot Charts" controller="Home" action="FlotCharts" description="attractive plotting"/>
+      <mvcSiteMapNode title="Morris Charts" controller="Home" action="MorrisCharts" description="simple and flat charts"/>
+      <mvcSiteMapNode title="Sparkline Charts" controller="Home" action="SparklineCharts" description="inline charts"/>
+      <mvcSiteMapNode title="Easy Pie Charts" controller="Home" action="EasyPieCharts" description="lightweight charts"/>
+      <mvcSiteMapNode title="ChartJS" controller="Home" action="ChartJS" description="Cool HTML5 Charts"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Profile" controller="Home" action="Profile" imageUrl="fa fa-picture-o" description="User Profile"/>
+    <mvcSiteMapNode title="Mail" controller="Home" action="Mail" imageUrl="fa fa-envelope-o" description="">
+      <mvcSiteMapNode title="Inbox" controller="Home" action="Inbox" description="Beyond Mail"/>
+      <mvcSiteMapNode title="View Message" controller="Home" action="ViewMessage" description="Veiw Message"/>
+      <mvcSiteMapNode title="ComposeMessage" controller="Home" action="Compose" description="Compose Message"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Calendar" controller="Home" action="Calendar" imageUrl="fa fa-calendar" description="Full Calendar"/>
+    <mvcSiteMapNode title="Pages" controller="Home" action="Pages" imageUrl="glyphicon glyphicon-paperclip" description="">
+      <mvcSiteMapNode title="Timeline" controller="Home" action="Timeline" description="Responsive Timeline"/>
+      <mvcSiteMapNode title="Pricing Tables" controller="Home" action="PricingTables" description="Pricing Tables"/>
+      <mvcSiteMapNode title="Invoice" controller="Home" action="Invoice" description="Invoice Page"/>
+      <mvcSiteMapNode title="Login" controller="Account" action="Login" description="Login Page"/>
+      <mvcSiteMapNode title="Register" controller="Account" action="Register" description="Register Page"/>
+      <mvcSiteMapNode title="Lock Screen" controller="Account" action="Lock" description="Lock Screen"/>
+      <mvcSiteMapNode title="Typography" controller="Home" action="Typography" description="Typography"/>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="More Pages" controller="Home" action="More Pages" imageUrl="glyphicon glyphicon-link" description="">
+      <mvcSiteMapNode title="Error 404" controller="Home" action="Error404" description="Error 404"/>
+      <mvcSiteMapNode title="Error 500" controller="Home" action="Error500" description="Error 500"/>
+      <mvcSiteMapNode title="Blank Page" controller="Home" action="Blank" description="empty layout"/>
+      <mvcSiteMapNode title="Grid" controller="Home" action="Grid" description="bootstrap responsive grid"/>
+      <mvcSiteMapNode title="Multi Level Menu" description="" url="/1">
+        <mvcSiteMapNode title="Level 3" imageUrl="fa fa-camera" description="" url="/2"/>
+        <mvcSiteMapNode title="Level 4" imageUrl="fa fa-asterisk" description="" url="/3">
+          <mvcSiteMapNode title="Some Item" imageUrl="fa fa-bolt" description="" url="/4"/>
+          <mvcSiteMapNode title="Another Item" imageUrl="fa fa-bug" description="" url="/5"/>
+        </mvcSiteMapNode>
+      </mvcSiteMapNode>
+    </mvcSiteMapNode>
+    <mvcSiteMapNode title="Right to Left" controller="Home" action="RTL" imageUrl="fa fa-align-right" description="">
+      <mvcSiteMapNode title="Arabic Layout" controller="Home" action="Arabic" description="Arabic Layout"/>
+      <mvcSiteMapNode title="Persian Layout" controller="Home" action="Persian" description="Persian Layout"/>
+    </mvcSiteMapNode>-->
+  </mvcSiteMapNode>
+
+</mvcSiteMap>

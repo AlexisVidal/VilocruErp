@@ -1,0 +1,491 @@
+﻿@model ERP.Admin.Models.GuiaRemision
+<script type="text/javascript">
+    var arrGRDDelete = new Array();
+    var NroTrGRDC = 1;
+
+    $(document).ready(function () {
+        FnInitControles();
+    });
+
+    function FnInitControles() {
+        var CallBy = $("#txtGuiaRemiEdit_CallBy").val();
+        if (CallBy == "GuiaRemisionVer") {
+            document.getElementById('btnListTransporte').style.display = 'none';
+            document.getElementById('btnListConductor').style.display = 'none';
+            document.getElementById('btnSaveEditGuiaRemi').style.display = 'none';
+            document.getElementById('btnGuiaRemiCancel').innerHTML = 'Cerrar';
+            $('#txtGuiaRemiEdit_NroGuia').prop('disabled', true);
+            $('#txtGuiaRemiEdit_FechEmis').prop('disabled', true);
+            $('#txtGuiaRemiEdit_FechTras').prop('disabled', true);
+            FnDesactivaCtrlesTblGuiaRemiDeta();
+        }
+    }
+
+    function FnDesactivaCtrlesTblGuiaRemiDeta() {
+        var table = document.getElementById('tBodyGuiaRemiDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        document.getElementById("THBtnDeleGRDeta").style.display = 'none';
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    document.getElementById("TDBtnDeleGRDeta" + newTr).style.display = 'none';
+                    var objTxtCant = document.getElementById("TDTxtCantGRD" + newTr).children;
+                    objTxtCant[0].readOnly = true;
+                }
+            }
+        }
+    }
+
+    function FnAddDataTransporteCreate(IdTran, NroPlac) {
+        $("#txtGuiaRemiEdit_FkTransporte").val(IdTran);
+        $("#txtGuiaRemiEdit_NroPlac").val(NroPlac);
+    }
+
+    function FnAddDataConductorCreate(IdCond, NroLice, NombCond) {
+        $("#txtGuiaRemiEdit_FkConductor").val(IdCond);
+        $("#txtGuiaRemiEdit_NroLice").val(NroLice);
+        $("#txtGuiaRemiEdit_DniNombPers").val(NombCond);
+    }
+
+    @*function AddTRTableGuiaDetalle(pIdCompDeta, pFkProd, pCodiProd, pCodiSku, pNombProd, pDescMarc, pDescSubFami,
+        pCantCompDeta, pCantReci) {
+
+        var IdTrGRDC = "TrGRDC" + NroTrGRDC;
+        var TDFkCompDeta = "TDFkCompDeta" + IdTrGRDC;
+        var TDTxtCantGRD = "TDTxtCantGRD" + IdTrGRDC;
+        var TDCantCompDeta = "TDCantCompDeta" + IdTrGRDC;
+        var TDCantReci = "TDCantReci" + IdTrGRDC;
+        var TDCantSald = "TDCantSald" + IdTrGRDC;
+        var TDEsta = "TDEsta" + IdTrGRDC;
+        var pCantSald = parseFloat(pCantCompDeta) - parseFloat(pCantReci);
+
+        var strTxtCantGRD = '@Html.Bootstrap().TextBox("txtCantGuiaRemiDeta").Value(1).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantGRDetalle(this)", @type = "number", @min = "0.1", @style = "text-align: right;" })';
+        var strBtnDeleGRD = '@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title="Eliminar detalle", @onclick = "FnDeleteGRDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)';
+        var row = $("<tr id='" + IdTrGRDC + "'>" +
+            "<td id='" + TDFkCompDeta + "' class='input-xs' style='display: none;'>" + pIdCompDeta + "</td>" +
+            "<td class='input-xs' style='text-align: center;'>" + pCodiProd + "</td>" +
+            "<td class='input-xs' style='text-align: center;'>" + pCodiSku + "</td>" +
+            "<td class='input-xs'>" + pNombProd + "</td>" +
+            "<td class='input-xs'>" + pDescMarc + "</td>" +
+            "<td class='input-xs'>" + pDescSubFami + "</td>" +
+            "<td id='" + TDCantCompDeta + "' class='input-xs' style='text-align: right;'>" + pCantCompDeta + "</td>" +
+            "<td id='" + TDCantReci + "' class='input-xs' style='text-align: right;'>" + pCantReci + "</td>" +
+            "<td id='" + TDTxtCantGRD + "' style='text-align: right;'>" + strTxtCantGRD + "</td>" +
+            "<td style='width: 10%; text-align: center;'>" + strBtnDeleGRD + "</td>" +
+            "<td id='" + TDCantSald + "' class='input-xs' style='text-align: right; display: none;'>" + pCantSald + "</td>" +
+            "<td id='" + TDEsta + "' class='input-xs' style='display: none;'>1</td>" +
+            "</tr>");
+        $("#tBodyGuiaRemiDeta").append(row);
+        var objTxtPrec = document.getElementById(TDTxtCantGRD).children;
+        objTxtPrec[0].value = pCantSald;
+        NroTrGRDC++;
+    }*@
+
+    function FnValidaCantGRDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var CantSald = parseFloat(document.getElementById("TDCantSald" + IdTRsele).innerHTML);
+        var newCant = parseFloat(obj.value);
+        if (newCant <= 0 || newCant > CantSald) {
+            sweetAlert("", "Cantidad No Válida", "error");
+            obj.value = CantSald;
+            obj.focus();
+        }
+    }
+
+    function FnDeleteGRDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        //Verifico si tiene registro en la BD
+        var IdGuiaRemiDeta = parseFloat(document.getElementById("TDIdGuiaRemiDeta" + IdTRsele).innerHTML);
+        if (IdGuiaRemiDeta > 0) {
+            arrGRDDelete[arrGRDDelete.length] = IdGuiaRemiDeta;
+        }
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+    }
+</script>
+@{
+    string FechEmis = Convert.ToDateTime(Model.f_emision).ToString("dd/MM/yyyy");
+    string FechTras = Convert.ToDateTime(Model.f_traslado).ToString("dd/MM/yyyy");
+    string CallBy = ViewBag.CallBy;
+    string strTitle = "Editar Guía de Remisión";
+    if (CallBy != null)
+    {
+        if (CallBy.Equals("GuiaRemisionVer"))
+        {
+            strTitle = "Ver Guía de Remisión";
+        }
+    }
+
+    string TrEditGRD = "";
+    string TDIdGuiaRemiDeta = "";
+    string TDFkCompDeta = "";
+    string TDTxtCantGRD = "";
+    string TDCantCompDeta = "";
+    string TDCantReci = "";
+    string TDBtnDeleGRDeta = "";
+    string TDCantSald = "";
+    string TDEsta = "";
+    decimal pCantSald = 0;
+    decimal pNewCantReci = 0;
+}
+@Html.Hidden("txtGuiaRemiEdit_IdGuiaRemi", Model.id_guia_remision)
+@Html.Hidden("txtGuiaRemiEdit_Estado", Model.estado)
+@Html.Hidden("txtGuiaRemiEdit_CallBy", CallBy)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">@strTitle </span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">OC <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtGuiaRemiEdit_NroCompra").Value(Model.n_compra).Placeholder("Nro OC").Disable().Size(InputSize.Small)
+                                    @Html.Hidden("txtGuiaRemiEdit_FkCompra", Model.fk_compra)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Proveedor </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtGuiaRemiEdit_ProvCodigo").Value(Model.cod_proveedor).Placeholder("Código").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    @Html.Bootstrap().TextBox("txtGuiaRemiEdit_ProvRucRazoSocial").Value(Model.ruc + " " + Model.razon_social).HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Placeholder("RUC - Razón Social").Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Nro Guia <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input type="text" id="txtGuiaRemiEdit_NroGuia" value="@Model.nro_guia" data-mask="9999-9999999" class="form-control" placeholder="Nro Guía">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align: right;">Fecha Emision <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @*<input data-mask="99/99/9999" class="form-control" value="@FechEmis" placeholder="DD/MM/YYYY" id="txtGuiaRemiEdit_FechEmis" type="text">*@
+                                    <div class='input-group'>
+                                        <input class='form-control date-picker' id='txtGuiaRemiEdit_FechEmis' type='text' data-date-format='dd/mm/yyyy' value="@FechEmis">
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+                                    </div>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right;">Fecha Traslado <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @*<input data-mask="99/99/9999" class="form-control" value="@FechTras" placeholder="DD/MM/YYYY" id="txtGuiaRemiEdit_FechTras" type="text">*@
+                                    <div class='input-group'>
+                                        <input class='form-control date-picker' id='txtGuiaRemiEdit_FechTras' type='text' data-date-format='dd/mm/yyyy' value="@FechTras">
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+                                    </div>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="display: none;">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Vehículo <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtGuiaRemiEdit_NroPlac").Value(Model.n_placa).Placeholder("Nro Placa").Disable().Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaTransporte('GuiaRemiCreate')", @id = "btnListTransporte" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                    @Html.Hidden("txtGuiaRemiEdit_FkTransporte", Model.fk_transporte)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Conductor <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtGuiaRemiEdit_NroLice").Value(Model.n_licencia).Placeholder("Nro Licencia").Disable().Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaConductor('GuiaRemiCreate')", @id = "btnListConductor" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                    @Html.Hidden("txtGuiaRemiEdit_FkConductor", Model.fk_conductor)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    @Html.Bootstrap().TextBox("txtGuiaRemiEdit_DniNombPers").Value(Model.nombres + " " + Model.apellido_paterno + " " + Model.apellido_materno).HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Placeholder("DNI - Nombres").Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="horizontal-space"></div>
+                        <div class="widget-header bordered-bottom bordered-blue">
+                            <span class="widget-caption">Detalles</span>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblGuiaRemiDeta">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="width: 0%; display:none">
+                                                ID_GUIA_REMISION_DETALLE
+                                            </th>
+                                            <th style="width: 0%; display:none">
+                                                FK_COMPRA_DETALLE
+                                            </th>
+                                            <th style="width: 8%; text-align: center;">
+                                                Código
+                                            </th>
+                                            <th style="width: 7%; text-align: center;">
+                                                SKU
+                                            </th>
+                                            <th style="width: 25%;">
+                                                Producto
+                                            </th>
+                                            <th style="width: 10%;">
+                                                Marca
+                                            </th>
+                                            <th style="width: 15%;">
+                                                SubFamilia
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Cant. OC
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Reccepcionado
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Cant. Guia
+                                            </th>
+                                            <th id="THBtnDeleGRDeta" style="width: 5%;">
+                                                ...
+                                            </th>
+                                            <th style="width: 0%; text-align: right; display: none;">
+                                                Saldo
+                                            </th>
+                                            <th style="width: 0%; display: none;">
+                                                ESTADO
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyGuiaRemiDeta">
+                                        @if (ViewBag.GuiaRemisionDetalle != null)
+                                        {
+                                            foreach (var item in ViewBag.GuiaRemisionDetalle)
+                                            {
+                                                TrEditGRD = "TrEditGRD" + item.fk_compra_detalle;
+                                                TDIdGuiaRemiDeta = "TDIdGuiaRemiDeta" + TrEditGRD;
+                                                TDFkCompDeta = "TDFkCompDeta" + TrEditGRD;
+                                                TDTxtCantGRD = "TDTxtCantGRD" + TrEditGRD;
+                                                TDCantCompDeta = "TDCantCompDeta" + TrEditGRD;
+                                                TDCantReci = "TDCantReci" + TrEditGRD;
+                                                TDBtnDeleGRDeta = "TDBtnDeleGRDeta" + TrEditGRD;
+                                                TDCantSald = "TDCantSald" + TrEditGRD;
+                                                TDEsta = "TDEsta" + TrEditGRD;
+                                                pCantSald = Convert.ToDecimal(item.cantidad_compra) - Convert.ToDecimal(item.cantidad_recibida) + item.cantidad;
+                                                pNewCantReci = item.cantidad_recibida - item.cantidad;
+                                                <tr id="@TrEditGRD">
+                                                    <td id="@TDIdGuiaRemiDeta" style="display: none;">
+                                                        @item.id_guia_remision_detalle
+                                                    </td>
+                                                    <td id="@TDFkCompDeta" style="display: none;">
+                                                        @item.fk_compra_detalle
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: center;">
+                                                        @item.cod_producto
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: center;">
+                                                        @item.codigo_sku
+                                                    </td>
+                                                    <td class="input-xs">
+                                                        @item.nom_producto
+                                                    </td>
+                                                    <td class="input-xs">
+                                                        @item.descripcion_producto_marca
+                                                    </td>
+                                                    <td class="input-xs">
+                                                        @item.descripcion_producto_subfamilia
+                                                    </td>
+                                                    <td id="@TDCantCompDeta" class="input-xs" style="text-align: right;">
+                                                        @item.cantidad_compra
+                                                    </td>
+                                                    <td id="@TDCantReci" class="input-xs" style="text-align: right;">
+                                                        @pNewCantReci
+                                                    </td>
+                                                    <td id="@TDTxtCantGRD" class="input-xs" style="text-align: right;">
+                                                        @Html.Bootstrap().TextBox("txtCantGRDeta").Value(@item.cantidad).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantGRDetalle(this)", @type = "number", @min = "0.1", @style = "text-align: right;" })
+                                                    </td>
+                                                    <td id="@TDBtnDeleGRDeta" style="text-align: center;">
+                                                        @Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title = "Eliminar detalle", @onclick = "FnDeleteGRDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)
+                                                    </td>
+                                                    <td id="@TDCantSald" class="input-xs" style="display: none;">
+                                                        @pCantSald
+                                                    </td>
+                                                    <td id="@TDEsta" class="input-xs" style="display: none;">
+                                                        @item.estado
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("btnSaveEditGuiaRemi").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnGuardarEditGuiaRemision()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnGuiaRemiCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinnerGuiaRemiEdit" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    var arrGuiaRemiDeta = new Array();
+    $(document).ready(function () {
+        $("#spinnerGuiaRemiEdit").hide();
+        //Inicia();
+        $('#spinnerGuiaRemiEdit').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+            });
+        $('.date-picker').datepicker();
+    });
+
+    function FnGuardarEditGuiaRemision() {
+        var IdGuiaRemi = $("#txtGuiaRemiEdit_IdGuiaRemi").val();
+        var FkComp = $("#txtGuiaRemiEdit_FkCompra").val();
+        var FkCond = $("#txtGuiaRemiEdit_FkConductor").val();
+        var FkTran = $("#txtGuiaRemiEdit_FkTransporte").val();
+        var NroGuia = $("#txtGuiaRemiEdit_NroGuia").val();
+        var FechEmis = $("#txtGuiaRemiEdit_FechEmis").val();
+        var FechTras = $("#txtGuiaRemiEdit_FechTras").val();
+        var EstaGuiaRemi = $("#txtGuiaRemiEdit_Estado").val();
+        var flgValiGRDeta = FnValidaGuiaRemisionDetalle();
+        FnLlenaArrayGRDetalle()
+        var flgError = 0;
+        if (parseInt(FkComp) == 0) {
+            sweetAlert("", "Seleccione OC", "error");
+            flgError = 1;
+        //} else if (parseInt(FkCond) == 0) {
+        //    sweetAlert("", "Seleccione Conductor", "error");
+        //    flgError = 1;
+        //} else if (parseInt(FkTran) == 0) {
+        //    sweetAlert("", "Seleccione Vehiculo", "error");
+        //    flgError = 1;
+        } else if (NroGuia.trim() == "") {
+            sweetAlert("", "Ingrese Nro de Guia de Remisión", "error");
+            flgError = 1;
+        } else if (FechEmis.trim() == "") {
+            sweetAlert("", "Ingrese fecha de emisión", "error");
+            flgError = 1;
+        } else if (FechTras.length == 0) {
+            sweetAlert("", "Ingrese Fecha de Traslado", "error");
+            flgError = 1;
+        } else if (parseInt(flgValiGRDeta) == 0) {
+            sweetAlert("", "Existen cantidades no validas, por favor verifique", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveEditGuiaRemision", "GuiaRemision")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdGuiaRemi: IdGuiaRemi, FkComp: FkComp, FkCond: FkCond, FkTran: FkTran, NroGuia: NroGuia,
+                    FechEmis: FechEmis, FechTras: FechTras, EstaGuiaRemi: EstaGuiaRemi,
+                    arrGuiaRemiDeta: arrGuiaRemiDeta, arrGRDDelete: arrGRDDelete
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerGuiaRemiEdit').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: 'Exito!',
+                        text: data,
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonText: 'Ok'
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerGuiaRemiEdit').length > 0) {
+                        $('#spinnerGuiaRemiEdit').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    function FnValidaGuiaRemisionDetalle() {
+        var table = document.getElementById('tBodyGuiaRemiDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var CantGRD = "";
+        var flgReturn = 1;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    var objTxtCant = document.getElementById("TDTxtCantGRD" + newTr).children;
+                    var newCant = objTxtCant[0].value;
+                    if (newCant == "" || newCant == 0) {
+                        flgReturn = 0;
+                        break;
+                    }
+                }
+            }
+        }
+        return flgReturn;
+    }
+
+    function FnLlenaArrayGRDetalle() {
+        arrGuiaRemiDeta = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyGuiaRemiDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var IdGuiaRemiDeta = "";
+        var FkCompDeta = "";
+        var CantGRD = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    IdGuiaRemiDeta = document.getElementById("TDIdGuiaRemiDeta" + newTr).innerHTML;
+                    FkCompDeta = document.getElementById("TDFkCompDeta" + newTr).innerHTML;
+                    EstaGuiaRemi = document.getElementById("TDEsta" + newTr).innerHTML;
+                    var objTxtCant = document.getElementById("TDTxtCantGRD" + newTr).children;
+                    var newCant = objTxtCant[0].value;
+                    arrGuiaRemiDeta[IndArr] = new Array(4);
+                    arrGuiaRemiDeta[IndArr][0] = IdGuiaRemiDeta.trim();
+                    arrGuiaRemiDeta[IndArr][1] = FkCompDeta.trim();
+                    arrGuiaRemiDeta[IndArr][2] = newCant;
+                    arrGuiaRemiDeta[IndArr][3] = EstaGuiaRemi.trim();
+                    IndArr++;
+                }
+            }
+        }
+    }
+</script>

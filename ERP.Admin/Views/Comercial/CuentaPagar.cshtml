@@ -1,0 +1,951 @@
+﻿@{
+    ViewBag.Title = "Movimiento de bancos";
+    ViewBag.Description = "bancos";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.CuentaPorPagarErp>
+@{
+    decimal saldos = (decimal)ViewBag.DeudaSoles;
+    decimal saldod = (decimal)ViewBag.DeudaDolar;
+    decimal saldoe = (decimal)ViewBag.DeudaEuros;
+}
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="LetrasCalendario" class="btn btn-danger" style="width:140px" href="@Url.Action("CuotasCalendario","Comercial", new {IdTrabajador="" })">
+                        Calendario
+                    </a>
+                    <a id="NewRegistro" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'MovimientoBancos.xls', 'MovimientoBancos')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="row" style="text-align: right">
+                    <div class="col-md-12">
+                        <h5 style="">
+                            <label style="font-weight: 600">Saldo Soles : @saldos.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Dolares : @saldod.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Euros : @saldoe.ToString("N")</label>
+                        </h5>
+                    </div>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size: 10px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display: none">
+                                ID
+                            </th>
+                            <th style="font-size: 11px;width:280px">
+                                ENTIDAD
+                            </th>
+                            <th style="font-size: 11px">
+                                TIPO
+                            </th>
+                            <th style="font-size: 11px">
+                                MOTIVO
+                            </th>
+                            <th style="font-size: 11px">
+                                MONEDA
+                            </th>
+                            <th style="font-size: 11px">
+                                MONTO
+                            </th>
+                            <th style="font-size: 11px">
+                                SALDO
+                            </th>
+                            <th style="font-size: 11px;width:100px;text-align:center">
+                                NRO OPE.
+                            </th>
+                            <th style="font-size: 11px;width:80px;text-align:center">
+                                F. OPER.
+                            </th>
+                            <th style="font-size: 11px;width:80px;text-align:center">
+                                F. VENCE
+                            </th>
+                            <th style="font-size: 11px;width:70px;text-align:center">
+                                CUOTAS
+                            </th>
+                            <th style="font-size: 11px">
+                                OBSERVACION
+                            </th>
+                            <th style="display: none">
+                                USUARIO
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string estatu = item.estado;
+
+                            string fechavence = @item.f_vencimiento.ToString("dd/MM/yyyy");
+                            string fechaoperacion = @item.f_operacion.ToString("dd/MM/yyyy");
+                            decimal montox = @item.monto;
+                            decimal saldox = @item.saldo;
+
+
+                            <tr>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.id_cuentas_por_pagar)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.tipo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.motivo_prestamo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.moneda)
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.monto)
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.saldo)
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.nro_operacion)
+                                </td>
+                                <td style="text-align:center">
+                                    @fechaoperacion
+                                </td>
+                                <td style="text-align:center">
+                                    @fechavence
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.nro_cuotas)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.observacion)
+                                </td>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.IDUSUARIO)
+                                </td>
+                                <td style="width: 100px !important; text-align: center; vertical-align: middle">
+                                    @if (estatu == "1")
+                                    {
+                                        <button class="btn btn-sm btn-danger elimina" data-toggle="tooltip" title="Eliminar Registro" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-erase"></i></button>
+                                        <button class="btn btn-sm btn-success detalles" data-toggle="tooltip" title="Ver Detalles" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-list"></i></button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPagos' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagos'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <link href="~/assets/css/pure-min.css" rel="stylesheet" />
+    <script src="~/assets/js/mindmup-editabletable.js"></script>
+    <script src="~/Scripts/fullcalendar39/printThis.js"></script>
+    <script>
+        var id_cuentas_por_pagar = 0;
+
+        var NroTrCDD = 1;
+        function stringToDate(_date,_format,_delimiter)
+        {
+            var formatLowerCase=_format.toLowerCase();
+            var formatItems=formatLowerCase.split(_delimiter);
+            var dateItems=_date.split(_delimiter);
+            var monthIndex=formatItems.indexOf("mm");
+            var dayIndex=formatItems.indexOf("dd");
+            var yearIndex=formatItems.indexOf("yyyy");
+            var month=parseInt(dateItems[monthIndex]);
+            month-=1;
+            var formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
+            return formatedDate;
+        }
+        function SumaDias(emision, dias) {
+            //var tt = document.getElementById('txtDate').value;
+            debugger;
+            //var date = new Date(emision);
+            var date = stringToDate(emision, "dd/MM/yyyy", "/");
+            //var newdate = new Date(date);
+            var newdate = stringToDate(emision, "dd/MM/yyyy", "/");
+
+            newdate.setDate(newdate.getDate() + dias);
+
+            var dd = newdate.getDate();
+            var mm = newdate.getMonth() + 1;
+            var y = newdate.getFullYear();
+
+            var someFormattedDate = dd + '/' + mm + '/' + y;
+            return someFormattedDate;
+        }
+        function GeneraCuotas() {
+            debugger;
+            var monto = $("#txtMonto").val();
+            if (monto === "" || monto === "0") {
+                swal("", "Ingrese monto correcto!", "error");
+                return;
+            }
+            var nro_cuotas = $("#txtCuota").val();
+            if (nro_cuotas === "" || nro_cuotas === "0") {
+                swal("", "Ingrese numero de cuotas correcto!", "error");
+                return;
+            }
+            var dias = $("#txtDias").val();
+            if (dias === "" || dias === "0") {
+                swal("", "Seleccione numero de dias correcto!", "error");
+                return;
+            }
+            var interes = $("#txtInteres").val();
+            if (interes === "" || interes === "0") {
+                swal("", "Ingrese un valor correcto para interes!", "error");
+                return;
+            }
+            var emision = $("#txtEmision").val();
+            if (emision === "") {
+                swal("", "Seleccione fecha de emision correcta!", "error");
+                return;
+            }
+            var montocuota = $("#txtMontoCuota").val();
+            if (montocuota === "" || montocuota === "0") {
+                swal("", "Ingrese monto de cuota correcto!", "error");
+                return;
+            }
+            monto = parseFloat(monto);
+            interes = parseFloat(interes);
+            nro_cuotas = parseInt(nro_cuotas, 10);
+            dias = parseInt(dias, 10);
+            var cuota = parseFloat(montocuota);
+
+            $("#letrastablesbody").empty();
+            for (var i = 1; i <= nro_cuotas; i++) {
+                var fvence = SumaDias(emision, dias * i);
+                var IdTr = "IdTr" + i;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + i + "</td>" +
+                        "<td id='Nro"+IdTr+"' style='text-align: left; vertical-align: middle;'>" + i + "</td>" +
+                        //"<td id='LetraNro"+IdTr+"' style='text-align: left; vertical-align: middle;'></td>" +
+                        "<td id='Cuota"+IdTr+"' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                        "<td id='Vence"+IdTr+"' style='text-align: center;'>" + fvence + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'></td>" +
+                        "</tr>");
+                    $("#letrastablesbody").append(row);
+            }
+            $('#letrastables').editableTableWidget();
+            $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	            return false;
+            });
+            $('#letrastables td').on('change', function (evt, newValue) {
+                debugger;
+                var indexcell = evt.currentTarget.cellIndex;
+                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                if (indexcell === 1) {
+                    return false;
+                }
+                else if (indexcell === 2) {
+                    try {
+                        var nuevo = parseFloat(newValue);
+                        if (Number.isNaN(nuevo)) {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                else if (indexcell === 4) {
+                    try {
+                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                        console.log(mydate.toDateString());
+                        if (mydate.toDateString() === 'Invalid Date') {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+            });
+        }
+
+
+        function FnDeleteDetalle(obj) {
+            var IdTRsele = obj.parentElement.parentElement.id;
+            var tr = $("#" + IdTRsele);
+            tr.remove();
+
+        }
+        $('#myModalPagos').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+        $("#myModalPagos").on('shown.bs.modal',
+            function(e) {
+                $(document).ready(function() {
+                   //debugger;
+                    var muestradetalle = $("#muestrabtn");
+                    muestradetalle.click();
+                });
+
+            });
+    function EliminaPago(idpago) {
+                //debugger;
+                id_save = idpago.trim();
+
+
+                    swal({
+                        title: '¿Está seguro?',
+                        text: "Se va a eliminar el registro!",
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonText: 'Si!'
+                    }).then((result) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("EliminaPagoPrestamo", "Comercial")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({
+                                id_cuentas_por_pagar_pago: id_save
+                            }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(data) {
+                                console.log(data);
+                                id_cuentas_por_pagar_pago = data;
+                                if (parseInt(id_cuentas_por_pagar, 10) > 0) {
+                                    swal({
+                                            title: 'Exito!',
+                                            text: 'Se eliminó correctamente',
+                                            type: 'success',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#3085d6',
+                                            cancelButtonColor: '#d33',
+                                            confirmButtonText: 'Ok'
+                                        },
+                                        function() {
+
+                                        });
+                                    console.log("salirs");
+                                    window.location.reload();
+                                } else {
+                                    sweetAlert("", "No se pudo eliminar!", "error");
+                                    id_cuentas_por_pagar_pago = 0;
+                                }
+                            }
+                        });
+                    }, function (dismiss) {
+                        if (dismiss === 'cancel' || dismiss === 'close') {
+                            // ignore
+                        }
+                    });
+                };
+
+
+    function setName(jsonData) {
+        debugger;
+        var lengt = jsonData.length;
+        if (lengt > 0) {
+            for (var i = 0; i < lengt; i++) {
+                var id = jsonData[i].id_cuentas_por_pagar_pago;
+                var nrooperacion = jsonData[i].nro_operacion_pago;
+                var montopago = jsonData[i].monto_pago;
+                var fpago = jsonData[i].sfpago;
+
+                var IdTr = "IdTr" + id;
+                var TdIdPago = "TdIdPago" + IdTr;
+                var row = $("<tr id='" + IdTr + "'>" +
+                    "<td id='" + TdIdPago + "' class='input-xs' style='display: none;'>" + id + "</td>" +
+                    "<td style='text-align: left; vertical-align: middle;'>" + nrooperacion +"</td>" +
+                    "<td class='input-xs' style='text-align: center;'>" + montopago.toFixed(2) + "</td>" +
+                    "<td class='input-xs' style='text-align: center;'>" + fpago + "</td>" +
+                    "<td class='input-xs'><button type='button' class='btn btn-sm btn-danger' onclick=EliminaPago('"+id+"') data-toggle='tooltip' title='Eliminar Registro'  style='padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px'><i class='glyphicon glyphicon-erase'></i></button></td>" +
+                    "</tr>");
+                $("#detallepagos").append(row);
+
+
+            }
+        }
+            //document.getElementById("ldetalle").innerHTML = jsonData[0].IDMONEDA;
+        };
+
+        var arrCuotas = new Array();
+        function FnLlenaArrayCuotas() {
+            //debugger;
+            arrCuotas = [];
+            var IndArr = 0;
+            var table = document.getElementById('letrastablesbody');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            var Nro = "";
+            var LetraNro = "";
+            var Cuota = "";
+            var Vence = "";
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        Nro = document.getElementById("Nro" + newTr).innerHTML;
+                        Cuota = document.getElementById("Cuota" + newTr).innerHTML;
+                        Vence = document.getElementById("Vence" + newTr).innerHTML;
+                        arrCuotas[IndArr] = new Array(3);
+                        arrCuotas[IndArr][0] = Nro;
+                        arrCuotas[IndArr][1] = Cuota;
+                        arrCuotas[IndArr][2] = Vence;
+                        IndArr++;
+                    }
+                }
+            }
+        }
+
+
+
+        $('#myModalNew').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+        $('#myModalNew').on('shown.bs.modal',
+            function(e) {
+                //debugger;
+
+                $(document).ready(function() {
+                    //debugger;
+                    $('.date-pickerIni').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_operacion').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+
+                    $('.date-pickerFini').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_vencimiento').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                    $('.date-pickerIniPago').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_pago').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                });
+
+                var idx = $("#id_cuentas_por_pagarx").val();
+                var fk_entidadsxx = $("#fk_entidadsx").val();
+                var IDUSUARIOsxx = $("#IDUSUARIOsx").val();
+                var IDMONEDAsxx = $("#IDMONEDAsx").val();
+                var fk_motivo_prestamosxx = $("#fk_motivo_prestamosx").val();
+                var f_operacionsxx = $("#f_operacionsx").val();
+                var f_vencimientosxx = $("#f_vencimientosx").val();
+                var montosxx = $("#montosx").val();
+                var f_registrosxx = $("#f_registrosx").val();
+                var nro_operacionsxx = $("#nro_operacionsx").val();
+                var monedasxx = $("#monedasx").val();
+                var motivo_prestamosxx = $("#motivo_prestamosx").val();
+                var razon_socialsxx = $("#razon_socialsx").val();
+                var observacionsxx = $("#observacionsx").val();
+
+
+                if (idx != "0") {
+                    $("#cmbfk_empresa").val(fk_entidadsxx);
+                    $("#cmbfk_motivos").val(fk_motivo_prestamosxx);
+                    $("#txtNroOperacion").val(nro_operacionsxx);
+                    $("#cmbidmoneda").val(IDMONEDAsxx);
+                    $("#txtMonto").val(montosxx);
+                    $("#txtOperacion").val(f_operacionsxx);
+                    $("#sfecha_operacion").val(f_operacionsxx);
+                    $("#txtFin").val(f_vencimientosxx);
+                    $("#sfecha_vencimiento").val(f_vencimientosxx);
+                    $("#txtObservacion").val(observacionsxx);
+
+                }
+
+                $("#GuardarEntidad").click(function() {
+
+
+                    var id_save = 0;
+                    var cantfilas = 0;
+
+                    try {
+                        cantfilas = $("#letrastables td").closest("tr").length;
+
+                    } catch (e) {
+
+                    }
+
+                    if (cantfilas === 0) {
+                        swal("", "No se ha generado cronograma de cuotas!", "error");
+                        $("#txtCuota").focus();
+                        return false;
+                    }
+                    else {
+                        FnLlenaArrayCuotas();
+                    }
+
+
+                    debugger;
+                    var cmbfk_empresa = $("#cmbfk_empresa").val();
+                    var cmbfk_motivos = $("#cmbfk_motivos").val();
+                    var cmbfk_tipos = $("#cmbfk_tipos").val();
+                    var txtNroOperacion = $("#txtNroOperacion").val();
+                    var cmbidmoneda = $("#cmbidmoneda").val();
+                    var txtMonto = $("#txtMonto").val();
+                    var sfecha_operacion = $("#sfecha_operacion").val();
+                    var sfecha_vencimiento = $("#sfecha_vencimiento").val();
+                    var txtObservacion = $("#txtObservacion").val();
+
+                    var txtCuota = $("#txtCuota").val();
+                    var txtDias = $("#txtDias").val();
+                    var txtMontoCuota = $("#txtMontoCuota").val();
+                    var txtInteres = $("#txtInteres").val();
+
+                    if (txtMonto === '' || txtMonto === '0' ) {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    if (txtCuota === '' || txtCuota === '0') {
+                        swal("", "Ingrese valor valido para cuotas!", "error");
+                        $("#txtCuota").focus();
+                        return false;
+                    }
+                    if (txtDias === '' || txtDias === '0') {
+                        swal("", "Ingrese valor valido para los dias!", "error");
+                        $("#txtCuota").focus();
+                        return false;
+                    }
+                    if (txtMontoCuota === '' || txtMontoCuota === '0') {
+                        swal("", "Ingrese valor valido para el monto de la cuota!", "error");
+                        $("#txtCuota").focus();
+                        return false;
+                    }
+                    if (txtInteres === '' || txtInteres === '0') {
+                        swal("", "Ingrese valor valido para el interes!", "error");
+                        $("#txtInteres").focus();
+                        return false;
+                    }
+                    //if (cmbfk_empresa === '') {
+                    //    cmbfk_empresa = 0;
+                    //}
+
+
+                    if (cmbfk_empresa === '' || cmbfk_tipos === '' || cmbfk_motivos === '' || sfecha_operacion === '' || cmbidmoneda === '') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDescripcion").focus();
+                        return false;
+                    }
+
+
+
+                    id_save = parseInt($("#id_cuentas_por_pagarx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaPrestamo", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_entidad: cmbfk_empresa,
+                            tipo: cmbfk_tipos,
+                            fk_motivo_prestamo: cmbfk_motivos,
+                            nro_operacion: txtNroOperacion,
+                            IDMONEDA: cmbidmoneda,
+                            monto: txtMonto,
+                            f_operacion: sfecha_operacion,
+
+                            observacion: txtObservacion,
+                            cuotas: txtCuota,
+                            dias: txtDias,
+                            monto_cuota: txtMontoCuota,
+                            interes: txtInteres,
+                            arrCuotas: arrCuotas
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_cuentas_por_pagar = data;
+                            if (parseInt(id_cuentas_por_pagar, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_cuentas_por_pagar = 0;
+                            }
+                        }
+                    });
+
+                });
+
+                $("#GuardarPago").click(function() {
+                    debugger;
+
+                    var id_save = 0;
+                    var id_cuentas_por_pagar = $("#id_cuentas_por_pagarx").val();
+                    var fecha_pago = $("#sfecha_pago").val();
+                    var txtNroOperacionPago = $("#txtNroOperacionPago").val();
+                    var txtMontoPago = $("#txtMontoPago").val();
+
+
+                    if (fecha_pago === '' ) {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDescripcion").focus();
+                        return false;
+                    }
+                    if (txtMontoPago === '' || txtMontoPago === '0' ) {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    var fk_cuentas_por_pagar = parseInt($("#id_cuentas_por_pagarx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaPagoPrestamo", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_cuentas_por_pagar: fk_cuentas_por_pagar,
+                            f_pago: fecha_pago,
+                            nro_operacion: txtNroOperacionPago,
+                            monto: txtMontoPago
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_cuentas_por_pagar_pago = data;
+                            if (parseInt(id_cuentas_por_pagar_pago, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_cuentas_por_pagar_pago = 0;
+                            }
+                        }
+                    });
+
+                });
+
+
+            });
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+    }
+
+        $(document).on('click',
+            '.detalles',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_cuentas_por_pagar = tableRow.find("td:eq(0)").text();
+                id_cuentas_por_pagar = id_cuentas_por_pagar.trim();
+                console.log("idgeneral: " + id_cuentas_por_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("IndexDetallesCuota", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_cuentas_por_pagar: id_cuentas_por_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentPagos').html(response);
+                        $('#myModalPagos').modal(options);
+                        $('#myModalPagos').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+
+        $(document).on('click',
+            '.edita',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_cuentas_por_pagar = tableRow.find("td:eq(0)").text();
+                id_cuentas_por_pagar = id_cuentas_por_pagar.trim();
+                console.log("idgeneral: " + id_cuentas_por_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroPrestamo", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_cuentas_por_pagar: id_cuentas_por_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNew').html(response);
+                        $('#myModalNew').modal(options);
+                        $('#myModalNew').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.agregar',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_cuentas_por_pagar = tableRow.find("td:eq(0)").text();
+                id_cuentas_por_pagar = id_cuentas_por_pagar.trim();
+                console.log("idgeneral: " + id_cuentas_por_pagar);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroPagoPrestamo", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_cuentas_por_pagar: id_cuentas_por_pagar },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNew').html(response);
+                        $('#myModalNew').modal(options);
+                        $('#myModalNew').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.elimina',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                var id_save = tableRow.find("td:eq(0)").text();
+                id_save = id_save.trim();
+
+                var monto = tableRow.find("td:eq(4)").text();
+                monto = parseFloat(monto);
+
+                var saldo = tableRow.find("td:eq(5)").text();
+                saldo = parseFloat(saldo);
+                if (saldo < monto) {
+                    swal("", "Existen pagos activos. Elimine primero los pagos!", "error");
+                    return false;
+                }
+
+                    swal({
+                        title: '¿Está seguro?',
+                        text: "Se va a eliminar el registro!",
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonText: 'Si!'
+                    }).then((result) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("EliminaPrestamo", "Comercial")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({
+                                id_cuentas_por_pagar: id_save
+                            }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(data) {
+                                console.log(data);
+                                id_cuentas_por_pagar = data;
+                                if (parseInt(id_cuentas_por_pagar, 10) > 0) {
+                                    swal({
+                                            title: 'Exito!',
+                                            text: 'Se eliminó correctamente',
+                                            type: 'success',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#3085d6',
+                                            cancelButtonColor: '#d33',
+                                            confirmButtonText: 'Ok'
+                                        },
+                                        function() {
+
+                                        })
+                                    console.log("salirs");
+                                    window.location.reload();
+                                } else {
+                                    sweetAlert("", "No se pudo eliminar!", "error");
+                                    id_cuentas_por_pagar = 0;
+                                }
+                            }
+                        });
+                    }, function (dismiss) {
+                        if (dismiss === 'cancel' || dismiss === 'close') {
+                            // ignore
+                        }
+                    });
+                });
+        $("#NewRegistro").click(function() {
+            // debugger;
+            id_cuentas_por_pagar = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroPrestamo", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_cuentas_por_pagar: id_cuentas_por_pagar },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            Inicia();
+
+        });
+
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                }
+            });
+
+
+        }
+    </script>
+
+}
+
+
+

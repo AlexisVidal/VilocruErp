@@ -1,0 +1,150 @@
+﻿@model IEnumerable<ERP.Admin.Models.Compra>
+@{
+    string FechOC = "";
+    string UserRegi = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id_ORDEN_COMPRA
+                            </th>
+                            <th>
+                                Nro OC
+                            </th>
+                            <th>
+                                Fecha
+                            </th>
+                            <th>
+                                Proveedor
+                            </th>
+                            <th>
+                                Aprobada Por
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FechOC = Convert.ToDateTime(item.f_compra).ToString("dd/MM/yyyy");
+                            UserRegi = item.nombres + " " + item.apellido_paterno + " " + item.apellido_materno;
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_compra)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.n_compra)
+                                </td>
+                                <td class="input-xs">
+                                    @FechOC
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.ruc) - @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+                                <td class="input-xs">
+                                    @UserRegi
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.estado)
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-default btn-xs ver"><i class="fa fa-search"></i> Ver</a>
+                                    @if (item.estado == "0")
+                                    {
+                                        <a href="#" class="btn btn-success btn-xs activar"><i class="fa fa-undo"></i> Recuperar</a>
+                                    }
+                                    else if (item.estado == "1")
+                                    {
+                                        <a href="#" class="btn btn-danger btn-xs elimina"><i class="fa fa-trash-o"></i> Anular</a>
+                                    }
+                                    else if (item.estado == "2")
+                                    {
+                                        <a href="#" class="btn btn-warning btn-xs cerrar"><i class="fa fa-ban"></i> Cerrar</a>
+                                    }
+                                    <a href="#" class="btn btn-default btn-xs" onclick="ExportarOCPDf('@item.id_compra')"><i class="fa fa-file-pdf-o"></i> PDF</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function ExportarOCPDf(IdComp) {
+        var url = '@Url.Action("PrintOrdenCompra", "Compra")?IdComp=' + IdComp;
+        window.open(url, "_blank")
+    }
+
+    //InitiateEditableDataTable.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    "print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ],
+            "aaSorting": [[0, "desc"]]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+        var isEditing = null;
+    }
+</script>

@@ -1,0 +1,359 @@
+﻿@{
+    ViewBag.Title = "Registro de Horarios";
+    ViewBag.Description = "Horarios";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+@using System
+@model IEnumerable<ERP.Admin.Models.PersonalHorarioErp>
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="NewRegistro" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'PersonalHorarioErp.xls', 'PersonalHorarioErp')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size:11px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                id_personal_horario
+                            </th>
+                            <th>
+                                Servicio
+                            </th>
+                            <th>
+                                Lugar
+                            </th>
+                            <th>
+                                Documento
+                            </th>
+                            <th>
+                                Nombres
+                            </th>
+                            <th>
+                                Lunes
+                            </th>
+                            <th>
+                                Martes
+                            </th>
+                            <th>
+                                Miercoles
+                            </th>
+                            <th>
+                                Jueves
+                            </th>
+                            <th>
+                                Viernes
+                            </th>
+                            <th>
+                                Sabado
+                            </th>
+                            <th>
+                                Horas Mensuales
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_personal_horario)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.proyecto)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.lugar)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.IDPERSONAL)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.nombres)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.lunes)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.martes)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.miercoles)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.jueves)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.viernes)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.sabado)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.horas_mes)
+                                </td>
+                                <td style="width: 70px; text-align: center; vertical-align: middle">
+                                    <button class="btn btn-sm btn-primary edita" data-toggle="tooltip" title="Editar Registro" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-edit"></i></button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        var id_personal_horario = 0;
+        $('#myModalNew').on('hide.bs.modal', function (e) {
+            window.location.reload();
+        });
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+            $('#txtValBus_Personal').select2();
+            $('#txtValBus_Proyecto').select2();
+
+            var idx = $("#id_personal_horario").val();
+            console.log("idx : " + idx);
+            var fk_proyectoxs = $("#fk_proyectox").val();
+            var proyectoxs = $("#proyectox").val();
+            var lugarxs = $("#lugarx").val();
+            var IDPERSONALxs = $("#IDPERSONALx").val();
+            var nombresxs = $("#nombresx").val();
+            var lunesxs = $("#lunesx").val();
+            var martesxs = $("#martesx").val();
+            var miercolesxs = $("#miercolesx").val();
+            var juevesxs = $("#juevesx").val();
+            var viernesxs = $("#viernesx").val();
+            var sabadoxs = $("#sabadox").val();
+            var horas_mesxs = $("#horas_mesx").val();
+
+            if (idx != "0") {
+                $("#txtValBus_Proyecto").val(fk_proyectoxs).trigger('change');
+                $("#txtValBus_Personal").val(IDPERSONALxs).trigger('change');
+                $('#txtValBus_Personal').prop('disabled', true);
+                $("#txtLugar").val(lugarxs);
+                $("#txtLunes").val(lunesxs);
+                $("#txtMartes").val(martesxs);
+                $("#txtMiercoles").val(miercolesxs);
+                $("#txtJueves").val(juevesxs);
+                $("#txtViernes").val(viernesxs);
+                $("#txtSabado").val(sabadoxs);
+                $("#txtHorasMensual").val(horas_mesxs);
+
+            }
+
+            $("#GuardarHorario").click(function () {
+                debugger;
+                var id_save_horario = 0;
+                var fk_proyecto = $("#txtValBus_Proyecto").val();
+                var IDPERSONAL = $("#txtValBus_Personal").val();
+                var nombres = $("#txtValBus_Personal option:selected").text();
+                var lugar = $("#txtLugar").val();
+                var horas_mes = $("#txtHorasMensual").val();
+                var lunes = $("#txtLunes").val();
+                var martes = $("#txtMartes").val();
+                var miercoles = $("#txtMiercoles").val();
+                var jueves = $("#txtJueves").val();
+                var viernes = $("#txtViernes").val();
+                var sabado = $("#txtSabado").val();
+
+                if (lunes === '') {
+                    lunes = '0';
+                }
+                if (martes === '') {
+                    martes = '0';
+                }
+                if (miercoles === '') {
+                    miercoles = '0';
+                }
+                if (jueves === '') {
+                    jueves = '0';
+                }
+                if (viernes === '') {
+                    viernes = '0';
+                }
+                if (sabado === '') {
+                    sabado = '0';
+                }
+
+                
+
+                try {
+                    id_save_horario = parseInt(id_personal_horario, 10);
+                } catch (e) {
+                    id_save_horario = 0;
+                }
+
+                $.when(
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaHorario", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save_horario: id_save_horario, fk_proyecto: fk_proyecto, lugar: lugar,
+                            IDPERSONAL: IDPERSONAL, nombres: nombres, lunes: lunes, martes: martes,
+                            miercoles: miercoles, jueves: jueves, viernes: viernes,
+                            sabado: sabado, horas_mes: horas_mes }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function (data) {
+                            console.log(data);
+                            id_personal_horario = data;
+                            if (parseInt(id_personal_horario, 10) > 0) {
+                                    swal({
+                                        title: 'Exito!',
+                                        text: 'Horario se registró correctamente',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function () {
+                                        $("#btnCanceld").click();
+                                    });
+                                } else {
+                                swal("", "No se pudo registrar!", "error");
+                                id_personal_horario = 0;
+                            }
+                        }
+                    })).then(function (response) {
+
+                    });
+            });
+
+        });
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).on('click', '.edita', function () {
+                    //debugger;
+                    var tableRow = $(this).closest("tr");
+                    id_personal_horario = tableRow.find("td:eq(0)").text();
+
+                    console.log("id_personal_horario: " + id_personal_horario);
+                    var options = { "backdrop": "static", keyboard: false };
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("RegistroPersonalHorario", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: { id_entidad: id_personal_horario },
+                        dataType: 'html',
+                        success: function (response) {
+                            $('#myModalContentNew').html(response);
+                            $('#myModalNew').modal(options);
+                            $('#myModalNew').modal('show');
+                        },
+                        error: function (request, status, error) {
+                            alert(request.responseText);
+                        }
+                    });
+                    return false;
+        });
+
+        $("#NewRegistro").click(function () {
+            id_entidad = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroPersonalHorario", "Personal")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_entidad: id_entidad },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,447 @@
+﻿@model ERP.Admin.Models.Compra
+<script type="text/javascript">
+    $(document).ready(function () {
+        FnInitControles();
+    });
+
+    function FnInitControles() {
+        var CallBy = $("#TxtCompEdit_CallBy").val();
+        if (CallBy == "CompraVer") {
+            document.getElementById('TDTotaHidd').style.display = 'none';
+            document.getElementById('DivGuiaRemision').style.display = "";
+            document.getElementById('btnCancel').innerHTML = 'Cerrar';
+            $('#txtCompEdit_Fech').prop('disabled', true);
+            var EstaOC = $("#TxtCompEdit_Estado").val();
+            if (EstaOC == "4") {
+                document.getElementById('DivMotivoCierre').style.display = "";
+            }
+            FnDesactivaCtrlesTblOrdeCompDeta();
+        }
+    }
+
+    function FnDesactivaCtrlesTblOrdeCompDeta() {
+        var table = document.getElementById('tBodyCompDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        document.getElementById("THBtnDeleCompDeta").style.display = 'none';
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    document.getElementById("TDBtnDeleCompDeta" + newTr).style.display = 'none';
+                    var objTxtCant = document.getElementById("TDTxtCantCompDeta" + newTr).children;
+                    objTxtCant[0].readOnly = true;
+                    var objTxtPrec = document.getElementById("TDTxtPrecCompDeta" + newTr).children;
+                    objTxtPrec[0].readOnly = true;
+                }
+            }
+        }
+    }
+</script>
+@{
+    string IdTrEditCompDeta = "";
+    string TDIdCompDeta = "";
+    string TDTxtCantCompDeta = "";
+    string TDTxtPrecCompDeta = "";
+    string TDSubTotaCompDeta = "";
+    string TDEstaCompDeta = "";
+    string TDBtnDeleCompDeta = "";
+
+    decimal SubTotaEditCompDeta = 0;
+    decimal TotaEditCompDeta = 0;
+    string CallBy = ViewBag.CallBy;
+    string strTitle = "Editar Orden de Compra";
+    if (CallBy != null)
+    {
+        if (CallBy.Equals("CompraVer"))
+        {
+            strTitle = "Ver Orden de Compra";
+        }
+    }
+
+    string FechComp = Convert.ToDateTime(Model.f_compra).ToString("dd/MM/yyyy");
+}
+@Html.Hidden("TxtCompEdit_IdComp", Model.id_compra)
+@Html.Hidden("TxtCompEdit_NroComp", Model.n_compra)
+@Html.Hidden("TxtCompEdit_EstaComp", Model.estado)
+@Html.Hidden("TxtCompEdit_Estado", Model.estado)
+@Html.Hidden("TxtCompEdit_CallBy", CallBy)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+            {
+                <div class="widget-header bordered-bottom bordered-red">
+                    <span class="widget-caption">@strTitle - @Model.n_compra</span>
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right;">Nro OC: </label>
+                                <div class="col-md-2">
+                                    <input class="form-control" id="txtCompEdit_Fech" type="text" value="@Model.n_compra" disabled>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-7 control-label" style="text-align: right;">Fecha: </label>
+                                <div class="col-md-2">
+                                    <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtCompEdit_Fech" type="text" value="@FechComp" disabled>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Proveedor <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompEdit_ProvCodi").Value(Model.cod_proveedor).Placeholder("Código").Disable().Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaProveedor('OrdeCompEdit')", @id = "btnListProveedor" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompEdit_ProvRuc").Value(Model.ruc).HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Placeholder("RUC").Size(InputSize.Small)
+                                </div>
+                                <div class="col-md-7">
+                                    @Html.Bootstrap().TextBox("txtCompEdit_ProvRazoSoci").Value(Model.razon_social).HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Placeholder("Razón Social").Size(InputSize.Small)
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-header bordered-bottom bordered-blue">
+                    <span class="widget-caption">Detalles</span>
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblCompDeta">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="width: 0%; display: none;">
+                                                ID_COMPRA_DETALLE
+                                            </th>
+                                            <th style="width: 8%; text-align: center;">
+                                                Código
+                                            </th>
+                                            <th style="width: 7%; text-align: center;">
+                                                SKU
+                                            </th>
+                                            <th style="width: 25%;">
+                                                Producto
+                                            </th>
+                                            <th style="width: 10%;">
+                                                Marca
+                                            </th>
+                                            <th style="width: 15%;">
+                                                SubFamilia
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Cantidad
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Precio
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Total
+                                            </th>
+                                            <th style="display: none;">
+                                                Estado
+                                            </th>
+                                            <th id="THBtnDeleCompDeta" style="width: 5%; text-align: center;">
+                                                ...
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyCompDeta">
+                                        @foreach (var item in ViewBag.CompraDetalle)
+                                        {
+                                            SubTotaEditCompDeta = item.cantidad * item.precio;
+                                            TotaEditCompDeta = TotaEditCompDeta + SubTotaEditCompDeta;
+
+                                            IdTrEditCompDeta = "TrEditCompDeta" + item.id_compra_detalle;
+                                            TDIdCompDeta = "TDIdCompDeta" + IdTrEditCompDeta;
+                                            TDTxtCantCompDeta = "TDTxtCantCompDeta" + IdTrEditCompDeta;
+                                            TDTxtPrecCompDeta = "TDTxtPrecCompDeta" + IdTrEditCompDeta;
+                                            TDSubTotaCompDeta = "TDSubTotaCompDeta" + IdTrEditCompDeta;
+                                            TDEstaCompDeta = "TDEstaCompDeta" + IdTrEditCompDeta;
+                                            TDBtnDeleCompDeta = "TDBtnDeleCompDeta" + IdTrEditCompDeta;
+                                            <tr id="@IdTrEditCompDeta">
+                                                <td id="@TDIdCompDeta" style="display: none;">
+                                                    @item.id_compra_detalle
+                                                </td>
+                                                <td class="input-xs" style="text-align: center;">
+                                                    @item.cod_producto
+                                                </td>
+                                                <td class="input-xs" style="text-align: center;">
+                                                    @item.codigo_sku
+                                                </td>
+                                                <td class="input-xs">
+                                                    @item.nom_producto
+                                                </td>
+                                                <td class="input-xs">
+                                                    @item.descripcion_producto_marca
+                                                </td>
+                                                <td class="input-xs">
+                                                    @item.descripcion_producto_subfamilia
+                                                </td>
+                                                <td id="@TDTxtCantCompDeta" class="input-xs" style="text-align: right;">
+                                                    @Html.Bootstrap().TextBox("txtCantOCDeta").Value(@item.cantidad).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangeCantOCDetalle(this)", @type = "number", @min = "1", @style = "text-align: right;" })
+                                                </td>
+                                                <td id="@TDTxtPrecCompDeta" class="input-xs" style="text-align: right;">
+                                                    @Html.Bootstrap().TextBox("txtPrecOCDeta").Value(@item.precio).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangePrecOCDetalle(this)", @type = "number", @min = "0.1", @style = "text-align: right;" })
+                                                </td>
+                                                <td id="@TDSubTotaCompDeta" class="input-xs" style="text-align: right;">
+                                                    @SubTotaEditCompDeta
+                                                </td>
+                                                <td id="@TDEstaCompDeta" class="input-xs" style="display: none;">
+                                                    @item.estado
+                                                </td>
+                                                <td id="@TDBtnDeleCompDeta" style="text-align: center;">
+                                                    @Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title = "Eliminar detalle", @onclick = "FnDeleteOCDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover table-bordered" id="tblTotalComp">
+                                    <thead>
+                                        <tr role="row">
+                                            <td style="width: 85%; text-align: right;">
+                                                TOTAL
+                                            </td>
+                                            <td id="TDTotalComp" style="width: 10%; text-align: right;">@TotaEditCompDeta</td>
+                                            <td id="TDTotaHidd" style="width: 5%;"></td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-md-6" id="DivGuiaRemision" style="display: none;">
+                    <div class="widget-header bordered-bottom bordered-blue">
+                        <span class="widget-caption">Entregas</span>
+                    </div>
+                    <div class="widget-body">
+                        <div id="horizontal-form">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <table class="table table-striped table-hover table-bordered" id="tblCompGuiaRemi">
+                                        <thead>
+                                            <tr role="row">
+                                                <th style="width: 0%; display: none;">
+                                                    ID_GUIA_REMISION
+                                                </th>
+                                                <th style="width: 33%; text-align: center;">
+                                                    Fecha
+                                                </th>
+                                                <th style="width: 34%; text-align: center;">
+                                                    GUIA REMISION NRO
+                                                </th>
+                                                <th style="width: 33%;">
+                                                    estado
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tBodyGuiaRemi">
+                                            @if (ViewBag.GuiaRemision.Count > 0)
+                                            {
+                                                foreach (var oneGuiaRemi in ViewBag.GuiaRemision)
+                                                {
+                                                    var FechGR = Convert.ToDateTime(oneGuiaRemi.f_emision).ToString("dd/MM/yyyy");
+                                                    <tr>
+                                                        <td style="display: none;">
+                                                            @oneGuiaRemi.id_guia_remision
+                                                        </td>
+                                                        <td class="input-xs" style="text-align: center;">
+                                                            @FechGR
+                                                        </td>
+                                                        <td class="input-xs" style="text-align: center;">
+                                                            @oneGuiaRemi.nro_guia
+                                                        </td>
+                                                        <td class="input-xs">
+                                                            @oneGuiaRemi.NEstado
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row col-md-6" id="DivMotivoCierre" style="display: none;">
+                    <div class="form-group" style="margin:0">
+                        <label class="col-sm-12 control-label" style="text-align: left;">MOTIVO DE CIERRE: </label>
+                        <div class="col-md-12">
+                            <textarea rows="4" id="txtCompEdit_MotiCier" onblur="InputToUpper(this);" style="width: 100%; text-transform: uppercase;" maxlength="200" readonly>@Model.motivo_cierre</textarea>
+                            <div class="horizontal-space"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right; margin-right: 10px;">Cancelar</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var arrOCDeta = new Array();
+    var arrDeleOCDeta = new Array();
+    var NroTr = 1;
+    $(document).ready(function () {
+
+    });
+
+    function FnGuardarEditOrdeCompra() {
+        var IdOrdeComp = $("#TxtCompEdit_IdComp").val();
+        var FkProv = $("#txtCompEdit_FkProveedor").val();
+        var NroOrdeComp = $("#TxtCompEdit_NroComp").val();
+        var FechOrdeComp = $("#txtCompEdit_Fech").val();
+        var EstaOrdeComp = $("#TxtCompEdit_EstaComp").val();
+        FnLlenaArrayOCDetalle()
+        var flgError = 0;
+        if (parseInt(FkProv) == 0) {
+            sweetAlert("", "Seleccione un Proveedor", "error");
+            flgError = 1;
+        } else if (FechOrdeComp.trim() == "") {
+            sweetAlert("", "Ingrese una fecha", "error");
+            flgError = 1;
+        } else if (arrOCDeta.length == 0) {
+            sweetAlert("", "Ingrese Detalle de la OC", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveEditOrdenCompra", "OrdenCompra")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdOrdeComp: IdOrdeComp, FkProv: FkProv, NroOrdeComp: NroOrdeComp,
+                    FechOrdeComp: FechOrdeComp, EstaOrdeComp: EstaOrdeComp, arrOCDeta: arrOCDeta, arrDeleOCDeta: arrDeleOCDeta
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: 'Exito!',
+                        text: data,
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ok'
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            });
+        }
+    }
+
+    function FnLlenaArrayOCDetalle() {
+        arrOCDeta = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyCompDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var IdOCDeta = "";
+        var FkIdProd = "";
+        var EstaOCDeta = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    IdOCDeta = document.getElementById("TDIdCompDeta" + newTr).innerHTML;
+                    var objTxtCant = document.getElementById("TDTxtCantCompDeta" + newTr).children;
+                    var newCant = objTxtCant[0].value;
+                    var objTxtPrec = document.getElementById("TDTxtPrecCompDeta" + newTr).children;
+                    var newPrec = objTxtPrec[0].value;
+                    EstaOCDeta = document.getElementById("TDEstaCompDeta" + newTr).innerHTML;
+                    arrOCDeta[IndArr] = new Array(5);
+                    arrOCDeta[IndArr][0] = IdOCDeta.trim();
+                    arrOCDeta[IndArr][1] = FkIdProd.trim();
+                    arrOCDeta[IndArr][2] = newCant;
+                    arrOCDeta[IndArr][3] = newPrec;
+                    arrOCDeta[IndArr][4] = EstaOCDeta.trim();
+                    IndArr++;
+                }
+            }
+        }
+    }
+
+    function FnChangeCantOCDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newCant = parseInt(obj.value);
+        if (newCant <= 0) {
+            sweetAlert("", "Cantidad No Válida", "error");
+            obj.value = 1;
+            obj.focus();
+        } else {
+            FnCalculaSubTotal(IdTRsele);
+        }
+    }
+
+    function FnChangePrecOCDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newCant = parseInt(obj.value);
+        if (newCant <= 0) {
+            sweetAlert("", "Precio No Válido", "error");
+            obj.value = 0;
+            document.getElementById("TDSubTotaCompDeta" + IdTRsele).innerHTML = 0;
+            obj.focus();
+        } else {
+            FnCalculaSubTotal(IdTRsele);
+        }
+    }
+
+    function FnDeleteOCDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var IdOCDeta = document.getElementById("TDIdCompDeta" + IdTRsele).innerHTML;
+        if (parseInt(IdOCDeta) > 0) {
+            arrDeleOCDeta[arrDeleOCDeta.length] = IdOCDeta.trim();
+        }
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+        FnCalculaTotalOC();
+    }
+
+    function FnCalculaSubTotal(IdTRsele) {
+        var objTxtCant = document.getElementById("TDTxtCantCompDeta" + IdTRsele).children;
+        var newCant = objTxtCant[0].value;
+        var objTxtPrec = document.getElementById("TDTxtPrecCompDeta" + IdTRsele).children;
+        var newPrec = objTxtPrec[0].value;
+        var newSubTota = 0;
+        newSubTota = newCant * newPrec;
+        document.getElementById("TDSubTotaCompDeta" + IdTRsele).innerHTML = newSubTota.toFixed(2);;
+
+        FnCalculaTotalOC();
+    }
+
+    function FnCalculaTotalOC() {
+        var tblOCDeta = document.getElementById('tBodyCompDeta');
+        var cantRowsTblOCDeta = tblOCDeta.rows.length;
+        var newTrTblOCDeta = "";
+        var SumSubTota = 0;
+        var FkMuesPale = "";
+        var FkInstLote = "";
+        if (cantRowsTblOCDeta > 0) {
+            for (var i = 0; i < cantRowsTblOCDeta; i++) {
+                newTrTblOCDeta = tblOCDeta.rows[i].id;
+                if (newTrTblOCDeta.trim() != "") {
+                    SumSubTota = SumSubTota + parseFloat(document.getElementById("TDSubTotaCompDeta" + newTrTblOCDeta).innerHTML);
+                }
+            }
+        }
+        document.getElementById("TDTotalComp").innerHTML = SumSubTota.toFixed(2);
+    }
+</script>

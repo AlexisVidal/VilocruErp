@@ -1,0 +1,126 @@
+﻿
+@using ERP.Admin.Models
+@{
+    var _trabajad = (Trabajador)ViewBag.Trabajador;
+    var _usuario = (Usuario)ViewBag.Usuario;
+    int id_trabajador = 0;
+    int fkpersona = 0;
+    int fktipotrabajador = 0;
+    int idusuario = 0;
+    if (_trabajad != null)
+    {
+        id_trabajador = _trabajad.id_trabajador;
+        fkpersona = _trabajad.fk_persona;
+        fktipotrabajador = _trabajad.fk_tipo_trabajador;
+    }
+    if (_usuario != null)
+    {
+        idusuario = _usuario.id_usuario;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_trabajadorx", @id_trabajador)
+@Html.Hidden("fkpersonax", @fkpersona)
+@Html.Hidden("fktipotrabajadorx", @fktipotrabajador)
+@Html.Hidden("idusuariox", @idusuario)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de trabajador</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        @Html.Hidden("id_trabajador_save", 0)
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Persona <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.DropDownList("txtValBus_persona", new SelectList(ViewBag.PersonasST, "id_persona", "NombreCompleto"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idpersona")
+                                    @Html.Hidden("persona")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Tipo <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.DropDownList("txtValBus_tipo", new SelectList(ViewBag.TipoTrabajador, "id_tipo_trabajador", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idtipotrabajador")
+                                    @Html.Hidden("tipotrabajador")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <div class="col-md-3" style="width:300px;text-align:center">
+                                    @Html.Bootstrap().CheckBox("form-field-checkbox").Text("Usuario").HtmlAttributes(new { @class = "checkbox-slider  colored-blue", @id="chkUsuario" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" id="usuarioclave" style="text-align:center">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Contraseña <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @*@Html.Bootstrap().TextBox("password1").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Dni")*@
+                                    <input type="password" id="password" class="form-control" name="password"
+                                           data-bv-notempty="true"
+                                           data-bv-notempty-message="The password is required and cannot be empty"
+                                           data-bv-identical="true"
+                                           data-bv-identical-field="confirmPassword"
+                                           data-bv-identical-message="The password and its confirm are not the same"
+                                           data-bv-different="true"
+                                           data-bv-different-field="username"
+                                           data-bv-different-message="The password cannot be the same as username" />
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-2" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarTrabajador").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            @Html.Hidden("idqrpalets")
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+<link href="~/assets/css/jquery-ui.css" rel="stylesheet" />
+    <script src="~/assets/js/jquery-ui.1.11.4.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#myModal').on('shown.bs.modal', function (e) {
+                
+            });
+        });
+        if ($('#chkUsuario').is(':checked')) {
+            console.log("chekeado");
+        }
+        
+        //--Bootstrap Date Picker--
+        $('.date-picker').datepicker();
+    </script>
+}

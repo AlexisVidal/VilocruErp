@@ -1,0 +1,133 @@
+﻿@using ERP.Admin.Models
+@{
+    var _empres = (Empresa)ViewBag.Empresas;
+    string tipo = (string)ViewBag.Tipo;
+    int id_empresa = 0;
+    string rucs = "";
+    string razon_socials = "";
+    string direccions = "";
+    string emails = "";
+    string contactos = "";
+    string telefonos = "";
+
+    if (_empres != null)
+    {
+        id_empresa = _empres.id_empresa;
+        rucs = _empres.ruc;
+        razon_socials = _empres.razon_social;
+        direccions = _empres.direccion;
+        emails = _empres.email;
+        contactos = _empres.contacto;
+        telefonos = _empres.telefono;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_empresax", @id_empresa)
+@Html.Hidden("rucsx", @rucs)
+@Html.Hidden("razon_socialsx", @razon_socials)
+@Html.Hidden("direccionsx", @direccions)
+@Html.Hidden("emailsx", @emails)
+@Html.Hidden("contactosx", @contactos)
+@Html.Hidden("telefonosx", @telefonos)
+@Html.Hidden("tipox", @tipo)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Tipo <sup>*</sup></label>
+                                <div class="col-md-3" style="width:150px">
+                                    @Html.Bootstrap().DropDownList("cmbRegEmp_Tipo", new SelectList(ViewBag.Tipos, "id_cliente_tipo", "descripcion", selectedValue: 0)).HtmlAttributes(new { @autocomplete = "of", @style = "border-radius: 6px !important;" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">RUC / DNI <sup>*</sup></label>
+                                <div class="col-md-3" style="width:150px">
+                                    <input data-mask="99999999999" class="form-control" placeholder="Ruc / dni" id="ruc" type="text" style="border-radius:6px !important">
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Razon Social / Nombres <sup>*</sup></label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextBox("razon_social").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Razon Social /Nombres").HtmlAttributes(new { @style="border-radius: 6px !important"})
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Direccion </label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextBox("direccion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Direccion legal").HtmlAttributes(new { @style = "border-radius: 6px !important" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Contacto </label>
+                                <div class="col-md-3" style="width:350px">
+                                    @Html.Bootstrap().TextBox("contacto").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Contacto").HtmlAttributes(new { @style = "border-radius: 6px !important" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align:left;width:70px">Telefono </label>
+                                <div class="col-md-3" style="width:200px">
+                                    @Html.Bootstrap().TextBox("telefono").HtmlAttributes(new { @type = "number", @onkeyup = "InputToUpper(this)" }).Placeholder("Telefono").HtmlAttributes(new { @style = "border-radius: 6px !important" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Email </label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextBox("email").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Email").HtmlAttributes(new { @style = "border-radius: 6px !important" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarEmpresa").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+}
+
+

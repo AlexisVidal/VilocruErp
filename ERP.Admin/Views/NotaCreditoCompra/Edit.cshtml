@@ -1,0 +1,413 @@
+﻿@model ERP.Admin.Models.NotaCreditoCompra
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        FnCalculTotalesIni();
+        InitControles();
+    });
+
+    function InitControles() {
+        var flgAfecStoc = $("#HiddNotaCred_FlgAfecStoc").val();
+        if (flgAfecStoc.trim() == "1") {
+            document.getElementById("ChkNotaCred_AfecStoc").checked = true;
+        }
+    }
+
+    function FnCalculTotalesIni() {
+        var IndArr = 0;
+        var table = document.getElementById('tBodyCompCompDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkProd = "";
+        var Cant = "";
+        var Prec = "";
+        var Brut = 0;
+        var pFlgAfecIgv = "";
+        var pPorcIgv = "";
+        var pTotaNeto = 0;
+        var pTotaIgv = 0;
+        var ventSumaTotaNeto = 0;
+        var ventSumaTotaIgv = 0;
+        var ventSumaTotaBruto = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    //Cant = document.getElementById("TDCant" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDCantCCD" + newTr).children;
+                    Cant = objTxt[0].value;
+                    //Prec = document.getElementById("TDPrec" + newTr).innerHTML;
+                    objTxt = document.getElementById("TDPrecCCD" + newTr).children;
+                    Prec = objTxt[0].value;
+                    pFlgAfecIgv = document.getElementById("TDFlgAfecIgv" + newTr).innerHTML;
+                    pPorcIgv = document.getElementById("TDPorcIgv" + newTr).innerHTML;
+                    Brut = parseFloat(Cant) * parseFloat(Prec);
+                    if (pFlgAfecIgv.trim() == "1") {
+                        pTotaIgv = CalculaIgv(Brut, pPorcIgv);
+                    }
+                    pTotaNeto = (parseFloat(Brut) - parseFloat(pTotaIgv)).toFixed(2);
+                    document.getElementById("TDTotaNeto" + newTr).innerHTML = pTotaNeto;
+                    document.getElementById("TDTotaIgv" + newTr).innerHTML = parseFloat(pTotaIgv).toFixed(2);
+                    document.getElementById("TDTotaBruto" + newTr).innerHTML = parseFloat(Brut).toFixed(2);
+
+                    ventSumaTotaNeto = parseFloat(ventSumaTotaNeto) + parseFloat(pTotaNeto);
+                    ventSumaTotaIgv = parseFloat(ventSumaTotaIgv) + parseFloat(pTotaIgv);
+                    ventSumaTotaBruto = parseFloat(ventSumaTotaBruto) + parseFloat(Brut);
+                }
+            }
+            document.getElementById("TDCompVentTotaNeto").innerHTML = ventSumaTotaNeto.toFixed(2);
+            document.getElementById("TDCompVentTotaIgv").innerHTML = ventSumaTotaIgv.toFixed(2);
+            document.getElementById("TDCompVentTotaBruto").innerHTML = ventSumaTotaBruto.toFixed(2);
+        }
+    }
+
+    function FnDeleteDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+        FnCalculaTotaleComprobanteVenta();
+    }
+
+    function FnValidaPrecio(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newPrec = parseInt(obj.value);
+        if (newPrec <= 0) {
+            sweetAlert("", "Precio no válido", "error");
+            obj.value = obj.oldvalue;
+        } else {
+            FnCalculaSubtotal(IdTRsele);
+        }
+    }
+
+    function FnValidaCantidad(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var CantHidd = document.getElementById('TDHiddCant' + IdTRsele).innerHTML;
+        var newCant = parseInt(obj.value);
+        var newPrec = 0;
+        if (newCant <= 0) {
+            sweetAlert("", "Cantidad no válida", "error");
+            obj.value = obj.oldvalue;
+        }
+        else if (parseFloat(newCant) > parseFloat(CantHidd)) {
+            sweetAlert("", "Cantidad no válida", "error");
+            obj.value = obj.oldvalue;
+        }
+        else {
+            FnCalculaSubtotal(IdTRsele);
+        }
+    }
+
+    function FnCalculaSubtotal(IdTRsele) {
+        var objTxt = document.getElementById("TDCantCCD" + IdTRsele).children;
+        var newCant = objTxt[0].value;
+        objTxt = document.getElementById("TDPrecCCD" + IdTRsele).children;
+        var newPrec = objTxt[0].value;
+
+        var newFlgAfecIgv = "";
+        var newTotaBruto = 0;
+        var newTotaNeto = 0;
+        var newTotaIgv = 0;
+        var newPorcIgv = 0;
+
+        newTotaBruto = (parseFloat(newCant) * parseFloat(newPrec)).toFixed(2);
+        newFlgAfecIgv = document.getElementById("TDFlgAfecIgv" + IdTRsele).innerHTML;
+        if (newFlgAfecIgv.trim() == "1") {
+            newPorcIgv = document.getElementById("TDPorcIgv" + IdTRsele).innerHTML;
+            newTotaIgv = CalculaIgv(newTotaBruto, newPorcIgv);
+        }
+        newTotaNeto = newTotaBruto - newTotaIgv;
+
+        document.getElementById("TDTotaNeto" + IdTRsele).innerHTML = parseFloat(newTotaNeto).toFixed(2);
+        document.getElementById("TDTotaIgv" + IdTRsele).innerHTML = parseFloat(newTotaIgv).toFixed(2)
+        document.getElementById("TDTotaBruto" + IdTRsele).innerHTML = parseFloat(newTotaBruto).toFixed(2)
+        FnCalculaTotaleComprobanteVenta();
+    }
+
+    function FnCalculaTotaleComprobanteVenta() {
+        var table = document.getElementById('tBodyCompCompDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newTotaNeto = "";
+        var newTotaIgv = "";
+        var newTotaBruto = "";
+        var ventSumaTotaNeto = 0;
+        var ventSumaTotaIgv = 0;
+        var ventSumaTotaBruto = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newTotaNeto = document.getElementById("TDTotaNeto" + newTr).innerHTML;
+                    newTotaIgv = document.getElementById("TDTotaIgv" + newTr).innerHTML;
+                    newTotaBruto = document.getElementById("TDTotaBruto" + newTr).innerHTML;
+                    ventSumaTotaNeto = parseFloat(ventSumaTotaNeto) + parseFloat(newTotaNeto);
+                    ventSumaTotaIgv = parseFloat(ventSumaTotaIgv) + parseFloat(newTotaIgv);
+                    ventSumaTotaBruto = parseFloat(ventSumaTotaBruto) + parseFloat(newTotaBruto);
+                }
+            }
+            document.getElementById("TDCompVentTotaNeto").innerHTML = ventSumaTotaNeto.toFixed(2);
+            document.getElementById("TDCompVentTotaIgv").innerHTML = ventSumaTotaIgv.toFixed(2);
+            document.getElementById("TDCompVentTotaBruto").innerHTML = ventSumaTotaBruto.toFixed(2);
+        }
+    }
+</script>
+@{
+    string strFechEmisNC = Convert.ToDateTime(Model.f_emision).ToString("dd/MM/yyyy");
+    string strFechEmis = Convert.ToDateTime(Model.f_emision_comprobante_compra).ToString("dd/MM/yyyy");
+
+    int NroTrCCDE = 1;
+
+    decimal totaCompComp = 0;
+
+    string CallBy = ViewBag.CallBy;
+    string FlgAfecStoc = Model.flg_afecta_stock;
+}
+@Html.Hidden("txtCompCompEdit_IdCompComp", Model.id_comprobante_compra)
+@Html.Hidden("txtCompCompEdit_FkProv", Model.fk_proveedor)
+@Html.Hidden("txtCompCompEdit_Esta", Model.estado)
+@Html.Hidden("txtCompCompEdit_CallBy", CallBy)
+@Html.Hidden("HiddNotaCred_FlgAfecStoc", FlgAfecStoc)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">NOTA DE CRÉDITO</span>
+            </div>
+            @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+            {
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Tipo <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().DropDownList("cmbNotaCred_FkCompTipo", new SelectList(ViewBag.ComprobanteTipo, "id_comprobante_tipo", "descripcion", selectedValue: ViewBag.FkCompTipoNotaCredito)).HtmlAttributes(new { @disabled = "disabled" }).Size(InputSize.Small)
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Nro <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input type="text" id="txtNotaCred_NroComp" value="@Model.nro_comprobante" data-mask="9999-9999999" class="form-control" placeholder="Nro Comprobante">
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right;">Fecha Emision <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtNotaCred_FechEmis" value="@strFechEmisNC" type="text">
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().CheckBox("ChkNotaCred_AfecStoc").Text("Afecta Stock").IsChecked(false).HtmlAttributes(new { @class = "colored-default" })
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-header bordered-bottom bordered-blue">
+                    <span class="widget-caption">Comprobante al que afecta</span>
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right;">Tipo <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("cmbCompCompEdit_IdCompTipo").Value(Model.descripcion_comprobante_tipo).Placeholder("Código").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Nro <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <input type="text" id="txtCompCompEdit_NroComp" value="@Model.nro_comprobante_compra" data-mask="9999-9999999" class="form-control" placeholder="Nro Comprobante" disabled>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Moneda </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompCompEdit_DescTipoMone").Value(Model.descripcion_tipo_moneda).Disable().Size(InputSize.Small)
+                                    @Html.Hidden("txtCompCompEdit_FkTipoMone", Model.fk_tipo_moneda)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right;">Fecha <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    <div class='input-group'>
+                                        <input class='form-control date-picker' id='txtCompCompEdit_FechEmis' type='text' data-date-format='dd/mm/yyyy' value="@strFechEmis" disabled>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+                                    </div>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">OC <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompCompEdit_NroCompra").Value(Model.n_compra).Placeholder("Nro OC").Disable().Size(InputSize.Small)
+                                    @Html.Hidden("txtCompCompEdit_FkCompra", Model.fk_compra)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Proveedor </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCompCompEdit_ProvCodigo").Value(Model.cod_proveedor).Placeholder("Código").Disable().Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    @Html.Bootstrap().TextBox("txtcompCompEdit_ProvRucRazoSocial").Value(Model.ruc + " - " + Model.razon_social).HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Placeholder("RUC - Razón Social").Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-header bordered-bottom bordered-blue">
+                    <span class="widget-caption">Detalles</span>
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblCompCompDeta">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="text-align: center; display: none;">
+                                                FK_PRODUCTO
+                                            </th>
+                                            <th style="text-align: center;">
+                                                Código
+                                            </th>
+                                            <th style="text-align: center;">
+                                                SKU
+                                            </th>
+                                            <th>
+                                                Producto
+                                            </th>
+                                            <th>
+                                                Marca
+                                            </th>
+                                            <th>
+                                                SubFamilia
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Cantidad
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Precio
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Valor Venta
+                                            </th>
+                                            <th style="width: 70px; text-align: right;">
+                                                IGV
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Importe
+                                            </th>
+                                            <th style="width: 50px; text-align: center;">
+                                                ...
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyCompCompDeta">
+                                        @foreach (var item in ViewBag.NotaCreditoCompraDetalle)
+                                        {
+                                            string IdTrGRDE = "TrGRDE" + NroTrCCDE;
+                                            string TDFkProd = "TDFkProd" + IdTrGRDE;
+                                            string TDCantCCD = "TDCantCCD" + IdTrGRDE;
+                                            string TDPrecCCD = "TDPrecCCD" + IdTrGRDE;
+                                            string TDTotaNeto = "TDTotaNeto" + IdTrGRDE;
+                                            string TDTotaIgv = "TDTotaIgv" + IdTrGRDE;
+                                            string TDTotaBruto = "TDTotaBruto" + IdTrGRDE;
+                                            string TDBtnDeleteDeta = "TDBtnDeleteDeta" + IdTrGRDE;
+                                            string TDFkTipoAfecIgv = "TDFkTipoAfecIgv" + IdTrGRDE;
+                                            string TDFlgAfecIgv = "TDFlgAfecIgv" + IdTrGRDE;
+                                            string TDPorcIgv = "TDPorcIgv" + IdTrGRDE;
+                                            string TDHiddCant = "TDHiddCant" + IdTrGRDE;
+
+                                            decimal SubTota = item.cantidad * item.precio;
+                                            totaCompComp = totaCompComp + SubTota;
+                                            NroTrCCDE++;
+                                            <tr id="@IdTrGRDE">
+                                                <td id="@TDFkProd" class='input-xs' style='text-align: center; display: none;'>
+                                                    @item.fk_producto
+                                                </td>
+                                                <td class='input-xs' style='text-align: center;'>
+                                                    @item.cod_producto
+                                                </td>
+                                                <td class='input-xs' style='text-align: center;'>
+                                                    @item.codigo_sku
+                                                </td>
+                                                <td class='input-xs'>
+                                                    @item.nom_producto
+                                                </td>
+                                                <td class='input-xs'>
+                                                    @item.descripcion_marca
+                                                </td>
+                                                <td class='input-xs'>
+                                                    @item.descripcion_producto_subfamilia
+                                                </td>
+                                                <td id="@TDCantCCD" class='input-xs' style='text-align: right;'>
+                                                    @Html.Bootstrap().TextBox("txtCant").Value(@item.cantidad).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantidad(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })
+                                                </td>
+                                                <td id="@TDPrecCCD" class='input-xs' style='text-align: right;'>
+                                                    @Html.Bootstrap().TextBox("txtCant").Value(@item.precio).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaPrecio(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })
+                                                </td>
+                                                <td id='@TDTotaNeto' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDTotaIgv' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDTotaBruto' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDBtnDeleteDeta' class='input-xs' style='text-align: center;'>
+                                                    @Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title = "Eliminar Detalle", @onclick = "FnDeleteDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)
+                                                </td>
+                                                <td id='@TDFkTipoAfecIgv' class='input-xs' style='display: none;'>@item.id_tipo_afectacion_igv</td>
+                                                <td id='@TDFlgAfecIgv' class='input-xs' style='display: none;'>@item.flag_afecto_igv</td>
+                                                <td id='@TDPorcIgv' class='input-xs' style='display: none;'>@item.porcentaje</td>
+                                                <td id='@TDHiddCant' class='input-xs' style='text-align: right; display: none;'>
+                                                    @item.cantidad
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover table-bordered" id="tblTotalCompComp">
+                                    <thead>
+                                        <tr role="row">
+                                            <td style="text-align: right;">
+                                                TOTAL
+                                            </td>
+                                            <td id="TDCompVentTotaNeto" style="width: 100px; font-weight: bold; text-align: right;">@Model.total_neto</td>
+                                            <td id="TDCompVentTotaIgv" style="width: 70px; font-weight: bold; text-align: right;">@Model.total_igv</td>
+                                            <td id="TDCompVentTotaBruto" style="width: 100px; font-weight: bold; text-align: right;">@Model.total_bruto</td>
+                                            <td style="width: 50px; font-weight: bold; text-align: right;"></td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <div class="col-md-12">
+                                    <textarea rows="2" id="txtNotaCred_Moti" style="width: 100%; text-transform: uppercase;" placeholder="CONCEPTO DE LA NOTA DE CREDITO (*)" maxlength="200">@Model.motivo</textarea>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            @*<div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("btnSaveEditCompComp").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnSaveNewNotaCredito()" })
+                            </div>*@
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                                    }
+        </div>
+    </div>
+</div>
+@*<div id="spinnerNotaCredCreate" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        
+    });
+</script>

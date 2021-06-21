@@ -1,0 +1,255 @@
+﻿@model IEnumerable<ERP.Admin.Models.ProductoErp>
+<script type="text/javascript">
+    $(document).ready(function () {
+        FnInitFormListaProducto();
+    });
+    function FnInitFormListaProducto() {
+        var CallByListProd = $("#hiddListPrecVent_CallBy").val();
+        if (CallByListProd == "SolicitudTrasladoCreate") {
+            document.getElementById("THMarca").style.display = "";
+            document.getElementById("THSubFalimia").style.display = "";
+            document.getElementById("THPrecUnidad").style.display = "none";
+            document.getElementById("THPrecMayor").style.display = "none";
+            document.getElementById("THPrecEspecial").style.display = "none";
+            var table = document.getElementById('tBodyListProducto');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        document.getElementById("TDDescMarc" + newTr).style.display = "";
+                        document.getElementById("TDDescSubFami" + newTr).style.display = "";
+                        document.getElementById("TDPrec" + newTr).style.display = "none";
+                        document.getElementById("TDPrecMayor" + newTr).style.display = "none";
+                        document.getElementById("TDPrecEspe" + newTr).style.display = "none";
+                    }
+                }
+            }
+        }
+    }
+</script>
+@{
+    string CallBy = ViewBag.CallBy;
+    string TRListPrecVent = "";
+    string TDFkProd = "";
+    string TDCodiProd = "";
+    string TDCodiSku = "";
+    string TDNombProd = "";
+    string TDDescMarc = "";
+    string TDDescSubFami = "";
+    string TDPrec = "";
+    string TDPrecMayor = "";
+    string TDPrecEspe = "";
+    string TDFkTipoAfecIgv = "";
+    string TDFlgAfecIgv = "";
+    string TDPorcIgv = "";
+}
+@Html.Hidden("hiddListPrecVent_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editpreciotable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                @Html.DisplayNameFor(model => model.id_producto)
+                            </th>
+                            <th>
+                                CODIGO
+                            </th>
+                            <th>
+                                SKU
+                            </th>
+                            <th>
+                                PRODUCTO
+                            </th>
+                            <th id="THMarca">
+                                MARCA
+                            </th>
+                            <th>
+                                LINEA
+                            </th>
+                            <th>
+                                TIPO
+                            </th>
+                            <th style="width: 100px;">...</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="tBodyListProducto">
+                        @foreach (var item in Model)
+                        {
+                            TRListPrecVent = "TRListPrecVent" + item.id_producto;
+                            TDFkProd = "TDFkProd" + TRListPrecVent;
+                            TDCodiProd = "TDCodiProd" + TRListPrecVent;
+                            TDCodiSku = "TDCodiSku" + TRListPrecVent;
+                            TDNombProd = "TDNombProd" + TRListPrecVent;
+                            TDDescMarc = "TDDescMarc" + TRListPrecVent;
+                            <tr id="@TRListPrecVent">
+                                <td id="@TDFkProd" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_producto)
+                                </td>
+                                <td id="@TDCodiProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                </td>
+                                <td id="@TDCodiSku">
+                                    @Html.DisplayFor(modelItem => item.codigo_sku)
+                                </td>
+                                <td id="@TDNombProd" class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                </td>
+                                <tD id="@TDDescMarc" class="input-xs">
+                                    @Html.DisplayFor(model => item.marca)
+                                </tD>
+                                <tD class="input-xs">
+                                    @Html.DisplayFor(model => item.producto_linea)
+                                </tD>
+                                <td style="input-xs">
+                                    @Html.DisplayFor(modelItem => item.producto_tipo)
+                                </td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-success .shiny" style="padding:0;font-size:small;margin-top:-5px" onclick="FnAddVenta('@TRListPrecVent')">AGREGAR</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="horizontal-space"></div>
+            <div class="row">
+                <div class="col-md-2" style="float: right;">
+                    <button class="btn bg-blue shiny" type="button" data-dismiss="modal">Cerrar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    var id_producto = 0;
+
+    function FnAddVenta(newTr) {
+        var CallBy = $("#hiddListPrecVent_CallBy").val();
+
+        var arrVentDeta = [];
+        var FkProd = "";
+        var CodiProd = "";
+        var CodiSku = "";
+        var NombProd = "";
+        var DescMarc = "";
+        var DescSubFami = "";
+        var Prec = "";
+        var FkTipoAfecIgv = "";
+        var FlgAfecIgv = "";
+        var PorcIgv = "";
+        var PrecUnit = "";
+        var PrecMayo = "";
+        var rptaExiste = 0;
+        var tipobien = "NIU";
+
+        FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+        CodiProd = document.getElementById("TDCodiProd" + newTr).innerHTML;
+        CodiSku = document.getElementById("TDCodiSku" + newTr).innerHTML;
+        NombProd = document.getElementById("TDNombProd" + newTr).innerHTML;
+        DescMarc = document.getElementById("TDDescMarc" + newTr).innerHTML;
+        arrVentDeta[0] = FkProd.trim();
+        arrVentDeta[1] = CodiProd.trim();
+        arrVentDeta[2] = CodiSku.trim();
+        arrVentDeta[3] = NombProd.trim();
+        arrVentDeta[4] = 1;
+        arrVentDeta[5] = "1";
+        arrVentDeta[6] = "NIU";
+        if (CallBy == "ComprobanteVentaCreate") {
+            rptaExiste = FnValidaExisteProducto2(FkProd, tipobien);
+            if (rptaExiste == 0) {
+                FnAgregaNeProductoVentaDetalle(arrVentDeta);
+            }
+            else if (rptaExiste == 1) {
+                sweetAlert("", "Producto ya se encuentra agregado", "error");
+            }
+            else if (rptaExiste == 2) {
+                sweetAlert("", "Producto ya se encuentra agregado", "error");
+            }
+        }
+        else if (CallBy == "SolicitudTrasladoCreate") {
+            rptaExiste = FnValidaExisteProducto(FkProd);
+            if (rptaExiste == 0) {
+                FnAgregaNeProductoSolicitudTraslado(FkProd, CodiProd, CodiSku, NombProd, DescMarc, DescSubFami);
+            }
+            else {
+                sweetAlert("", "Producto ya se encuentra agregado", "error");
+            }
+        }
+        else if (CallBy == "ReporteKardex") {
+            FnAddDataRepoKardexProducto(FkProd, NombProd);
+            $('#myModalPrecVenta').modal('hide');
+        }//
+        else if (CallBy == "ReporteProdExistencia") {
+            FnAddDataRepoKardexProdExistencia(FkProd, NombProd);
+            $('#myModalPrecVenta').modal('hide');
+        }
+    }
+
+    $(document).ready(function () {
+        IniciaPrecioTable();
+    });
+
+    //Initiateeditpreciotable.init();
+    function IniciaPrecioTable() {
+        //Datatable Initiating
+        oTable = $('#editpreciotable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>
+
+

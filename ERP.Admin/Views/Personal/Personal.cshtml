@@ -1,0 +1,308 @@
+﻿@{
+    ViewBag.Title = "Registro de Trabajadores";
+    ViewBag.Description = "trabajador";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+@*<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+    <script src="~/Scripts/exporter.js-master/export.js"></script>*@
+<script type="text/javascript">
+</script>
+
+@using System
+@model IEnumerable<ERP.Admin.Models.PersonalErp>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="DescuentoPeriodo" class="btn btn-danger DescuentoPeriodo" style="padding-left: 10px;padding-right: 10px" href="@Url.Action("ExportDescuentosPeriodo", "Personal")">
+                        Descuentos Periodo
+                    </a>
+                    <a id="NewPersona" class="btn btn-primary NewPersona" style="padding-left: 10px;padding-right: 10px" href="@Url.Action("GetTrabajadorById","Personal", new {IdTrabajador="" })">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="DownloadExcel()">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                @*<div class="table-toolbar">
+
+                        <a id="NewPersona" class="btn btn-danger NewPersona" href="@Url.Action("GetTrabajadorById","Personal", new {IdTrabajador="" })">
+                            Nuevo registro
+                        </a>
+                    </div>*@
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable2" style="font-size:11px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                IDCODIGOGENERAL
+                            </th>
+                            <th style="font-size:11px">
+                                TIPO DOC.
+                            </th>
+                            <th style="font-size:11px">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size:11px">
+                                NOMBRES
+                            </th>
+                            <th style="font-size:11px">
+                                A. PATERNO
+                            </th>
+                            <th style="font-size:11px">
+                                A. MATERNO
+                            </th>
+                            <th style="font-size:11px">
+                                SEXO
+                            </th>
+                            <th style="font-size:11px">
+                                AFP
+                            </th>
+                            <th style="font-size:11px">
+                                ESTADO CIVIL
+                            </th>
+                            <th style="font-size:11px">
+                                NIVEL ESTUDIOS
+                            </th>
+                            <th style="font-size:11px">
+                                NACIONALIDAD
+                            </th>
+                            <th style="font-size:11px">
+                                ESTADO
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            var idtrabajador = "TrTrab" + item.IDCODIGOGENERAL;
+
+                            <tr>
+                                <td id="@idtrabajador" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.IDCODIGOGENERAL)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.DOCIDENTIDAD)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NRODOCUMENTO)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.NOMBRES)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.A_PATERNO)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.A_MATERNO)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.Nsexo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.AFP)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ESTADOCIVIL)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NIVELESTUDIO)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NACIONALIDAD)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.ESTADO)
+                                </td>
+                                <td>
+                                    @*<button class="btn btn-info btn-sm edita" style="padding:2px;font-size:small;margin-top:-5px">Editar</button>*@
+                                    <a class="btn btn-sm btn-primary edita" style="padding:2px;font-size:small;margin-top:-5px" href="@Url.Action("GetTrabajadorById","Personal", new {IdTrabajador=item.IDCODIGOGENERAL })">Editar</a>
+                                    
+                                        <a class="btn btn-danger btn-sm edita" style="padding:2px;font-size:small;margin-top:-5px" href="@Url.Action("GetTrabajadorPrestamos","Personal", new {IdTrabajador=item.IDCODIGOGENERAL })">Prestamos</a>
+                                    
+                                        <a class="btn btn-warning btn-sm edita" style="padding:2px;font-size:small;margin-top:-5px" href="@Url.Action("GetTrabajadorContratos","Personal", new {IdTrabajador=item.IDCODIGOGENERAL })">Contratos</a>
+                                    
+                                    @*<button class="btn btn-danger btn-xs elimina" style="padding:0;font-size:small;margin-top:-5px">Desactivar</button><br />*@
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <script>
+    $(document).ready(function () {
+        $("#spinner").hide();
+        //Inicia();
+        $('#spinner').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+            Inicia();
+        });
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable2').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable2')));
+            var isEditing = null;
+
+        }
+
+        $(document).on('click', '.NewPersona', function () {
+            debugger;
+
+            var url = '@Url.Action("GetTrabajadorById", "Personal")?IdTrabajador=' + "";
+            window.open(url, "_self")
+        });
+        $(document).on('click', '.edit', function () {
+            debugger;
+            var tableRow = $(this).closest("tr");
+            var IdTrabajador = tableRow.find("td:eq(0)").text();
+            IdTrabajador = IdTrabajador.trim();
+            var url = '@Url.Action("GetTrabajadorById", "Personal")?IdTrabajador=' + IdTrabajador;
+            window.open(url, "_self")
+        });
+        function DownloadExcel() {
+
+            $.ajax({
+                type: "POST",
+                url: "ExcelExportPersonal",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                //data: JSON.stringify({
+                //    Periodo: Periodo
+                //}),
+                cache: false,
+                success: function (data) {
+                    var urlx= '@Url.Action("Download", "Personal")'
+                    window.location = urlx;
+                },
+                error: function(data) {
+                    Materialize.toast("Something went wrong. ", 3000, 'rounded');
+                }
+            });
+        }
+    </script>
+}

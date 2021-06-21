@@ -1,0 +1,615 @@
+﻿@model IEnumerable<ERP.Admin.Models.Pedido>
+<script type="text/javascript">
+    var NroTrPDF = 1;
+    var TrSelePedi = 0;
+
+    function FnSeleccionaPedido(pIdTr, IdPedi, flgChk) {
+        var CallBy = $("#txtPediList_CallBy").val();
+        if (CallBy == "CompVentaCreate") {
+            TrSelePedi = pIdTr;
+            FnGetPedido(IdPedi, flgChk);
+        }
+    }
+
+    function FnGetPedido(FkPedi, flgChk) {
+        var pIdProd = "";
+        var pCodiProd = "";
+        var pCodiSku = "";
+        var pNombProd = "";
+        var pDescMarc = "";
+        var pDescSubFami = "";
+        var pCant = "";
+        var pPrec = "";
+        var pFkTipoAfecIgv = "";
+        var pFlgAfecIgv = "";
+        var pPorcIgv = "";
+        var totaPedi = 0;
+        //NroTrPDF = 1;
+        //$("#tBodyPediDetalle tr").remove();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_PedidoDetalleByFkPedido", "PedidoDetalle")',
+            data: JSON.stringify({
+                FkPedi: FkPedi
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                var dataLen = response.length;
+                for (i = 0; i < dataLen; i++) {
+                    pIdProd = response[i].fk_producto;
+                    pCodiProd = response[i].cod_producto;
+                    pCodiSku = response[i].codigo_sku;
+                    pNombProd = response[i].nom_producto;
+                    pDescMarc = response[i].descripcion_producto_marca;
+                    pDescSubFami = response[i].descripcion_producto_subfamilia;
+                    pCant = response[i].cantidad;
+                    pPrec = response[i].precio;
+                    pFkTipoAfecIgv = response[i].id_tipo_afectacion_igv;
+                    pFlgAfecIgv = response[i].flag_afecto_igv;
+                    pPorcIgv = response[i].porcentaje;
+
+                    AddTRTablePEdidoDetalle(pIdProd, pCodiProd, pCodiSku, pNombProd, pDescMarc, pDescSubFami, pCant,
+                        pPrec, pFkTipoAfecIgv, pFlgAfecIgv, pPorcIgv, flgChk);
+                    totaPedi = totaPedi + (parseFloat(pCant) * parseFloat(pPrec));
+                }
+                FnCalculaTotalePedido();
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+		});
+    }
+
+    function FnCalculaTotalePedido() {
+        var table = document.getElementById('tBodyPediDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var TotaNeto = "";
+        var TotaIgv = "";
+        var TotaBruto = "";
+        var SumaTotaNeto = 0;
+        var SumaTotaIgv = 0;
+        var SumaTotaBruto = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    TotaNeto = document.getElementById("TDTotaNeto" + newTr).innerHTML;
+                    TotaIgv = document.getElementById("TDTotaIgv" + newTr).innerHTML;
+                    TotaBruto = document.getElementById("TDTotaBruto" + newTr).innerHTML;
+                    SumaTotaNeto = parseFloat(SumaTotaNeto) + parseFloat(TotaNeto);
+                    SumaTotaIgv = parseFloat(SumaTotaIgv) + parseFloat(TotaIgv);
+                    SumaTotaBruto = parseFloat(SumaTotaBruto) + parseFloat(TotaBruto);
+                }
+            }
+            document.getElementById("TDPediTotalNeto").innerHTML = SumaTotaNeto.toFixed(2);
+            document.getElementById("TDPediTotalIgv").innerHTML = SumaTotaIgv.toFixed(2);
+            document.getElementById("TDPediTotalBruto").innerHTML = SumaTotaBruto.toFixed(2);
+        }
+    }
+
+    function AddTRTablePEdidoDetalle(pIdProd, pCodiProd, pCodiSku, pNombProd, pDescMarc, pDescSubFami, pCant,
+        pPrec, pFkTipoAfecIgv, pFlgAfecIgv, pPorcIgv, flgChk) {
+        
+        var IdTrDP = "TrDP" + NroTrPDF;
+        var TDFkProd = "TDFkProd" + IdTrDP;
+        var TDCodiProd = "TDCodiProd" + IdTrDP;
+        var TDCodiSku = "TDCodiSku" + IdTrDP;
+        var TDNombProd = "TDNombProd" + IdTrDP;
+        var TDDescMarc = "TDDescMarc" + IdTrDP;
+        var TDDescSubFami = "TDDescSubFami" + IdTrDP;
+        var TDCant = "TDCant" + IdTrDP;
+        var TDPrec = "TDPrec" + IdTrDP;
+        var TDTotaNeto = "TDTotaNeto" + IdTrDP;
+        var TDTotaIgv = "TDTotaIgv" + IdTrDP;
+        var TDTotaBruto = "TDTotaBruto" + IdTrDP;
+        var TDFkTipoAfecIgv = "TDFkTipoAfecIgv" + IdTrDP;
+        var TDFlgAfecIgv = "TDFlgAfecIgv" + IdTrDP;
+        var TDPorcIgv = "TDPorcIgv" + IdTrDP;
+       
+
+        var table = document.getElementById('tBodyPediDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkProd = "";
+        var NewCant = 0;
+        var flgExiste = 0;
+        if (cantRows > 0) {
+            for (var k = 0; k < cantRows; k++) {
+                newTr = table.rows[k].id;
+                if (newTr.trim() != "") {
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    NewCant = document.getElementById("TDCant" + newTr).innerHTML;
+                    if (parseInt(FkProd) == parseInt(pIdProd)) {
+                        flgExiste = 1;
+                        break;
+                    }
+                }
+            }
+            
+        }
+        if (flgExiste == 1) {
+            if (parseInt(flgChk) == 1) {
+                pCant = parseFloat(pCant) + parseFloat(NewCant);
+            }
+            else {
+                //alert(pCodiProd + " - " + NewCant + " - " + pCant);
+                pCant = parseFloat(NewCant) - parseFloat(pCant);
+                
+            }
+        }
+        var pTotaBruto = (parseFloat(pCant) * parseFloat(pPrec)).toFixed(2);
+        var pTotaNeto = 0;
+        var pTotaIgv = 0;
+        if (pFlgAfecIgv.trim() == "1") {
+            pTotaIgv = CalculaIgv(pTotaBruto, pPorcIgv);
+        }
+        pTotaNeto = (pTotaBruto - pTotaIgv).toFixed(2);
+
+        if (flgExiste == 1) {
+            document.getElementById("TDCant" + newTr).innerHTML = pCant;
+            document.getElementById("TDTotaNeto" + newTr).innerHTML = pTotaNeto;
+            document.getElementById("TDTotaIgv" + newTr).innerHTML = pTotaIgv;
+            document.getElementById("TDTotaBruto" + newTr).innerHTML = pTotaBruto;
+            if (parseInt(flgChk) == 0) {//Si estoy seleccionado
+                if (parseInt(pCant) == 0) {
+                    var tr = $("#" + newTr);
+                    tr.remove();
+                }
+            }
+        } else {
+            if (parseInt(flgChk) == 1) { //Si estoy seleccionando
+                var row = $("<tr id='" + IdTrDP + "'>" +
+                    "<td id='" + TDFkProd + "' class='input-xs' style='display: none;'>" + pIdProd + "</td>" +
+                    "<td id='" + TDCodiProd + "' class='input-xs' style='text-align: center;'>" + pCodiProd + "</td>" +
+                    "<td id='" + TDCodiSku + "' class='input-xs' style='text-align: center;'>" + pCodiSku + "</td>" +
+                    "<td id='" + TDNombProd + "' class='input-xs'>" + pNombProd + "</td>" +
+                    "<td id='" + TDDescMarc + "' class='input-xs'>" + pDescMarc + "</td>" +
+                    "<td id='" + TDDescSubFami + "' class='input-xs'>" + pDescSubFami + "</td>" +
+                    "<td id='" + TDCant + "' class='input-xs' style='text-align: right;'>" + pCant + "</td>" +
+                    "<td id='" + TDPrec + "' class='input-xs' style='text-align: right;'>" + pPrec + "</td>" +
+                    "<td id='" + TDTotaNeto + "' class='input-xs' style='text-align: right;'>" + pTotaNeto + "</td>" +
+                    "<td id='" + TDTotaIgv + "' class='input-xs' style='text-align: right;'>" + pTotaIgv + "</td>" +
+                    "<td id='" + TDTotaBruto + "' class='input-xs' style='text-align: right;'>" + pTotaBruto + "</td>" +
+                    "<td id='" + TDFkTipoAfecIgv + "' class='input-xs' style='text-align: right; display: none;'>" + pFkTipoAfecIgv + "</td>" +
+                    "<td id='" + TDFlgAfecIgv + "' class='input-xs' style='text-align: right; display: none;'>" + pFlgAfecIgv + "</td>" +
+                    "<td id='" + TDPorcIgv + "' class='input-xs' style='text-align: right; display: none;'>" + pPorcIgv + "</td>" +
+                    "</tr>");
+                $("#tBodyPediDetalle").append(row);
+                NroTrPDF++;
+            }
+        }
+    }
+
+    function FnChkSeleccionaPedido(obj) {
+        var IdTrSel = obj.parentElement.parentElement.parentElement.parentElement.id;
+        var IdPedi = document.getElementById("TDIdPedi" + IdTrSel).innerHTML;
+        var flgChk = 0;
+        if (obj.checked) {
+            flgChk = 1;
+            //varTotaBultSele = parseInt(varTotaBultSele) + parseInt(newCantBult);
+            //strTrazSele = strTrazSele + document.getElementById("TDTraz" + IdTrSel).innerHTML + "[" + newCantBult + ",";
+        }
+        FnSeleccionaPedido(IdTrSel, IdPedi, flgChk);
+    }
+</script>
+@{
+    string FechPedi = "";
+    string strDniRuc = "";
+    string strClie = "";
+    string strNombUserVent = "";
+    string ClieEmail = "";
+
+    string IdTrPedi = "";
+    string TDFkClie = "";
+    string TDFkClieTipo = "";
+    string TDIdPedi = "";
+    string TDChkPedi = "";
+    string TDNroPedi = "";
+    string TDDniRuc = "";
+    string TDNombRazoSoci = "";
+    string TDClieEmail = "";
+    string TDFkUserVent = "";
+    string TDNombUserVent = "";
+
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("txtPediList_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            @*<div class="widget-header bordered-bottom bordered-red">
+                    <span class="widget-caption">Pedidos por Facturar > Listado </span>
+                    <div class="widget-buttons">
+                        <a href="#" data-toggle="maximize">
+                            <i class="fa fa-expand"></i>
+                        </a>
+                        <a href="#" data-toggle="collapse">
+                            <i class="fa fa-minus"></i>
+                        </a>
+                        <a href="#" data-toggle="dispose">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>*@
+            @*<div class="form-group" style="margin: 0">
+                    <div class="col-md-4">
+                        @Html.Bootstrap().RadioButton("radioPedidoCotizacion", null).Text("Pedido").HtmlAttributes(new { @class = "colored-success", @onchange = "FnGetValueRadio()", @value = 1 }).IsChecked(true)
+                        <div class="horizontal-space"></div>
+                    </div>
+                    <div class="col-md-4">
+                        @Html.Bootstrap().RadioButton("radioPedidoCotizacion", null).Text("Cotización").HtmlAttributes(new { @class = "colored-danger", @onchange = "FnGetValueRadio()", @value = 2 })
+                        <div class="horizontal-space"></div>
+                    </div>
+                </div>*@
+            <div class="widget-body">
+                <div class="table-scrollable" style="height: 200px; overflow: scroll">
+                    <table class="table table-striped table-hover table-bordered" id="editablePedido">
+                        <thead>
+                            <tr role="row">
+                                <th style="display:none">
+                                    Id_PEDIDO
+                                </th>
+                                <th style="display:none">
+                                    Fk_cliente
+                                </th>
+                                <th style="display:none">
+                                    Fk_cliente_tipo
+                                </th>
+                                <th style="width: 100px;">
+                                    
+                                </th>
+                                <th>
+                                    Nro Pedido
+                                </th>
+                                <th>
+                                    Fecha
+                                </th>
+                                <th>
+                                    DNI / RUC
+                                </th>
+                                <th>
+                                    Nombre / Razón Social
+                                </th>
+                                <th>
+                                    E-MAIL
+                                </th>
+                                <th style="display: none;">
+                                    Fk_userVenta
+                                </th>
+                                <th>
+                                    Vendedor
+                                </th>
+                                <th style="display: none;">
+                                    Estado
+                                </th>
+                                <th style="display: none;">
+                                    HiddEstado
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tBodyPedido">
+                            @foreach (var item in Model)
+                            {
+                                FechPedi = Convert.ToDateTime(item.f_pedido).ToString("dd/MM/yyyy");
+                                IdTrPedi = "TrPedi" + item.id_pedido;
+                                TDIdPedi = "TDIdPedi" + IdTrPedi;
+                                TDFkClie = "TDFkClie" + IdTrPedi;
+                                TDFkClieTipo = "TDFkClieTipo" + IdTrPedi;
+                                TDChkPedi = "TDChkPedi" + IdTrPedi;
+                                TDNroPedi = "TDNroPedi" + IdTrPedi;
+                                TDDniRuc = "TDDniRuc" + IdTrPedi;
+                                TDNombRazoSoci = "TDNombRazoSoci" + IdTrPedi;
+                                TDClieEmail = "TDClieEmail" + IdTrPedi;
+                                TDFkUserVent = "TDFkUserVent" + IdTrPedi;
+                                TDNombUserVent = "TDNombUserVent" + IdTrPedi;
+
+                                if (!item.id_cliente_natural.Equals(0))
+                                {
+                                    strDniRuc = item.dni_cliente_natural;
+                                    strClie = item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                                    ClieEmail = item.email_cliente_natural;
+                                }
+                                else if (!item.id_cliente_juridico.Equals(0))
+                                {
+                                    strDniRuc = item.ruc_empresa_cliente_juridico;
+                                    strClie = item.razon_social;
+                                    ClieEmail = item.email_cliente_juridico;
+                                }
+                                strNombUserVent = item.nombre_usuario_venta + " " + item.apellido_paterno_usuario_venta + " " + item.apellido_materno_usuario_venta;
+
+                                <tr id="@IdTrPedi">  @*onclick="FnSeleccionaPedido('@IdTrPedi', @item.id_pedido)"*@
+                                    <td id="@TDIdPedi" style="display:none">
+                                        @Html.DisplayFor(modelItem => item.id_pedido)
+                                    </td>
+                                    <td id="@TDFkClie" style="display:none">
+                                        @Html.DisplayFor(modelItem => item.fk_cliente)
+                                    </td>
+                                    <td id="@TDFkClieTipo" style="display:none">
+                                        @Html.DisplayFor(modelItem => item.fk_cliente_tipo)
+                                    </td>
+                                    <td id="@TDChkPedi">
+                                        @Html.Bootstrap().CheckBox("form-field-checkbox").Text("").HtmlAttributes(new { @class = "colored-success", @onclick = "FnChkSeleccionaPedido(this)" })
+                                    </td>
+                                    <td id="@TDNroPedi" class="input-xs">
+                                        @Html.DisplayFor(modelItem => item.n_pedido)
+                                    </td>
+                                    <td class="input-xs">
+                                        @FechPedi
+                                    </td>
+                                    <td id="@TDDniRuc" class="input-xs">
+                                        @strDniRuc
+                                    </td>
+                                    <td id="@TDNombRazoSoci" class="input-xs">
+                                        @strClie
+                                    </td>
+                                    <td id="@TDClieEmail" class="input-xs">
+                                        @ClieEmail
+                                    </td>
+                                    <td id="@TDFkUserVent" style="display: none;">
+                                        @Html.DisplayFor(modelItem => item.fk_userventa)
+                                    </td>
+                                    <td id="@TDNombUserVent">
+                                        @strNombUserVent
+                                    </td>
+                                    <td style="display: none;">
+                                        @Html.DisplayFor(modelItem => item.NEstado)
+                                    </td>
+                                    <td style="display: none;">
+                                        @Html.DisplayFor(modelItem => item.estado)
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="widget-header bordered-bottom bordered-blue">
+                <span class="widget-caption">Detalle del Pedido</span>
+            </div>
+            <div class="widget-body">
+                <div class="table-scrollable" style="height: 160px; overflow: scroll">
+                    <table class="table table-striped table-hover table-bordered" id="editablePediDetalle">
+                        <thead>
+                            <tr role="row">
+                                <th style="display: none;">
+                                    Fk_Producto
+                                </th>
+                                <th style="text-align: center;">
+                                    Código
+                                </th>
+                                <th style="text-align: center;">
+                                    SKU
+                                </th>
+                                <th>
+                                    Producto
+                                </th>
+                                <th>
+                                    Marca
+                                </th>
+                                <th>
+                                    SubFamilia
+                                </th>
+                                <th style="text-align: right;">
+                                    Cantidad
+                                </th>
+                                <th style="text-align: right;">
+                                    Precio
+                                </th>
+                                <th style="width: 100px; text-align: right;">
+                                    Valor Venta
+                                </th>
+                                <th style="width: 70px; text-align: right;">
+                                    IGV
+                                </th>
+                                <th style="width: 100px; text-align: right;">
+                                    Importe
+                                </th>
+                                <th style="text-align: right; display: none;">
+                                    FK_TIPO_AFECTACION_IGV
+                                </th>
+                                <th style="text-align: right; display: none;">
+                                    FLG_AFECTO_IGV
+                                </th>
+                                <th style="text-align: right; display: none;">
+                                    PORCENTAJE_IGV
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody id="tBodyPediDetalle"></tbody>
+                    </table>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="tblTotalPedido">
+                    <thead>
+                        <tr role="row">
+                            <td style="text-align: right; font-weight: bold;">
+                                TOTAL
+                            </td>
+                            <td id="TDPediTotalNeto" style="width: 100px; font-weight: bold; text-align: right;">0.00</td>
+                            <td id="TDPediTotalIgv" style="width: 70px; font-weight: bold; text-align: right;">0.00</td>
+                            <td id="TDPediTotalBruto" style="width: 100px; font-weight: bold; text-align: right;">0.00</td>
+                        </tr>
+                    </thead>
+                </table>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        @*<div class="col-md-12" style="text-align:right; vertical-align:middle; width:50%">*@
+
+                        @*</div>*@
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right; margin-left: 10px;">Cerrar</button>
+                        @Html.Bootstrap().Button().Text("Seleccionar").Color(BootstrapColors.Success).Shiny().HtmlAttributes(new { @onclick = "FnSelecCompra()", @style = "float: right;" })
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnSelecCompra() {
+        var CallBy = $("#txtPediList_CallBy").val();
+        var arrVentDeta = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyPediDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkProd = "";
+        var CodiProd = "";
+        var CodiSku = "";
+        var NombProd = "";
+        var DescMarc = "";
+        var DescSubFami = "";
+        var Cant = "";
+        var Prec = "";
+        var TotaNeto = "";
+        var TotaIgv = "";
+        var TotaBruto = "";
+        var FkTipoAfecIgv = "";
+        var FlgAfecIgv = "";
+        var PorcIgv = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    CodiProd = document.getElementById("TDCodiProd" + newTr).innerHTML;
+                    CodiSku = document.getElementById("TDCodiSku" + newTr).innerHTML;
+                    NombProd = document.getElementById("TDNombProd" + newTr).innerHTML;
+                    DescMarc = document.getElementById("TDDescMarc" + newTr).innerHTML;
+                    DescSubFami = document.getElementById("TDDescSubFami" + newTr).innerHTML;
+                    Cant = document.getElementById("TDCant" + newTr).innerHTML;
+                    Prec = document.getElementById("TDPrec" + newTr).innerHTML;
+                    TotaNeto = document.getElementById("TDTotaNeto" + newTr).innerHTML;
+                    TotaIgv = document.getElementById("TDTotaIgv" + newTr).innerHTML;
+                    TotaBruto = document.getElementById("TDTotaBruto" + newTr).innerHTML;
+                    FkTipoAfecIgv = document.getElementById("TDFkTipoAfecIgv" + newTr).innerHTML;
+                    FlgAfecIgv = document.getElementById("TDFlgAfecIgv" + newTr).innerHTML;
+                    PorcIgv = document.getElementById("TDPorcIgv" + newTr).innerHTML;
+                    arrVentDeta[IndArr] = new Array(9);
+                    arrVentDeta[IndArr][0] = FkProd.trim();
+                    arrVentDeta[IndArr][1] = CodiProd.trim();
+                    arrVentDeta[IndArr][2] = CodiSku.trim();
+                    arrVentDeta[IndArr][3] = NombProd.trim();
+                    arrVentDeta[IndArr][4] = DescMarc.trim();
+                    arrVentDeta[IndArr][5] = DescSubFami.trim();
+                    arrVentDeta[IndArr][6] = Cant.trim();
+                    arrVentDeta[IndArr][7] = Prec.trim();
+                    arrVentDeta[IndArr][8] = TotaNeto.trim();
+                    arrVentDeta[IndArr][9] = TotaIgv.trim();
+                    arrVentDeta[IndArr][10] = TotaBruto.trim();
+                    arrVentDeta[IndArr][11] = FkTipoAfecIgv.trim();
+                    arrVentDeta[IndArr][12] = FlgAfecIgv.trim();
+                    arrVentDeta[IndArr][13] = PorcIgv.trim();
+                    IndArr++;
+                }
+            }
+        }
+
+        //Selecciono los pedidos seleccionado
+        var arraIdPedi = new Array();
+        var IndArraPedi = 0;
+        var tablePedi = document.getElementById('tBodyPedido');
+        var cantRowsPedi = tablePedi.rows.length;
+        var newTr = "";
+        var IdPedi = "";
+        if (cantRowsPedi > 0) {
+            for (var i = 0; i < cantRowsPedi; i++) {
+                newTr = tablePedi.rows[i].id;
+                if (newTr.trim() != "") {
+                    var ObjChk = document.getElementById("TDChkPedi" + newTr).children;
+                    ObjChk = ObjChk[0].children;//Se obtiene el Label
+                    ObjChk = ObjChk[0].children;//Se obtene el check
+                    if (ObjChk[0].checked) {
+                        IdPedi = document.getElementById("TDIdPedi" + newTr).innerHTML;
+                        arraIdPedi[IndArraPedi] = IdPedi.trim();
+                        IndArraPedi++;
+                    }
+                }
+            }
+        }
+
+        if (arrVentDeta.length > 0) {
+            if (CallBy == "CompVentaCreate") {
+                var IdPedi = document.getElementById("TDIdPedi" + TrSelePedi).innerHTML.trim();
+                var FkClie = document.getElementById("TDFkClie" + TrSelePedi).innerHTML.trim();
+                var FkClieTipo = document.getElementById("TDFkClieTipo" + TrSelePedi).innerHTML.trim();
+                var NroPedi = document.getElementById("TDNroPedi" + TrSelePedi).innerHTML.trim();
+                var DniRuc = document.getElementById("TDDniRuc" + TrSelePedi).innerHTML.trim();
+                var NombRazoSoci = document.getElementById("TDNombRazoSoci" + TrSelePedi).innerHTML.trim();
+                var ClieEmail = document.getElementById("TDClieEmail" + TrSelePedi).innerHTML.trim();
+                var FkUserVent = document.getElementById("TDFkUserVent" + TrSelePedi).innerHTML.trim();
+                var NombUserVent = document.getElementById("TDNombUserVent" + TrSelePedi).innerHTML.trim();
+                //Totales
+                var PediTotaNeto = document.getElementById("TDPediTotalNeto").innerHTML.trim();
+                var PediTotaIgv = document.getElementById("TDPediTotalIgv").innerHTML.trim();
+                var PediTotaBruto = document.getElementById("TDPediTotalBruto").innerHTML.trim();
+
+                FnAgregaVentaDetalle(IdPedi, FkClie, FkClieTipo, NroPedi, DniRuc, NombRazoSoci, FkUserVent, NombUserVent, PediTotaNeto,
+                    PediTotaIgv, PediTotaBruto, arrVentDeta, arraIdPedi, ClieEmail);
+            }
+            $('#myModalPedido').modal('hide');
+        }
+        else {
+            sweetAlert("", "No hay detalles para facturar", "error");
+        }
+    }
+
+    //InitiateeditablePedido.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editablePedido').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editablePedido')));
+        var isEditing = null;
+    }
+</script>

@@ -1,0 +1,1241 @@
+﻿@{
+    ViewBag.Title = "Registro de Letras por pagar proveedores";
+    ViewBag.Description = "letras";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.LetrasPorPagarErp>
+@{
+    decimal saldos = (decimal)ViewBag.DeudaSoles;
+    decimal saldod = (decimal)ViewBag.DeudaDolar;
+    decimal saldoe = (decimal)ViewBag.DeudaEuros;
+}
+
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="LetrasCalendario" class="btn btn-danger" style="width:140px" href="@Url.Action("LetrasCalendario","Comercial", new {IdTrabajador="" })">
+                        Calendario
+                    </a>
+                    <a id="NewRegistro" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="return Exporter.export(editabledatatable, 'LetrasPorPagarProveedores.xls', 'LetrasPorPagarProveedores')">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <div class="row" style="text-align: right">
+                    <div class="col-md-12">
+                        <h5 style="">
+                            <label style="font-weight: 600">Saldo Soles : @saldos.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Dolares : @saldod.ToString("N")</label><br />
+                            <label style="font-weight: 600"> Saldo Euros : @saldoe.ToString("N")</label>
+                        </h5>
+                    </div>
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable" style="font-size: 11px; overflow-x: auto; white-space: nowrap;padding-bottom: 10px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display: none">
+                                ID
+                            </th>
+                            <th style="display: none">
+                                Sel.
+                            </th>
+                            <th style="font-size: 11px">
+                                RUC
+                            </th>
+                            <th style="font-size: 11px">
+                                PROVEEDOR
+                            </th>
+                            <th style="font-size: 11px">
+                                MONEDA
+                            </th>
+                            <th style="font-size: 11px">
+                                EMISION
+                            </th>
+                            <th style="font-size: 11px">
+                                VENCIMIENTO
+                            </th>
+                            <th style="font-size: 11px">
+                                TIPO COMP.
+                            </th>
+                            <th style="font-size: 11px">
+                                COMPROBANTE
+                            </th>
+                            <th style="font-size: 11px">
+                                MONTO
+                            </th>
+
+                            <th style="font-size: 11px">
+                                SALDO
+                            </th>
+                            <th style="display:none">
+                                OBSERVACIONES
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string estatu = item.estado;
+
+                            string fechavence = @item.f_vencimiento.ToString("dd/MM/yyyy");
+
+                            string fechaemision = @item.f_emision.ToString("dd/MM/yyyy");
+                            decimal montox = @item.monto;
+                            decimal saldox = @item.saldo;
+
+                            string disable = "";
+                            <tr>
+                                <td style="display: none">
+                                    @Html.DisplayFor(modelItem => item.id_letras_por_pagar_proveedor)
+                                </td>
+                                <td style="display: none">
+                                    @if (disable == "disabled")
+                                    {
+                                        /**/
+                                    }
+                                    else
+                                    {
+                                        <label><input type="checkbox" id="@item.id_letras_por_pagar_proveedor"><span class="text"></span></label>
+                                    }
+
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ruc)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.razon_social)
+                                </td>
+
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.moneda)
+                                </td>
+                                <td>
+                                    @fechaemision
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.df_vencimiento)
+                                </td>
+                                <td style="">
+                                    @Html.DisplayFor(modelItem => item.comprobante_tipo)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.documento_referencia)
+                                </td>
+                                <td>
+                                    @montox.ToString("N")
+                                </td>
+
+                                <td>
+                                    @saldox.ToString("N")
+                                </td>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.observacion)
+                                </td>
+                                <td style="width: 100px; text-align: center; vertical-align: middle">
+                                    @if (estatu == "1")
+                                    {
+                                        <button class="btn btn-sm btn-danger elimina" data-toggle="tooltip" title="Eliminar Registro" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-erase"></i></button>
+                                        <button class="btn btn-sm btn-success detalles" data-toggle="tooltip" title="Ver Detalles" style="padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-list"></i></button>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPagos' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagos'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalPagosR' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:400px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentPagosR'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalNewBloque' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:700px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNewBloque'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/assets/css/pure-min.css" rel="stylesheet" />
+
+    <script src="~/assets/js/mindmup-editabletable.js"></script>
+
+    <script src="~/Scripts/fullcalendar39/divjs.js"></script>
+
+    <script src="~/Scripts/fullcalendar39/printThis.js"></script>
+    <script>
+        var id_letras_por_pagar_proveedor = 0;
+
+        var NroTrCDD = 1;
+
+        function FnDeleteDetalle(obj) {
+            var IdTRsele = obj.parentElement.parentElement.id;
+            var tr = $("#" + IdTRsele);
+            tr.remove();
+
+        }
+
+        $('#myModalNewBloque').on('hide.bs.modal',
+            function (e) {
+                window.location.reload();
+            });
+        $("#myModalNewBloque").on('shown.bs.modal',
+            function (e) {
+
+
+                $("#GuardarPagoBloque").click(function() {
+                    debugger;
+
+                    var id_save = 0;
+                    var txtNroOperacionPago = $("#txtNroOperacionPagoBloque").val();
+                    var IndArr = 0;
+                    arrCuentasP = [];
+                    var i = 1;
+                    var t = document.getElementById('editabledatatable2');
+                    $("#editabledatatable2 tbody tr").each(function () {
+                        var val1 = $(t.rows[i].cells[0]).text();
+                        console.log(val1);
+                        i++;
+                        arrCuentasP[IndArr] = new Array(1);
+                        arrCuentasP[IndArr][0] = val1.trim();
+                        IndArr++;
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaPagoProveedorBloque", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            nro_operacion: txtNroOperacionPago,
+                            cuentasporpagar: arrCuentasP
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_letras_por_pagar_proveedor_pago = data;
+                            if (parseInt(id_letras_por_pagar_proveedor_pago, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente ' + id_letras_por_pagar_proveedor_pago + ' pagos!',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_letras_por_pagar_proveedor_pago = 0;
+                            }
+                        }
+                    });
+
+                });
+        });
+
+
+
+        $('#myModalPagos').on('hide.bs.modal',
+            function(e) {
+                window.location.reload();
+            });
+        $("#myModalPagos").on('shown.bs.modal',
+            function(e) {
+                $(document).ready(function() {
+                    //debugger;
+                    var muestradetalle = $("#muestrabtn");
+                    muestradetalle.click();
+                });
+
+            });
+
+        function EliminaPago(idpago) {
+            //debugger;
+            id_save = idpago.trim();
+            id_save = parseInt(id_save);
+
+            swal({
+                title: '¿Está seguro?',
+                text: "Se va a eliminar el registro!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Si!'
+            }).then((result) => {
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("EliminaPagoCtaProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({
+                        id_letras_por_pagar_proveedor_pago: id_save
+                    }),
+                    dataType: 'json',
+                    traditional: true,
+                    success: function(data) {
+                        console.log(data);
+                        id_letras_por_pagar_proveedor_pago = data;
+                        if (parseInt(id_letras_por_pagar_proveedor_pago, 10) > 0) {
+                            swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                console.log("salirs");
+                                window.location.reload();
+                            });
+
+                        } else {
+                            sweetAlert("", "No se pudo eliminar!", "error");
+                            id_letras_por_pagar_proveedor_pago = 0;
+                        }
+                    }
+                });
+                },
+                function(dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+        };
+
+
+        function setName(jsonData) {
+            debugger;
+            var lengt = jsonData.length;
+            if (lengt > 0) {
+                for (var i = 0; i < lengt; i++) {
+                    var id = jsonData[i].id_letras_por_pagar_proveedor_pago;
+                    var nrooperacion = jsonData[i].nro_operacion_pago;
+                    var montopago = jsonData[i].monto_pago;
+                    var fpago = jsonData[i].sfpago;
+
+                    var IdTr = "IdTr" + id;
+                    var TdIdPago = "TdIdPago" + IdTr;
+                    var row = $("<tr id='" +
+                        IdTr +
+                        "'>" +
+                        "<td id='" +
+                        TdIdPago +
+                        "' class='input-xs' style='display: none;'>" +
+                        id +
+                        "</td>" +
+                        "<td style='text-align: left; vertical-align: middle;'>" +
+                        nrooperacion +
+                        "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" +
+                        montopago.toFixed(2) +
+                        "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" +
+                        fpago +
+                        "</td>" +
+                        "<td class='input-xs'><button type='button' class='btn btn-sm btn-danger' onclick=EliminaPago('" +
+                        id +
+                        "') data-toggle='tooltip' title='Eliminar Registro'  style='padding-top: 5px;padding-bottom: 5px;padding-left: 10px;padding-right: 10px; font-size: small; margin-top: -5px'><i class='glyphicon glyphicon-erase'></i></button></td>" +
+                        "</tr>");
+                    $("#detallepagos").append(row);
+
+
+                }
+            }
+            //document.getElementById("ldetalle").innerHTML = jsonData[0].IDMONEDA;
+        };
+
+        $('#myModalPagosR').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+        $('#myModalPagosR').on('shown.bs.modal',
+            function(e) {
+
+                $(document).ready(function () {
+                    var isdetraccion = $("#detraccionafectas").val();
+                    if (isdetraccion === '0') {
+                        $('#chkdetra').prop('disabled', true);
+                    } else {
+                        $('#chkdetra').prop('disabled', false);
+                    }
+
+                    $('.date-pickerIniPago').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_pago').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                });
+
+                $("#GuardarPago").click(function() {
+                    debugger;
+
+                    var id_save = 0;
+                    //var id_letras_por_pagar_proveedor = $("#id_cuentas_por_pagarx").val();
+                    var fecha_pago = $("#sfecha_pago").val();
+                    var txtNroOperacionPago = $("#txtNroOperacionPago").val();
+                    var txtMontoPago = $("#txtMontoPago").val();
+                    var detraccion_estados = document.getElementById("chkdetra").checked;
+                    var tipo = '2';
+                    if (detraccion_estados === true) {
+                        tipo = '1';
+                    }
+                    if (fecha_pago === '') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDescripcion").focus();
+                        return false;
+                    }
+                    if (txtMontoPago === '' || txtMontoPago === '0') {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+
+                    var fk_letras_por_pagar_proveedor = parseInt($("#id_cuentas_por_pagarx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("GuardaPagoProveedor", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_letras_por_pagar_proveedor: fk_letras_por_pagar_proveedor,
+                            f_pago: fecha_pago,
+                            nro_operacion: txtNroOperacionPago,
+                            monto: txtMontoPago,
+                            tipo: tipo
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_letras_por_pagar_proveedor_pago = data;
+                            if (parseInt(id_letras_por_pagar_proveedor_pago, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_letras_por_pagar_proveedor_pago = 0;
+                            }
+                        }
+                    });
+
+                });
+            });
+        function FnActivaDetraccion(obj) {
+            if (obj.checked == false) {
+                $('#txtMontoPago').val("0");
+                $('#txtMontoPago').prop('disabled', false);
+            }
+            else {
+                var montodetrax = $('#montodetraccions').val();
+                montodetrax = parseFloat(montodetrax);
+                $('#txtMontoPago').val(montodetrax.toFixed(2));
+                $('#txtMontoPago').prop('disabled', true);
+            }
+        }
+        $('#myModalNew').on('hide.bs.modal',
+            function(e) {
+
+                window.location.reload();
+            });
+
+        function FnCheckFactura() {
+                    debugger;
+                    var fk_empresa = $("#cmbfk_empresa").val();
+                    fk_empresa = parseInt(fk_empresa, 10);
+                    var fk_comprobantetipo = $("#cmbfk_comprobantetipo").val();
+                    fk_comprobantetipo = parseInt(fk_comprobantetipo, 10);
+                    var docx = $("#txtDocumento").val();
+                    var lengthd = 0;
+                    try {
+                        lengthd = docx.length;
+                    } catch (e) {
+
+                    }
+                    if (docx != "" && lengthd > 0 && fk_comprobantetipo > 0 && fk_empresa > 0) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GetFacturaExist", "Comercial")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({ doc: docx, fk_comprobantetipo: fk_comprobantetipo, fk_empresa: fk_empresa }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(response) {
+                                console.log("found: " + JSON.stringify(response));
+                                var found = parseInt(JSON.stringify(response), 10);
+                                if (found > 0) {
+                                    swal("", "El documento ya ha sido registrado anteriormente!", "error");
+                                    $("#txtDocumento").val('');
+                                }
+                            },
+                            error: function(request, status, error) {
+                                alert(request.responseText);
+                            }
+                        });
+                    }
+        }
+        function stringToDate(_date,_format,_delimiter)
+        {
+            var formatLowerCase=_format.toLowerCase();
+            var formatItems=formatLowerCase.split(_delimiter);
+            var dateItems=_date.split(_delimiter);
+            var monthIndex=formatItems.indexOf("mm");
+            var dayIndex=formatItems.indexOf("dd");
+            var yearIndex=formatItems.indexOf("yyyy");
+            var month=parseInt(dateItems[monthIndex]);
+            month-=1;
+            var formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
+            return formatedDate;
+        }
+        function SumaDias(emision, dias) {
+            //var tt = document.getElementById('txtDate').value;
+            debugger;
+            //var date = new Date(emision);
+            var date = stringToDate(emision, "dd/MM/yyyy", "/");
+            //var newdate = new Date(date);
+            var newdate = stringToDate(emision, "dd/MM/yyyy", "/");
+
+            newdate.setDate(newdate.getDate() + dias);
+
+            var dd = newdate.getDate();
+            var mm = newdate.getMonth() + 1;
+            var y = newdate.getFullYear();
+
+            var someFormattedDate = dd + '/' + mm + '/' + y;
+            return someFormattedDate;
+        }
+        function GeneraLetras() {
+            debugger;
+            var monto = $("#txtMonto").val();
+            if (monto === "" || monto === "0") {
+                swal("", "Ingrese monto correcto!", "error");
+                return;
+            }
+            var nro_letras = $("#txtNro_letras").val();
+            if (nro_letras === "" || nro_letras === "0") {
+                swal("", "Ingrese numero de letras correcto!", "error");
+                return;
+            }
+            var dias = $("#txtDias").val();
+            if (dias === "" || dias === "0") {
+                swal("", "Seleccione numero de dias correcto!", "error");
+                return;
+            }
+            var emision = $("#txtEmision").val();
+            if (emision === "") {
+                swal("", "Seleccione fecha de emision correcta!", "error");
+                return;
+            }
+            monto = parseFloat(monto);
+            nro_letras = parseInt(nro_letras, 10);
+            dias = parseInt(dias, 10);
+            var cuota = parseFloat(monto) / parseFloat(nro_letras);
+
+            $("#letrastablesbody").empty();
+            for (var i = 1; i <= nro_letras; i++) {
+                var fvence = SumaDias(emision, dias * i);
+                var IdTr = "IdTr" + i;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + i + "</td>" +
+                        "<td id='Nro"+IdTr+"' style='text-align: left; vertical-align: middle;'>" + i + "</td>" +
+                        "<td id='LetraNro"+IdTr+"' style='text-align: left; vertical-align: middle;'></td>" +
+                        "<td id='Cuota"+IdTr+"' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                        "<td id='Vence"+IdTr+"' style='text-align: center;'>" + fvence + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'></td>" +
+                        "</tr>");
+                    $("#letrastablesbody").append(row);
+            }
+            $('#letrastables').editableTableWidget();
+            $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	            return false;
+            });
+            $('#letrastables td').on('change', function (evt, newValue) {
+                debugger;
+                var indexcell = evt.currentTarget.cellIndex;
+                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                if (indexcell === 1) {
+                    return false;
+                }
+                else if (indexcell === 2) {
+                    try {
+                        var nuevo = parseFloat(newValue);
+                        if (Number.isNaN(nuevo)) {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                else if (indexcell === 4) {
+                    try {
+                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                        console.log(mydate.toDateString());
+                        if (mydate.toDateString() === 'Invalid Date') {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+            });
+        }
+
+        $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	            return false;
+            });
+            $('#letrastables td').on('change', function (evt, newValue) {
+                debugger;
+                var indexcell = evt.currentTarget.cellIndex;
+                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                if (indexcell === 1) {
+                    return false;
+                }
+                else if (indexcell === 2) {
+                    try {
+                        var nuevo = parseFloat(newValue);
+                        if (Number.isNaN(nuevo)) {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                else if (indexcell === 4) {
+                    try {
+                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                        console.log(mydate.toDateString());
+                        if (mydate.toDateString() === 'Invalid Date') {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+
+            });
+        $('#myModalNew').on('shown.bs.modal',
+            function(e) {
+
+                $("#txtDocumento").blur(function () {
+                    //FnCheckFactura();
+                });
+
+                $(document).ready(function() {
+                    //debugger;
+                    $('#cmbfk_empresa').select2();
+                    $('.date-pickerIni').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_operacion').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+
+                    $('.date-pickerFini').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                        function(ev) {
+                            $('#sfecha_vencimiento').val($(this).val());
+                        }).on('hide',
+                        function(event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+                    $('#letrastables').editableTableWidget();
+                    $('#letrastables td.uneditable').on('change', function(evt, newValue) {
+	                    return false;
+                    });
+                    $('#letrastables td').on('change', function (evt, newValue) {
+                        debugger;
+                        var indexcell = evt.currentTarget.cellIndex;
+                        var indexrow = evt.currentTarget.parentElement.rowIndex;
+                        if (indexcell === 1) {
+                            return false;
+                        }
+                        else if (indexcell === 2) {
+                            try {
+                                var nuevo = parseFloat(newValue);
+                                if (Number.isNaN(nuevo)) {
+                                    return false;
+                                }
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                        else if (indexcell === 4) {
+                            try {
+                                var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                                console.log(mydate.toDateString());
+                                if (mydate.toDateString() === 'Invalid Date') {
+                                    return false;
+                                }
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+
+                    });
+                });
+                function stringToDate(_date,_format,_delimiter)
+                {
+                            var formatLowerCase=_format.toLowerCase();
+                            var formatItems=formatLowerCase.split(_delimiter);
+                            var dateItems=_date.split(_delimiter);
+                            var monthIndex=formatItems.indexOf("mm");
+                            var dayIndex=formatItems.indexOf("dd");
+                            var yearIndex=formatItems.indexOf("yyyy");
+                            var month=parseInt(dateItems[monthIndex]);
+                            month-=1;
+                            var formatedDate = new Date(dateItems[yearIndex],month,dateItems[dayIndex]);
+                            return formatedDate;
+                }
+
+
+
+                var idx = $("#id_cuentas_por_pagar_proveedorx").val();
+                var fk_comprobante_tiposxx = $("#fk_comprobante_tiposx").val();
+                var fk_proveedorsxx = $("#fk_proveedorsx").val();
+                var IDUSUARIOsxx = $("#IDUSUARIOsx").val();
+                var IDMONEDAsxx = $("#IDMONEDAsx").val();
+                var documentosxx = $("#documentosx").val();
+                var afecta_detraccionsxx = $("#afecta_detraccionsx").val();
+                var monto_detraccionsxx = $("#monto_detraccionsx").val();
+
+                var f_emisionsxx = $("#f_emisionsx").val();
+                var f_vencimientosxx = $("#f_vencimientosx").val();
+                var montosxx = $("#montosx").val();
+                var f_registrosxx = $("#f_registrosx").val();
+                var monedasxx = $("#monedasx").val();
+                var razon_socialsxx = $("#razon_socialsx").val();
+                var observacionsxx = $("#observacionsx").val();
+
+
+                if (idx != "0") {
+                    $("#cmbfk_empresa").val(fk_proveedorsxx).trigger('change');
+                    $("#cmbfk_comprobantetipo").val(fk_comprobante_tiposxx);
+                    $("#txtDocumento").val(documentosxx);
+                    $("#cmbidmoneda").val(IDMONEDAsxx);
+                    $("#txtMonto").val(montosxx);
+                    $("#cmb_AfectaDetraccion").val(afecta_detraccionsxx);
+                    $("#txtMontoDetraccion").val(monto_detraccionsxx);
+                    $("#txtEmision").val(f_emisionsxx);
+                    $("#sfecha_operacion").val(f_emisionsxx);
+                    $("#txtFin").val(f_vencimientosxx);
+                    $("#sfecha_vencimiento").val(f_vencimientosxx);
+                    $("#txtObservacion").val(observacionsxx);
+
+                }
+
+                $("#GuardarEntidad").click(function() {
+                    debugger;
+                    var id_save = 0;
+                    var cantfilas = 0;
+
+                    try {
+                        cantfilas = $("#letrastables td").closest("tr").length;
+
+                    } catch (e) {
+
+                    }
+
+                    if (cantfilas === 0) {
+                        swal("", "No se ha generado cronograma de letras!", "error");
+                        $("#txtNro_letras").focus();
+                        return false;
+                    }
+                    else {
+                        FnLlenaArrayLetras();
+                    }
+                    var cmbfk_empresa = $("#cmbfk_empresa").val();
+                    var cmbfk_comprobantetipo = $("#cmbfk_comprobantetipo").val();
+                    var txtDocumento = $("#txtDocumento").val();
+                    var cmbidmoneda = $("#cmbidmoneda").val();
+                    var txtMonto = $("#txtMonto").val();
+                    var txtNro_letras = $("#txtNro_letras").val();
+                    var txtDias = $("#txtDias").val();
+                    var sfecha_operacion = $("#sfecha_operacion").val();
+                    //var sfecha_vencimiento = $("#sfecha_vencimiento").val();
+
+                    var txtObservacion = $("#txtObservacion").val();
+
+                    if (cmbfk_empresa === '') {
+                        cmbfk_empresa = 0;
+                    }
+
+                    if (cmbfk_empresa === '' ||
+                        cmbfk_comprobantetipo === '' ||
+                        sfecha_operacion === '' ||
+                        cmbidmoneda === '' ||
+                        txtDocumento === '' ||
+                        txtNro_letras === '' ||
+                        txtDias === '') {
+                        swal("", "Datos Incompletos", "error");
+                        $("#txtDescripcion").focus();
+                        return false;
+                    }
+                    if (txtMonto === '' || txtMonto === '0') {
+                        swal("", "El monto no puede ser 0!", "error");
+                        $("#txtMonto").focus();
+                        return false;
+                    }
+                    if (txtNro_letras === '' || txtNro_letras === '0') {
+                        swal("", "El numero de letras no puede ser 0!", "error");
+                        $("#txtNro_letras").focus();
+                        return false;
+                    }
+                    if (txtDias === '' || txtDias === '0') {
+                        swal("", "Los dias no pueden ser 0!", "error");
+                        $("#txtNro_letras").focus();
+                        return false;
+                    }
+                    //if (sfecha_vencimiento === '') {
+                    //    sfecha_vencimiento = '01/01/1901';
+                    //}
+
+                    id_save = parseInt($("#id_cuentas_por_pagar_proveedorx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaLetraPagarProveedor", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            fk_empresa: cmbfk_empresa,
+                            fk_comprobantetipo: cmbfk_comprobantetipo,
+                            documento: txtDocumento,
+                            IDMONEDA: cmbidmoneda,
+                            monto: txtMonto,
+                            nro_letras: txtNro_letras,
+                            dias: txtDias,
+                            f_emision: sfecha_operacion,
+                            //f_vencimiento: sfecha_vencimiento,
+                            observacion: txtObservacion,
+                            arrLetras: arrLetras
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_letras_por_pagar_proveedor = data;
+                            if (parseInt(id_letras_por_pagar_proveedor, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_letras_por_pagar_proveedor = 0;
+                            }
+                        }
+                    });
+
+                });
+
+            });
+        var arrLetras = new Array();
+        function FnLlenaArrayLetras() {
+            debugger;
+            arrLetras = [];
+            var IndArr = 0;
+            var table = document.getElementById('letrastablesbody');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            var Nro = "";
+            var LetraNro = "";
+            var Cuota = "";
+            var Vence = "";
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        Nro = document.getElementById("Nro" + newTr).innerHTML;
+                        LetraNro = document.getElementById("LetraNro" + newTr).innerHTML;
+                        Cuota = document.getElementById("Cuota" + newTr).innerHTML;
+                        Vence = document.getElementById("Vence" + newTr).innerHTML;
+                        arrLetras[IndArr] = new Array(4);
+                        arrLetras[IndArr][0] = Nro;
+                        arrLetras[IndArr][1] = LetraNro;
+                        arrLetras[IndArr][2] = Cuota;
+                        arrLetras[IndArr][3] = Vence;
+                        IndArr++;
+                    }
+                }
+            }
+        }
+
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).on('click',
+            '.detalles',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_letras_por_pagar_proveedor = tableRow.find("td:eq(0)").text();
+                id_letras_por_pagar_proveedor = id_letras_por_pagar_proveedor.trim();
+                console.log("idgeneral: " + id_letras_por_pagar_proveedor);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("IndexDetallesLetra", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_letras_por_pagar_proveedor: id_letras_por_pagar_proveedor },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentPagos').html(response);
+                        $('#myModalPagos').modal(options);
+                        $('#myModalPagos').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+
+        $(document).on('click',
+            '.edita',
+            function() {
+                debugger;
+                var tableRow = $(this).closest("tr");
+                id_letras_por_pagar_proveedor = tableRow.find("td:eq(0)").text();
+                id_letras_por_pagar_proveedor = id_letras_por_pagar_proveedor.trim();
+                console.log("idgeneral: " + id_letras_por_pagar_proveedor);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroLetrasPagarProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_letras_por_pagar_proveedor: id_letras_por_pagar_proveedor },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNew').html(response);
+                        $('#myModalNew').modal(options);
+                        $('#myModalNew').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.agregar',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                id_letras_por_pagar_proveedor = tableRow.find("td:eq(0)").text();
+                id_letras_por_pagar_proveedor = id_letras_por_pagar_proveedor.trim();
+                console.log("idgeneral: " + id_letras_por_pagar_proveedor);
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("RegistroPagoProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { id_letras_por_pagar_proveedor: id_letras_por_pagar_proveedor },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentPagosR').html(response);
+                        $('#myModalPagosR').modal(options);
+                        $('#myModalPagosR').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            });
+        $(document).on('click',
+            '.elimina',
+            function() {
+                //debugger;
+                var tableRow = $(this).closest("tr");
+                var id_save = tableRow.find("td:eq(0)").text();
+                id_save = id_save.trim();
+
+                var monto = tableRow.find("td:eq(8)").text();
+                monto = parseFloat(monto);
+
+                var saldo = tableRow.find("td:eq(12)").text();
+                saldo = parseFloat(saldo);
+                if (saldo < monto) {
+                    swal("", "Existen pagos activos. Elimine primero los pagos!", "error");
+                    return false;
+                }
+
+                swal({
+                    title: '¿Está seguro?',
+                    text: "Se va a eliminar el registro!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Si!'
+                }).then((result) => {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("EliminaCtaProveedor", "Comercial")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_cuentas_por_pagar_pago: id_save
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_cuentas_por_pagar_pago = data;
+                            if (parseInt(id_cuentas_por_pagar_pago, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    window.location.reload();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo eliminar!", "error");
+                                id_cuentas_por_pagar_pago = 0;
+                            }
+                        }
+                    });
+                    },
+                    function(dismiss) {
+                        if (dismiss === 'cancel' || dismiss === 'close') {
+                            // ignore
+                        }
+                    });
+            });
+
+
+        //$("#LetrasCalendario").click(function () {
+
+        //});
+
+
+        $("#BloquePago").click(function () {
+            debugger;
+            var id = "";
+            arrCuentas = [];
+            var IndArr = 0;
+            $("#editabledatatable input[type=checkbox]:checked").each(function () {
+                var row = $(this).closest("tr")[0];
+                id = row.cells[0].innerHTML;
+                arrCuentas[IndArr] = new Array(1);
+                //arrCuentas[IndArr][0] = IndArr;
+                arrCuentas[IndArr][0] = id.trim();
+                IndArr++;
+
+            });
+            if (arrCuentas.length > 0) {
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("PagoBloqueCuentaPagarProveedor", "Comercial")',
+                    contentType: "application/json; charset=utf-8",
+                    data:
+                        JSON.stringify({
+                            arrCuentas: arrCuentas
+                        }),
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContentNewBloque').html(response);
+                        $('#myModalNewBloque').modal(options);
+                        $('#myModalNewBloque').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        alert(request.responseText);
+                    }
+                });
+            } else {
+                swal("", "Debe seleccionar una cuenta!", "error");
+            }
+            //Display selected Row data in Alert Box.
+            //alert(arrCuentas.length);
+            return false;
+        });
+        $("#NewRegistro").click(function() {
+            // debugger;
+            id_letras_por_pagar_proveedor = 0;
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroLetrasPagarProveedor", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_letras_por_pagar_proveedor: id_letras_por_pagar_proveedor },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            Inicia();
+
+        });
+
+        function Inicia() {
+            var table = $('#editabledatatable').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+                //"scrollY": "auto",
+                //"scrollCollapse": true
+
+            });
+
+
+        }
+    </script>
+
+}
+
+
+

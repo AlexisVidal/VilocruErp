@@ -1,0 +1,145 @@
+﻿@using ERP.Admin.Models
+@{
+    var _entidadp = (PersonalFamiliarErp)ViewBag.FamiliarExist;
+    int IDPERSONALFAMILIARs = 0;
+    string IDCODIGOGENERALs = "";
+    string CODIGOGENERALs = "";
+    string IDVINCULOs = "";
+    string NOMBRESs = "";
+    string TELEFONOs = "";
+    string vinculos = "";
+    string IDDOCVINCs = "";
+    string DOCVINCs = "";
+    string fecha_nacimientos = "";
+    string documento_adjuntos = "";
+
+
+    if (_entidadp != null)
+    {
+        IDPERSONALFAMILIARs = _entidadp.IDPERSONALFAMILIAR;
+        IDCODIGOGENERALs = _entidadp.IDCODIGOGENERAL;
+        CODIGOGENERALs = _entidadp.CODIGOGENERAL;
+        IDVINCULOs = _entidadp.IDVINCULO;
+        NOMBRESs = _entidadp.NOMBRES;
+        vinculos = _entidadp.vinculo;
+        TELEFONOs = _entidadp.TELEFONO;
+        IDDOCVINCs = _entidadp.IDDOCVINC;
+        DOCVINCs = _entidadp.DOCVINC;
+        fecha_nacimientos = _entidadp.fecha_nacimiento.ToString("dd/MM/yyyy");
+        documento_adjuntos = _entidadp.documento_adjunto;
+    }
+}
+
+@Html.Hidden("IDPERSONALFAMILIARx", @IDPERSONALFAMILIARs)
+@Html.Hidden("IDCODIGOGENERALx", @IDCODIGOGENERALs)
+@Html.Hidden("CODIGOGENERALx", @CODIGOGENERALs)
+@Html.Hidden("IDVINCULOx", @IDVINCULOs)
+@Html.Hidden("NOMBRESx", @NOMBRESs)
+@Html.Hidden("vinculox", @vinculos)
+@Html.Hidden("TELEFONOx", @TELEFONOs)
+@Html.Hidden("IDDOCVINCx", @IDDOCVINCs)
+@Html.Hidden("DOCVINCx", @DOCVINCs)
+@Html.Hidden("fecha_nacimientox", @fecha_nacimientos)
+@Html.Hidden("stradjunto", documento_adjuntos)
+@Html.Hidden("sfecha_nac", "")
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Baja de derecho habientes</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align:left;width:120px;padding-right:0">Nro Documento</label>
+                                <div class="col-md-2" style="">
+                                    <label class="col-sm-2 control-label" style="text-align:left;font-weight:800;width:auto">@CODIGOGENERALs</label>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align:left;width:auto;padding-right:0">Nombres </label>
+                                <div class="col-md-6" style="">
+                                    <label class="col-sm-6 control-label" style="text-align:left;font-weight:800;width:auto">@NOMBRESs</label>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:120px;padding-right:0">F. Nacimiento</label>
+                                <div class="col-md-2" style="">
+                                    <label class="col-sm-2 control-label" style="text-align:left;width:auto;font-weight:800">@fecha_nacimientos</label>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align:left;width:auto">Tel. </label>
+                                <div class="col-md-3" style="">
+                                    <label class="col-sm-2 control-label" style="text-align:left;width:auto;font-weight:800">@TELEFONOs</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:120px;padding-right:0">Vinculo</label>
+                                <div class="col-sm-8" style="">
+                                    <label class="col-sm-2 control-label" style="text-align:left;width:auto;font-weight:800">@vinculos</label>
+                                    <div class="horizontal-space"></div>
+                                </div>
+
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:100px;padding-right:0">Documento</label>
+                                <div class="col-sm-10" style="">
+                                    <label class="col-sm-2 control-label" style="text-align:left;width:auto;font-weight:800">@DOCVINCs</label>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Tipo <sup>*</sup></label>
+                                <div class="col-sm-8" style="">
+                                    @Html.DropDownList("IDBAJAFAM", new SelectList(ViewBag.TipoBaja, "IDBAJA", "DESCRIPCION"), new { @class = "form-control dropdown - menu" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row" style="padding-top:20px">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Baja").Id("BajaDerec").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" style="color:white" id="btnCancelbfam" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}

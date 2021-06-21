@@ -1,0 +1,138 @@
+﻿@model IEnumerable<ERP.Admin.Models.Movimiento>
+<script type="text/javascript">
+</script>
+@{
+    decimal Total = 0;
+    decimal TotaInve = 0;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">DETALLE INVENATRIO </span>
+                <a href="#" onclick="return Exporter.export(editableDataInventario, 'DETALLE DE INVENTARIO.xls', 'DETALLE DE INVENTARIO')">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+            </div>
+
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableDataInventario">
+                    <thead>
+                        <tr role="row">
+                            <th>
+                                CÓDIGO
+                            </th>
+                            <th>
+                                PRODUCTO
+                            </th>
+                            <th>
+                                MARCA
+                            </th>
+                            <th>
+                                SUBFAMILIA
+                            </th>
+                            <th>
+                                CANTIDAD
+                            </th>
+                            <th>
+                                COSTO
+                            </th>
+                            <th>
+                                TOTAL
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            Total = item.cantidad * item.precio_costo;
+                            TotaInve = TotaInve + Total;
+                            <tr>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_marca)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_producto_subfamilia)
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Html.DisplayFor(modelItem => item.cantidad)
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Html.DisplayFor(modelItem => item.precio_costo)
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Total
+                                </td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="6">
+                                TOTAL
+                            </td>
+                            <td class="input-xs" style="text-align: right;">
+                                @TotaInve
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="horizontal-space"></div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn bg-blue shiny" type="button" data-dismiss="modal" style="float: right; margin-right: 10px;">Cerrar</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        //Inicia();
+    });
+
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editableDataInventario').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>
+

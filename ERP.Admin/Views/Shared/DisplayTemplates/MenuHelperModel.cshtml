@@ -1,0 +1,150 @@
+﻿@model MvcSiteMapProvider.Web.Html.Models.MenuHelperModel
+@using System.Web.Mvc.Html
+@using MvcSiteMapProvider.Web.Html.Models
+@*@using ERP.App_Helper*@
+<ul class="nav sidebar-menu">
+    @ShowMenu(Model.Nodes)
+</ul>
+
+@helper ShowMenu(IEnumerable<SiteMapNodeModel> menuItems)
+{
+    SiteMapNodeModel actual = null;
+    string permis = Session["Permisos"].ToString();
+    var permisos = permis.Split('|');
+
+    string menues = Session["Menus"].ToString();
+    var menus = menues.Split('|');
+    List<string> menuadded = new List<string>();
+
+    foreach (var node in menuItems)
+    {
+        var nodeclass = "";
+        if (node.IsCurrentNode)
+        {
+            nodeclass = "active";
+        }
+        if (node.Children.Any(n => n.IsCurrentNode))
+        {
+            nodeclass = "active open";
+        }
+        else if (node.Children.Any())
+        {
+            foreach (var c in node.Children)
+            {
+                if (c.Children.Any())
+                {
+                    if (c.Children.Any(n => n.IsCurrentNode))
+                    {
+                        nodeclass = "active open";
+                    }
+                }
+            }
+        }
+        <li class="@(!string.IsNullOrEmpty(nodeclass) ? Html.Raw(nodeclass) : null)">
+            @if (node.Children.Any())
+            {
+
+                string a = Session["Nombres"].ToString();
+                @*foreach (var perms in permisos)
+                    {
+                        if (!perms.ToUpper().Equals(node.Description.ToUpper()))
+                        {
+
+                        }
+                        else
+                        {
+                            @Html.Bootstrap().SidebarMenuItem(node.Title, node.Url, node.Area, node.Action, node.Controller, node.RouteValues).Icon(node.ImageUrl).IsDropDown();
+                        }
+                    }*@
+                var submenus = node.Children;
+                foreach (var smenus in submenus)
+                {
+                    if (!menus.Contains(smenus.Description.ToUpper()))
+                    {
+                    }
+                    else
+                    {
+                        if (!menuadded.Contains(node.Description))
+                        {
+                            @Html.Bootstrap().SidebarMenuItem(node.Title, node.Url, node.Area, node.Action, node.Controller, node.RouteValues).Icon(node.ImageUrl).IsDropDown();
+                            menuadded.Add(node.Description.ToUpper());
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (!menus.Contains(node.Description.ToUpper()))
+                {
+                }
+                else
+                {
+                    if (!menuadded.Contains(node.Description))
+                    {
+                        @Html.Bootstrap().SidebarMenuItem(node.Title, node.Url, node.Area, node.Action, node.Controller, node.RouteValues).Icon(node.ImageUrl);
+                        menuadded.Add(node.Description.ToUpper());
+                    }
+                }
+
+            }
+            @if (node.Children.Any())
+            {
+                <ul class="submenu">
+                    @ShowMenu(node.Children)
+                </ul>
+            }
+        </li>
+    }
+}
+@*@model MvcSiteMapProvider.Web.Html.Models.MenuHelperModel
+    @using System.Web.Mvc.Html
+    @using MvcSiteMapProvider.Web.Html.Models
+
+    <ul class="nav sidebar-menu">
+        @ShowMenu(Model.Nodes)
+    </ul>
+
+    @helper ShowMenu(IEnumerable<SiteMapNodeModel> menuItems)
+    {
+        foreach (var node in menuItems)
+        {
+            var nodeclass = "";
+            if (node.IsCurrentNode)
+            {
+                nodeclass = "active";
+            }
+            if (node.Children.Any(n => n.IsCurrentNode))
+            {
+                nodeclass = "active open";
+            }
+            else if (node.Children.Any())
+            {
+                foreach (var c in node.Children)
+                {
+                    if (c.Children.Any())
+                    {
+                        if (c.Children.Any(n => n.IsCurrentNode))
+                        {
+                            nodeclass = "active open";
+                        }
+                    }
+                }
+            }
+            <li class="@(!string.IsNullOrEmpty(nodeclass) ? Html.Raw(nodeclass) : null)">
+                @if (node.Children.Any())
+                {
+                    @Html.Bootstrap().SidebarMenuItem(node.Title, node.Url, node.Area, node.Action, node.Controller, node.RouteValues).Icon(node.ImageUrl).IsDropDown();
+                }
+                else
+                {
+                    @Html.Bootstrap().SidebarMenuItem(node.Title, node.Url, node.Area, node.Action, node.Controller, node.RouteValues).Icon(node.ImageUrl);
+                }
+                @if (node.Children.Any())
+                {
+                    <ul class="submenu">
+                        @ShowMenu(node.Children)
+                    </ul>
+                }
+            </li>
+        }
+    }*@

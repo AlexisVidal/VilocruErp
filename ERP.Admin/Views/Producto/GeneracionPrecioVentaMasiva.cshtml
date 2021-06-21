@@ -1,0 +1,123 @@
+﻿
+@using ERP.Admin.Models
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de producto</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Familia <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.DropDownList("txtValBus_familia", new SelectList(ViewBag.ProductoFamilia, "id_producto_familia", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductofamilia")
+                                    @Html.Hidden("productofamilia")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Sub Familia <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.DropDownList("txtValBus_subfamilia", new List<SelectListItem>(), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductosubfamilia")
+                                    @Html.Hidden("productosubfamilia")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Marca <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.DropDownList("txtValBus_marca", new SelectList(ViewBag.ProductoMarca, "id_producto_marca", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductomarca")
+                                    @Html.Hidden("productomarca")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Tipo de cambio <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.Bootstrap().TextBox("tipo_cambiom").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Tipo cambio S/.")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-4 control-label" style="text-align:center;/*width:120px*/">Precio Unidad </label>
+                                <label class="col-sm-4 control-label" style="text-align:center;/*width:120px*/">Precio x Mayor </label>
+                                <label class="col-sm-4 control-label" style="text-align:center;/*width:120px*/">Precio Especial </label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">% </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_unidadpm").HtmlAttributes(new { @onkeyup = "", @onkeypress = "return isNumber(event)" }).Placeholder("Unidad")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">% </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_mayorpm").HtmlAttributes(new { @onkeyup = "", @onkeypress = "return isNumber(event)" }).Placeholder("x Mayor")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align:right;margin-right:0;padding-right:15px">% </label>
+                                <div class="col-sm-3" style="margin-left:0;padding-left:15px">
+                                    @Html.Bootstrap().TextBox("precio_especialpm").HtmlAttributes(new { @onkeyup = "", @onkeypress = "return isNumber(event)" }).Placeholder("Especial")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardarm").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancelm" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}
+
+
+
+
+
+
+

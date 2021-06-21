@@ -1,0 +1,124 @@
+﻿@using System
+@using ERP.Admin.Models
+@model IEnumerable<ERP.Admin.Models.CuentaPagarProveedorErp>
+@{
+    decimal saldos = (decimal)ViewBag.DeudaSoles;
+    decimal saldod = (decimal)ViewBag.DeudaDolar;
+    decimal saldoe = (decimal)ViewBag.DeudaEuros;
+    List<int> cuentas = new List<int>();
+    cuentas = (List<int>)ViewBag.CuentasForPay;
+    //var cuentas = ViewBag.CuentasForPay;
+}
+@Html.Hidden("cuentasporpagar", @cuentas)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo pago</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    <div class="row" style="text-align: center">
+                        <div class="col-md-12">
+                            <h5 style="">
+                                <label style="font-size:18px;font-weight: 600;color:firebrick">Monto a pagar Soles : @saldos.ToString("N")</label><br />
+                                <label style="font-size:18px;font-weight: 600;color:firebrick">Monto a pagar Dolares : @saldod.ToString("N")</label><br />
+                                <label style="font-size:18px;font-weight: 600;color:firebrick">Monto a pagar Euros : @saldoe.ToString("N")</label>
+                            </h5>
+                        </div>
+                    </div>
+                    <table class="table table-striped table-hover table-bordered" id="editabledatatable2" style="font-size: 11px; overflow-x: auto; padding-bottom: 10px">
+                        <thead>
+                            <tr role="row">
+                                <th style="display: none">
+                                    ID
+                                </th>
+                                <th style="font-size: 11px">
+                                    RUC
+                                </th>
+                                <th style="font-size: 11px">
+                                    PROVEEDOR
+                                </th>
+                                <th style="font-size: 11px">
+                                    MONEDA
+                                </th>
+                                
+                                <th style="font-size: 11px">
+                                    TIPO COMP.
+                                </th>
+                                <th style="font-size: 11px">
+                                    COMPROBANTE
+                                </th>
+                                <th style="font-size: 11px">
+                                    SALDO
+                                </th>
+                                
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                string estatu = item.estado;
+
+                                string fechavence = @item.f_vencimiento.ToString("dd/MM/yyyy");
+
+                                string fechaemision = @item.f_emision.ToString("dd/MM/yyyy");
+                                decimal montox = @item.monto;
+                                decimal saldox = @item.saldo;
+                                decimal detrax = @item.monto_detraccion;
+                                string disable = item.disaled;
+                                <tr>
+                                    <td style="display: none">
+                                        @Html.DisplayFor(modelItem => item.id_cuentas_por_pagar_proveedor)
+                                    </td>
+                                   
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.ruc)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.razon_social)
+                                    </td>
+
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.moneda)
+                                    </td>
+                                    
+                                    <td style="">
+                                        @Html.DisplayFor(modelItem => item.comprobante_tipo)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.documento)
+                                    </td>
+                                    
+                                    <td>
+                                        @saldox.ToString("N")
+                                    </td>
+                                    
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <div class="row">
+                        <div class="form-group" style="margin: 1px;margin-left:130px;padding-top:15px">
+                            <label class="col-sm-3 control-label" style="text-align: left; padding-top: 8px; padding-right: 0;">Nro. Oper. </label>
+                            <div class="col-md-5" style="width: 202px">
+                                @Html.Bootstrap().TextBox("txtNroOperacionPagoBloque").HtmlAttributes(new { @class = "form-control input-sm" })
+                                <div class="horizontal-space"></div>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row" style="padding-bottom:20px;padding-top:20px">
+                        <div class="col-md-6" style="text-align: right; vertical-align: middle; width: 50%">
+                            @Html.Bootstrap().Button().Text("Guardar").Id("GuardarPagoBloque").Color(BootstrapColors.Success)
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cancelar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,121 @@
+﻿@using ERP.Admin.Models
+@{
+    var _entidadp = (ProductoMarcaSubFamilia)ViewBag.ProductoMarcaSubFamilia;
+    int id_producto_marca_subfamilia = 0;
+    int fk_producto_marcas = 0;
+    int fk_producto_subfamilias = 0;
+    int fk_producto_familias = 0;
+
+    if (_entidadp != null)
+    {
+        id_producto_marca_subfamilia = _entidadp.id_producto_marca_subfamilia;
+        fk_producto_marcas = _entidadp.fk_producto_marca;
+        fk_producto_subfamilias = _entidadp.fk_producto_subfamilia;
+        fk_producto_familias = _entidadp.fk_producto_familia;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_producto_marca_subfamiliax", @id_producto_marca_subfamilia)
+@Html.Hidden("fk_producto_marcasx", @fk_producto_marcas)
+@Html.Hidden("fk_producto_subfamiliasx", @fk_producto_subfamilias)
+@Html.Hidden("fk_producto_familiasx", @fk_producto_familias)
+<div class="row">
+    @Html.Hidden("fk_producto_marca", 0)
+    @Html.Hidden("fk_producto_subfamilia", 0)
+    @Html.Hidden("fk_producto_familia", 0)
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Marca <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.DropDownList("txtValBus_marca", new SelectList(ViewBag.ProductoMarca, "id_producto_marca", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductomarca")
+                                    @Html.Hidden("productomarca")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Familia <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.DropDownList("txtValBus_familia", new SelectList(ViewBag.ProductoFamilia, "id_producto_familia", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductofamilia")
+                                    @Html.Hidden("productofamilia")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        @*<div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-6 control-label" style="text-align:left;width:120px">Sub Familia <sup>*</sup></label>
+                                <div class="col-md-6" style="width:450px">
+                                    @Html.DropDownList("txtValBus_MarcaSf", new List<SelectListItem>(), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproducto_marca_subfamilia")
+                                    @Html.Hidden("marcasubfamiliax")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>*@
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Sub Familia <sup>*</sup></label>
+                                <div class="col-md-3" style="width:250px">
+                                    @Html.DropDownList("txtValBus_subfamilia", new List<SelectListItem>(), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproductosubfamilia")
+                                    @Html.Hidden("productosubfamilia")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("Guardar").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            var idx = $("#id_usuario").val();
+            alert(idx);
+        });
+        //--Bootstrap Date Picker--
+        $('#myModalNew').on('shown.bs.modal', function (e) {
+            var idx = $("#id_usuario").val();
+            alert(idx);
+        });
+
+    </script>
+}
+
+
+
+

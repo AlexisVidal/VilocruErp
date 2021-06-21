@@ -1,0 +1,242 @@
+﻿@model ERP.Admin.Models.CuentasPorPagar
+<script type="text/javascript">
+    function FnActivaMedioPago(obj) {
+        var FkMediPago = obj.value;
+        var MediPagoCheq = $("#HiddCompVentNew_FkMediPagoCheq").val();
+        var MediPagoDepo = $("#HiddCompVentNew_FkMediPagoDepo").val();
+        var MediPagoTarj = $("#HiddCompVentNew_FkMediPagoTarj").val();
+        var MediPagoNotaCred = $("#HiddCompVentNew_FkMediPagoNotaCred").val();
+        if (FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "none";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "";
+            $("#txtVentNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCompVentNew_BancTarj').innerHTML = "Banco ";
+            if (FkMediPago == MediPagoCheq) {
+                document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').innerHTML = "Cheque ";
+            } else {
+                document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').innerHTML = "Voucher ";
+            }
+        } else if (FkMediPago == MediPagoTarj) {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "none";
+            $("#txtVentNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCompVentNew_BancTarj').innerHTML = "Tipo ";
+        } else if (FkMediPago == MediPagoNotaCred) {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "none";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "";
+            $("#txtVentNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').innerHTML = "NC";
+        } else {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "none";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "none";
+        }
+    }
+</script>
+@{
+    string FVenc = Model.f_vencimiento.ToString("yyyy/MM/dd");
+    int FkMediPagoEfec = ViewBag.MedioPagoEfectivo;
+    int FkMediPagoCheq = ViewBag.MedioPagoCheque;
+    int FkMediPagoDepo = ViewBag.MedioPagoDeposito;
+    int FkMediPagoTarj = ViewBag.MedioPagoTarjeta;
+    int FkMediPagoNotaCred = ViewBag.MedioPagoNotaCredito;
+    int FkMediPagoLineCred = ViewBag.MedioPagoLineaCredito;
+}
+@Html.Hidden("HiddPagoCout_FkCtasPorPagar", Model.id_cuentas_por_pagar)
+@Html.Hidden("HiddPagoCout_saldo", Model.saldo)
+@Html.Hidden("HiddCompVentNew_FkMediPagoCheq", FkMediPagoCheq)
+@Html.Hidden("HiddCompVentNew_FkMediPagoDepo", FkMediPagoDepo)
+@Html.Hidden("HiddCompVentNew_FkMediPagoTarj", FkMediPagoTarj)
+@Html.Hidden("HiddCompVentNew_FkMediPagoNotaCred", FkMediPagoNotaCred)
+@Html.Hidden("HiddCompVentNew_FkMediPagoLineCred", FkMediPagoLineCred)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">PAGAR COUTA</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align: left; ">F. VENCIMIENTO: @FVenc</label>
+                                <label class="col-sm-3 control-label" style="text-align: left; ">MONTO: @Model.monto</label>
+                                <label class="col-sm-3 control-label" style="text-align: left; ">SALDO: @Model.saldo</label>
+                                <label class="col-sm-3 control-label" style="text-align: left; ">MONEDA: @Model.descripcion_tipo_moneda</label>
+                                <div class="horizontal-space"></div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row" id="DivAddCronograma">
+                            <div class="form-group" style="margin:0">
+                                <div class="row">
+                                    <div class="form-group" style="margin: 0">
+                                        <label class="col-sm-1 control-label" style="text-align: right; ">M. Pago</label>
+                                        <div class="col-md-2">
+                                            @Html.Bootstrap().DropDownList("cmbCompVentNew_FkMediPago", new SelectList(ViewBag.MedioPago, "id_medio_pago", "descripcion", selectedValue: FkMediPagoEfec)).HtmlAttributes(new { @id = "cmbCompVentNew_FkMediPago", @onchange = "FnActivaMedioPago(this)" }).Size(InputSize.Small)
+                                            <div class="horizontal-space"></div>
+                                        </div>
+                                        <label class="col-sm-1 control-label" id="lblCompVentNew_BancTarj" style="text-align: right; display: none;">Banco</label>
+                                        <div class="col-md-2">
+                                            @Html.Bootstrap().DropDownList("cmbCompVentNew_FkBanco", new SelectList(ViewBag.Banco, "id_banco", "descripcion", selectedValue: 0)).HtmlAttributes(new { @id = "cmbCompVentNew_FkBanco", style = "display: none;" }).Size(InputSize.Small)
+                                            @Html.Bootstrap().DropDownList("cmbCompVentNew_FkTarj", new SelectList(ViewBag.TarjetaCredito, "id_tarjeta_credito", "descripcion", selectedValue: 0)).HtmlAttributes(new { @id = "cmbCompVentNew_FkTarj", style = "display: none;" }).Size(InputSize.Small)
+                                            <div class="horizontal-space"></div>
+                                        </div>
+                                        <label class="col-sm-1 control-label" id="lblCompVentNew_NroCheqVoucNotaCred" style="text-align: right; display: none;"># Nota Crédito </label>
+                                        <div class="col-md-2">
+                                            @Html.Bootstrap().TextBox("txtVentNew_NroCheqVoucNotaCred").HtmlAttributes(new { style = "display: none; text-transform: uppercase;" }).Size(InputSize.Small)
+                                            <div class="horizontal-space"></div>
+                                        </div>
+                                        <label class="col-sm-1 control-label" style="text-align: right; "> Monto: </label>
+                                        <div class="col-md-2" style="width: 12%;">
+                                            @Html.Bootstrap().TextBox("txtPagoCtasPorPaga_Monto").HtmlAttributes(new { type = "number", style = "text-align: right;" }).Size(InputSize.Small)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align: right; vertical-align: middle; width: 50%">
+                                @Html.Bootstrap().Button().Text("Grabar").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnSaveCutasPorPagar()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerDistCantPedi" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#spinnerDistCantPedi").hide();
+        //Inicia();
+        $('#spinnerDistCantPedi').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnSaveCutasPorPagar() {
+        //Medio de Pago
+        var FkMediPago = $("#cmbCompVentNew_FkMediPago").val();
+        var MediPagoCheq = $("#HiddCompVentNew_FkMediPagoCheq").val();
+        var MediPagoDepo = $("#HiddCompVentNew_FkMediPagoDepo").val();
+        var MediPagoTarj = $("#HiddCompVentNew_FkMediPagoTarj").val();
+        var MediPagoNotaCred = $("#HiddCompVentNew_FkMediPagoNotaCred").val();
+        var MediPagoLineCred = $("#HiddCompVentNew_FkMediPagoLineCred").val();
+        var FkBanc = $("#cmbCompVentNew_FkBanco").val();
+        var FkTarjCred = $("#cmbCompVentNew_FkTarj").val();
+        var FkNotaCred = $("#cmbCompVentNew_FkTarj").val();
+        var NroDocuPago = $("#txtVentNew_NroCheqVoucNotaCred").val();
+        var PagoMonto = $("#txtPagoCtasPorPaga_Monto").val();
+        var SaldPend = $("#HiddPagoCout_saldo").val();
+
+        if ((FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) && (parseInt(FkBanc) == 0 || NroDocuPago.trim() == "")) {
+            sweetAlert("", "No ha seleccionado banco, o no ha ingresado el Nro de documento", "error");
+            flgError = 1;
+        } else if (FkMediPago == MediPagoTarj && parseInt(FkTarjCred) == 0) {
+            sweetAlert("", "No ha seleccionado el Tipo de Tarjeta de Crédito", "error");
+            flgError = 1;
+        } else if (FkMediPago == MediPagoNotaCred && NroDocuPago.trim() == "") {
+            sweetAlert("", "No ha ingresado el Nro de la Nota de Crédito", "error");
+            flgError = 1;
+        } else if (PagoMonto.trim() == "") {
+            sweetAlert("", "Monto a abonar no válido", "error");
+            flgError = 1;
+        } else if (parseFloat(PagoMonto) == 0) {
+            sweetAlert("", "Monto a abonar no válido", "error");
+            flgError = 1;
+        } else if (parseFloat(PagoMonto) > parseFloat(SaldPend)) {
+            sweetAlert("", "Lo abonado suepra el saldo pendiente", "error");
+            flgError = 1;
+        } else {
+            var FkCuenPorPaga = $("#HiddPagoCout_FkCtasPorPagar").val();
+            if (FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) {
+                FkTarjCred = 0;
+                FkNotaCred = 0;
+            } else if (FkMediPago == MediPagoTarj) {
+                FkBanc = 0;
+                NroDocuPago = "";
+                FkNotaCred = 0;
+            } else if (FkMediPago == MediPagoNotaCred) {
+                FkBanc = 0;
+                FkTarjCred = 0;
+            } else {
+                FkBanc = 0;
+                FkTarjCred = 0;
+                FkNotaCred = 0;
+                NroDocuPago = "";
+                if (FkMediPago == MediPagoLineCred) {
+                    CVSaldBrut = CVTotaBrut;
+                }
+            }
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveNewPagoCuentasPorPagar", "CuentasPorPagar")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    FkCuenPorPaga: FkCuenPorPaga, FkMediPago: FkMediPago, FkTarjCred: FkTarjCred,
+                    FkNotaCred: FkNotaCred, FkBanc: FkBanc, NroDocuPago: NroDocuPago, PagoMonto: PagoMonto
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCompVentCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCompVentCreate').length > 0) {
+                        $('#spinnerCompVentCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+</script>

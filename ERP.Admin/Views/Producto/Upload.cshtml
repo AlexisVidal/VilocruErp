@@ -1,0 +1,78 @@
+﻿@using System
+@*@using (Html.BeginForm("Import", "Producto", FormMethod.Post, new { id = "MyForm", enctype = "multipart/form-data" }))
+    {
+
+    }*@
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Importacion de Productos</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="col-md-12" style="text-align:center;vertical-align:middle;width:100%">
+                                @Html.Raw(ViewBag.Error)
+                                <center><span><b>ARCHIVO DE EXCEL</b></span><input type="file" name="excelfile" id="excelfile" accept=".xls , .xlsx" /></center>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <br />
+                                <i>El archivo de excel debe ser un archivo nuevo por cada lista, la primera fila debe tener nombres de las cabeceras, y debe contener 19 columnas con la siguiente estructura:</i>
+                                <br />
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li><i><b>Proveedor</b> => Texto</i></li>
+                                    <li><i><b>Marca</b> => Texto</i></li>
+                                    <li><i><b>Familia </b> => Texto </i></li>
+                                    <li><i><b>Sub Familia </b> => Texto </i></li>
+                                    <li><i><b>SKU </b> => Texto </i></li>
+                                    <li><i><b>Nombre Producto </b> => Texto </i></li>
+                                    <li><i><b>Unidad Medida(UND) </b> => Texto </i></li>
+                                    <li><i><b>Empaque </b> => Numero </i></li>
+                                    <li><i><b>Id Moneda </b> (1:Soles, 2:Dolar) => Numero</i></li>
+                                    <li><i><b>Precio Compra</b> => Numero, 2 decimales</i></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <ul>
+                                    <li><i><b>% Primer Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>Primer Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>% Segundo Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>Segundo Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>% Tercer Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>Tercer Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>% Cuarto Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>Cuarto Descuento</b> => Numero, 2 decimales</i></li>
+                                    <li><i><b>Precio Compra Final</b> => Numero, 2 decimales</i></li>
+                                </ul>
+                            </div>
+                            <div class="col-md-12">
+                                <br />
+                                <i><b>NOTA: LOS CAMPOS Proveedor, Marca, Familia Y Sub Familia DEBEN SER CREADOS PREVIAMENTE Y LOS NOMBRES DEBEN SER IDENTICOS.  </b></i>
+                                <br />
+                            </div>
+                            <br /><br /><br />
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Importar").Id("Importar").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancelU" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>

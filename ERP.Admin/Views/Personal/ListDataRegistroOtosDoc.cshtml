@@ -1,0 +1,67 @@
+﻿@{
+    string urlink = (string)ViewBag.UrlLink;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table table-striped table-hover table-bordered" id="editabledataRegiOtros" style="text-align: center;font-size:10px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+
+                            </th>
+                            <th style="display:none">
+
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                ADJUNTO
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                ESTADO
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string urlinktr = @urlink + "/" + @item.DOCUMENTO_ADJUNTO;
+                            <tr>
+                                <td style="display:none">
+                                    @item.IDPERSONALOTROSDOC
+                                </td>
+                                <td style="display:none">
+                                    @item.IDOTROSDOC
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center">
+                                    @item.DOCUMENTO
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                    <a href="@urlinktr" target="_blank">@item.DOCUMENTO_ADJUNTO</a>
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center;">
+                                    @item.NEstado
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center;width:10%">
+                                    @if (item.NEstado != "INACTIVO")
+                                    {
+                                        <button class="btn btn-sm btn-primary editaotro" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+                                        <button class="btn btn-sm btn-danger eliminaotro" style="padding: 2px; font-size: small; margin-top: -5px">Eliminar</button>
+                                    }
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

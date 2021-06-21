@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?><Database Name="BD_PRODUCCION" Class="DataSqlDataContext" xmlns="http://schemas.microsoft.com/linqtosql/dbml/2007">
+  <Connection Mode="WebSettings" ConnectionString="Data Source=DESARROLLO-SERV;Initial Catalog=BD_PRODUCCION;Persist Security Info=True;User ID=sa" SettingsObjectName="System.Configuration.ConfigurationManager.ConnectionStrings" SettingsPropertyName="BD_PRODUCCIONConnectionString" Provider="System.Data.SqlClient" />
+  <Function Name="dbo.sp_muestra_ubicacion_saec" Method="sp_muestra_ubicacion_saec">
+    <Parameter Name="code_encriptado" Type="System.String" DbType="VarChar(100)" />
+    <ElementType Name="sp_muestra_ubicacion_saecResult">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="Ubicacion" Type="System.String" DbType="NVarChar(103) NOT NULL" CanBeNull="false" />
+    </ElementType>
+  </Function>
+  <Function Name="dbo.sp_muestra_ubicacion_saec_2" Method="sp_muestra_ubicacion_saec_2">
+    <Parameter Name="code_encriptado" Type="System.String" DbType="VarChar(100)" />
+    <ElementType Name="sp_muestra_ubicacion_saec_2Result">
+      <Column Name="Id" Type="System.Int32" DbType="Int NOT NULL" CanBeNull="false" />
+      <Column Name="CamaraCongelamiento" Type="System.String" DbType="NVarChar(5)" CanBeNull="true" />
+      <Column Name="Estante" Type="System.String" DbType="NVarChar(5)" CanBeNull="true" />
+      <Column Name="Altura" Type="System.Decimal" DbType="Decimal(3,0)" CanBeNull="true" />
+      <Column Name="Fondo" Type="System.Decimal" DbType="Decimal(3,0)" CanBeNull="true" />
+      <Column Name="Palet" Type="System.Int32" DbType="Int" CanBeNull="true" />
+      <Column Name="PBascula" Type="System.Decimal" DbType="Decimal(10,3)" CanBeNull="true" />
+      <Column Name="PBrutos" Type="System.Decimal" DbType="Decimal(10,3)" CanBeNull="true" />
+      <Column Name="PNetos" Type="System.Decimal" DbType="Decimal(10,3)" CanBeNull="true" />
+      <Column Name="Partida" Type="System.String" DbType="NVarChar(50)" CanBeNull="true" />
+    </ElementType>
+  </Function>
+</Database>

@@ -1,0 +1,384 @@
+﻿@model IEnumerable<ERP.Admin.Models.CuentasPorPagar>
+<script type="text/javascript">
+    var NroTrCPC = 1;
+    var SaldoDist = 0;
+
+    $(document).ready(function () {
+        SaldoDist = $("#HiddCtasPorPagar_SaldDist").val();
+        CallBy = $("#HiddCtasPorPagar_CallBy").val();
+        if (CallBy == "Pagar") {
+            document.getElementById('DivAddCronograma').style.display = "none";
+            document.getElementById('btnSaveCrono').style.display = "none";
+        } else {
+            document.getElementById('THBtnPagar').style.display = "none";
+        }
+    });
+
+    function existeFecha(fecha) {
+        var fechaf = fecha.split("/");
+        var day = fechaf[0];
+        var month = fechaf[1];
+        var year = fechaf[2];
+        var date = new Date(year, month, '0');
+        if ((day - 0) > (date.getDate() - 0)) {
+            return false;
+        }
+        return true;
+    }
+
+    function FnGenerarCronograma() {
+        var nroCuot = $("#txtCtasPorPagar_CantCuot").val();
+        var CuotPeri = $("#cmbCtasPagar_CuotPeri").val();
+        var fechInic = $("#txtCtasPorPagar_FechVenc").val();
+        var montCompComp = $("#HiddCtasPorPagar_TotaBrut").val();
+        var flgGenerar = 1;
+        if (nroCuot.trim() == "") {
+            flgGenerar = 0;
+        } else if (parseInt(nroCuot) <= 0) {
+            flgGenerar = 0;
+        } else if (parseInt(CuotPeri) <= 0) {
+            flgGenerar = 0;
+        } else if (!existeFecha(fechInic)) {
+            alert("Fecha no válida")
+            flgGenerar = 0;
+        }
+        if (flgGenerar == 1) {
+            NroTrCPC = 1;
+            $("#tBodyCtasPorPagar tr").remove();
+            var MontCuot = (montCompComp / nroCuot).toFixed(2);
+            for (var i = 0; i < nroCuot; i++) {
+                FnAddCtasPorPagar(fechInic, MontCuot);
+                var Fecha = fechInic;
+                var sFecha = fechInic || (Fecha.getDate() + "/" + (Fecha.getMonth() + 1) + "/" + Fecha.getFullYear());
+                var sep = sFecha.indexOf('/') != -1 ? '/' : '-';
+                var aFecha = sFecha.split(sep);
+                var fecha = aFecha[2] + '/' + aFecha[1] + '/' + aFecha[0];
+                fecha = new Date(fecha);
+                fecha.setDate(fecha.getDate() + parseInt(CuotPeri));
+                var anno = fecha.getFullYear();
+                var mes = fecha.getMonth() + 1;
+                var dia = fecha.getDate();
+                mes = (mes < 10) ? ("0" + mes) : mes;
+                dia = (dia < 10) ? ("0" + dia) : dia;
+                var fechaFinal = dia + sep + mes + sep + anno;
+                fechInic = fechaFinal;
+                //alert(fechaFinal);
+
+            }
+        }
+    }
+
+    function FnAddCtasPorPagar(FVenc, Mont) {
+            var IdTrCPP = "IdTrCPP" + NroTrCPC;
+            var TDIdCtasPorPaga = "TDIdCtasPorPaga" + IdTrCPP;
+            var TDFVenc = "TDFVenc" + IdTrCPP;
+            var TDMont = "TDMont" + IdTrCPP;
+            var TDSald = "TDSald" + IdTrCPP;
+
+            //var strTxtFech = '<input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" type="text" style="width: 120px;"';
+            var strTxtFech = "<div class='input-group'>" +
+                "<input class='form-control date-picker' id= 'txtDatePicker' type= 'text' data-date-format='dd/mm/yyyy'>" +
+                    "<span class='input-group-addon'>" +
+                        "<i class='fa fa-calendar'></i>" +
+                    "</span>" +
+                "</div>";
+            var strTxtMontCuot = '@Html.Bootstrap().TextBox("strTxtMontCuot").HtmlAttributes(new { @type = "number", @min = "0.1", @style = "width: 120px; text-align: right;" })';
+            var row = $("<tr id='" + IdTrCPP + "'>" +
+                "<td id='" + TDIdCtasPorPaga + "' class='input-xs' style='display: none;'>0</td>" +
+                "<td id='" + TDFVenc + "' class='input-xs'>" + strTxtFech + "</td>" +
+                "<td id='" + TDMont + "' class='input-xs' style='text-align: right;'>" + strTxtMontCuot + "</td>" +
+                "<td id='" + TDSald + "' class='input-xs' style='text-align: right;'>" + Mont + "</td>" +
+                "</tr>");
+            $("#tBodyCtasPorPagar").append(row);
+            var objTxt = document.getElementById(TDFVenc).children;
+            objTxt = objTxt[0].children;
+            objTxt[0].value = FVenc;
+            objTxt = document.getElementById(TDMont).children;
+            objTxt[0].value = Mont;
+            NroTrCPC++;
+            initDatePicker();
+    }
+
+    //function FnCambiaFecha(obj, IdTrCPP) {
+    //    //obj.value = obj.oldvalue;
+    //    alert(IdTrCPP + " - " + obj.value + " - " + obj.oldvalue);
+    //}
+
+    function FnPagarCuota(FkCtasPorPaga) {
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'GET',
+            url: '@Url.Action("ViewPagoCuota", "CuentasPorPagar")',
+            contentType: "application/json; charset=utf-8",
+            data: { FkCtasPorPaga: FkCtasPorPaga },
+            dataType: 'html',
+            success: function (response) {
+                $('#myModalContentPagoCtasPorPagar').html(response);
+                $('#myModalPagoCtasPorPagar').modal(options);
+                $('#myModalPagoCtasPorPagar').modal('show');
+            },
+            error: function (request, status, error) {
+                sweetAlert("", request.responseText, "error");
+            }
+        });
+    }
+</script>
+@{
+    string CallByCtasPorPagar = ViewBag.CallByCtasPorPagar;
+    int pIdCompComp = ViewBag.ComprobanteCompra.id_comprobante_compra;
+    string NroCompComp = ViewBag.ComprobanteCompra.nro_comprobante;
+    string DescCompCompTipo = ViewBag.ComprobanteCompra.descripcion_comprobante_tipo;
+    string strTitle = "";
+    if (CallByCtasPorPagar == "Cronograma")
+    {
+        strTitle = "DEFINIR CRONOGRAMA DE PAGOS";
+    }
+    string FechEmis = Convert.ToDateTime(ViewBag.ComprobanteCompra.f_emision).ToString("dd/MM/yyyy");
+    string strClie = ViewBag.ComprobanteCompra.ruc + " " + ViewBag.ComprobanteCompra.razon_social;
+
+    decimal totaBrut = ViewBag.ComprobanteCompra.total_bruto;
+    int FkCompComp = ViewBag.ComprobanteCompra.id_comprobante_compra;
+
+    int FkTipoMone = ViewBag.ComprobanteCompra.id_tipo_moneda;
+    string DescTipoMone = ViewBag.ComprobanteCompra.descripcion_tipo_moneda;
+
+    string FechCuotInic = DateTime.Now.ToString("dd/MM/yyyy");
+}
+@Html.Hidden("HiddCtasPorPagar_CallBy", CallByCtasPorPagar)
+@Html.Hidden("HiddCtasPorPagar_IdCompComp", pIdCompComp)
+@Html.Hidden("HiddCtasPorPagar_SaldDist", totaBrut)
+@Html.Hidden("HiddCtasPorPagar_FkCompComp", FkCompComp)
+@Html.Hidden("HiddCtasPorPagar_TotaBrut", totaBrut)
+@Html.Hidden("HiddCtasPorPagar_FkTipoMone", FkTipoMone)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">@strTitle</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-12 control-label" style="text-align: left; ">FECHA EMISIÓN: @FechEmis</label>
+                                <label class="col-sm-12 control-label" style="text-align: left; ">@DescCompCompTipo: @NroCompComp</label>
+                                <label class="col-sm-12 control-label" style="text-align: left; ">PROVEEDOR: @strClie</label>
+                                <label class="col-sm-12 control-label" style="text-align: left; ">IMPORTE: @totaBrut</label>
+                                <label class="col-sm-12 control-label" style="text-align: left; ">MONEDA: @DescTipoMone</label>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="row" id="DivAddCronograma">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; "> Cuotas: </label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtCtasPorPagar_CantCuot").HtmlAttributes(new { type = "number", style = "text-align: right;", onchange = "FnGenerarCronograma()" }).Size(InputSize.Small)
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; "> Periodo: </label>
+                                <div class="col-md-3">
+                                    @Html.DropDownList("cmbCtasPagar_CuotPeri", new SelectList(new List<Object> { new { value = "0", text = "" }, new { value = "1", text = "1 DÍA" }, new { value = "7", text = "7 DÍAS" }, new { value = "15", text = "15 DÍAS" }, new { value = "30", text = "30 DÍAS" }, new { value = "60", text = "60 DÍAS" }, new { value = "90", text = "90 DÍAS" } }, "value", "text", 0), new { id = "cmbCtasPagar_CuotPeri", onchange = "FnGenerarCronograma()" })
+                                </div>
+                                <label class="col-sm-1 control-label" style="text-align: right; "> Inicio: </label>
+                                <div class="col-md-2">
+                                    <input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtCtasPorPagar_FechVenc" type="text" value="@FechCuotInic" onchange="FnGenerarCronograma()">
+                                </div>
+                                <div class="col-md-2">
+                                    @*@Html.Bootstrap().Button().Text("Personalizado").Id("btnCronPersonalizado").Color(BootstrapColors.Primary).IconPrepend(FontAwesome.Calendar).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Crea Cronograma Personalizado", @onclick = "FnCronogramaPersonalizado()", @style = "margin-top: 5px; float: right;" })*@
+                                    <a class="btn btn-xs btn-primary" href='@Url.Action("ViewCPPCronogramaPersonalizado", "CuentasPorPagar", new { IdCompComp = @pIdCompComp })' title = "Crea Cronograma Personalizado">
+                                        Personalizado
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblCtasPorPagar">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="display: none;">
+                                                ID_CUENTAS_POR_PAGAR
+                                            </th>
+                                            <th>
+                                                F. VENCIMINETO
+                                            </th>
+                                            <th style="text-align: center;">
+                                                MONTO
+                                            </th>
+                                            <th style="text-align: center;">
+                                                SALDO
+                                            </th>
+                                            <th id="THBtnPagar" style="width: 100px; text-align: center;">
+                                                ...
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyCtasPorPagar">
+                                        @if (Model != null)
+                                        {
+                                            foreach (var item in Model)
+                                            {
+                                                string IdTrCPP = "IdTrCPP" + @item.id_cuentas_por_pagar;
+                                                string TDIdCtasPorPaga = "TDIdCtasPorPaga" + IdTrCPP;
+                                                string TDFVenc = "TDFVenc" + IdTrCPP;
+                                                string TDMont = "TDMont" + IdTrCPP;
+                                                string TDSald = "TDSald" + IdTrCPP;
+                                                <tr id="@IdTrCPP">
+                                                    <td id="@TDIdCtasPorPaga" style="display:none">
+                                                        @item.id_cuentas_por_pagar
+                                                    </td>
+                                                    <td id="@TDFVenc" class="input-xs">
+                                                        @item.f_vencimiento
+                                                    </td>
+                                                    <td id="@TDMont" class="input-xs" style="text-align: right;">
+                                                        @item.monto
+                                                    </td>
+                                                    <td id="@TDSald" class="input-xs" style="text-align: right;">
+                                                        @item.saldo
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: right;">
+                                                        @if (item.saldo > 0)
+                                                        {
+                                                            <a href="#" class="btn btn-success btn-xs" onclick="FnPagarCuota('@item.id_cuentas_por_pagar')"><i class="fa fa-money"></i> Pagar</a>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align: right; vertical-align: middle; width: 50%">
+                                @Html.Bootstrap().Button().Text("Grabar").Id("btnSaveCrono").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnSaveCutasPorPagar()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div>
+    @*<div class='input-group'>
+        <input class='form-control date-picker' id='id-date-picker-1' type='text' data-date-format='dd-mm-yyyy'>
+        <span class='input-group-addon'>
+            <i class='fa fa-calendar'></i>
+        </span>
+    </div>*@
+</div>
+<div id="spinnerPagoCuota" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    var arrCtasPorPaga = new Array();
+    $(document).ready(function () {
+        $("#spinnerPagoCuota").hide();
+        initDatePicker();
+        $('#spinnerPagoCuota').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+            });
+    });
+
+    function initDatePicker() {
+        //--Bootstrap Date Picker--
+        $('.date-picker').datepicker();
+    }
+        function FnSaveCutasPorPagar() {
+            var FkTipoMone = $("#HiddCtasPorPagar_FkTipoMone").val();
+        FnLlenaArrayCtasPorPagar();
+        var CantTrs = document.getElementById("tBodyCtasPorPagar").rows.length;
+        if (CantTrs == 0){
+            sweetAlert("", "No ha especificado un cronograma de pagos", "error");
+        } else {
+            var FkCompComp = $("#HiddCtasPorPagar_FkCompComp").val();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveNewCuentasPorPagar", "CuentasPorPagar")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    FkCompComp: FkCompComp, FkTipoMone: FkTipoMone, arrCtasPorPaga: arrCtasPorPaga
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerPagoCuota').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerPagoCuota').length > 0) {
+                        $('#spinnerPagoCuota').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    function FnLlenaArrayCtasPorPagar() {
+        arrCtasPorPaga = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyCtasPorPagar');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var IdCtasPorPaga = "";
+        var FVenc = "";
+        var Mont = "";
+        var Sald = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    IdCtasPorPaga = document.getElementById("TDIdCtasPorPaga" + newTr).innerHTML.trim();
+                    var objTxt = document.getElementById("TDFVenc" + newTr).children;
+                    //var objTxt = document.getElementById(TDFVenc).children;
+                    objTxt = objTxt[0].children;
+                    FVenc = objTxt[0].value;
+                    //alert(FVenc)
+                    objTxt = document.getElementById("TDMont" + newTr).children;
+                    Mont = objTxt[0].value;
+                    Sald = document.getElementById("TDSald" + newTr).innerHTML.trim();
+                    arrCtasPorPaga[IndArr] = new Array(4);
+                    arrCtasPorPaga[IndArr][0] = IdCtasPorPaga;
+                    arrCtasPorPaga[IndArr][1] = FVenc;
+                    arrCtasPorPaga[IndArr][2] = Mont;
+                    arrCtasPorPaga[IndArr][3] = Sald;
+                    IndArr++;
+                }
+            }
+        }
+    }
+</script>

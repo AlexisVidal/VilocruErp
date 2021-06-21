@@ -1,0 +1,113 @@
+﻿@model IEnumerable<ERP.Admin.Models.ComprobanteCompra>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">COMPROBANTES DE COMPRA</span>
+            </div>
+            <div class="col-xs-12 col-md-12">
+                <div class="widget">
+                    <div class="widget-body">
+                        <table class="table table-striped table-hover table-bordered" id="tblListCompCompra">
+                            <thead>
+                                <tr role="row">
+                                    <th style="display:none">
+                                        ID_COMP_COMPRA
+                                    </th>
+                                    <th style="text-align: center">
+                                        F.EMISIÓN
+                                    </th>
+                                    <th style="text-align: center">
+                                        DOCUMENTO
+                                    </th>
+                                    <th style="text-align: center">
+                                        PROVEEDOR
+                                    </th>
+                                    <th>
+                                        IMPORTE
+                                    <th>
+
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="tBodyPedido">
+                                @foreach (var item in Model)
+                                {
+                                    string FechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                                    <tr>
+                                        <td style="display:none">
+                                            @Html.DisplayFor(modelItem => item.id_comprobante_compra)
+                                        </td>
+                                        <td class="input-xs" style="text-align: center;">
+                                            @FechEmis
+                                        </td>
+                                        <td class="input-xs" style="text-align: center;">
+                                            @item.descripcion_comprobante_tipo @item.nro_comprobante
+                                        </td>
+                                        <td class="input-xs">
+                                            @item.ruc @item.razon_social
+                                        </td>
+                                        <td class="input-xs" style="text-align: right;">
+                                            @item.total_bruto
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <a class="btn btn-info btn-xs" onclick="FnVincularFlete('@item.id_comprobante_compra')"> Asignar</a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="horizontal-space"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right; margin-left: 10px;">Cerrar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        InitListCompComp();
+    });
+
+    function InitListCompComp() {
+        oTable = $('#tblListCompCompra').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ],
+            "aaSorting": [[0, "desc"]]
+        });
+        var isEditing = null;
+    }
+</script>

@@ -1,0 +1,75 @@
+﻿
+@using ERP.Admin.Models
+@{
+    var _productlinea = (ProductoLineaErp)ViewBag.ProductoLinea;
+    int id_producto_linea = 0;
+    string codigos = "";
+    string descripcions = "";
+    if (_productlinea != null)
+    {
+        id_producto_linea = _productlinea.id_producto_linea;
+        codigos = _productlinea.codigo;
+        descripcions = _productlinea.descripcion;
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_producto_lineax", @id_producto_linea)
+@Html.Hidden("codigosx", @codigos)
+@Html.Hidden("descripcionsx", @descripcions)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de linea</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Codigo <sup>*</sup></label>
+                                <div class="col-md-3" style="width:150px">
+                                    @Html.Bootstrap().TextBox("codigo").HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @maxlength = "3" }).Placeholder("Codigo")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Descripcion <sup>*</sup></label>
+                                <div class="col-md-3" style="width:300px">
+                                    @Html.Bootstrap().TextBox("descripcion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Descripcion")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarProductoLinea").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+}
+
+

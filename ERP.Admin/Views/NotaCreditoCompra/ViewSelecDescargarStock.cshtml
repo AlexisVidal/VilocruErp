@@ -1,0 +1,263 @@
+﻿@model IEnumerable<ERP.Admin.Models.AlmacenStock>
+<script>
+    $(document).ready(function () {
+        FnConbinarCeldaProducto();
+    });
+
+    function FnConbinarCeldaProducto() {
+        var table = document.getElementById('tBodyAlmaStoc');
+        var cantRows = table.rows.length;
+        var newTrCont = "";
+        var IdTrContComb = "";
+        var cantCombinar = 1;
+        var newFkProd = "";
+        var FkProdBusq = "";
+        var onlyOneCont = 1;
+        var newNombCont = 1;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTrCont = table.rows[i].id;
+                var row = document.getElementById(newTrCont);
+                //Si es la primera fila
+                if (i == 0) {
+                    IdTrContComb = newTrCont.trim();
+                    FkProdBusq = row.cells["TDFkProd" + IdTrContComb].innerHTML.trim();
+                    onlyOneCont = 1;
+                }
+                else {
+                    newFkProd = row.cells["TDFkProd" + newTrCont].innerHTML.trim();
+                    if (newFkProd != FkProdBusq) {
+                        //Combinar celdas
+                        if (cantCombinar > 1) {
+                            //Combinamos la celda que contiene el nombre del producto
+                            $('#TDNombProd' + IdTrContComb).attr('rowspan', cantCombinar);
+                            //Combinamos la celda que contiene la cantidad a descontar
+                            $('#TDCantDesc' + IdTrContComb).attr('rowspan', cantCombinar);
+                        }
+                        //Cambiamos el nombre del contenedor
+                        IdTrContComb = newTrCont;
+                        cantCombinar = 1;
+                        FkProdBusq = newFkProd.trim();
+                        onlyOneCont = 1;
+                        newNombCont++;
+                    }
+                    else {
+                        //Eliminamos la celda que contiene el nombre del producto
+                        row.deleteCell(row.cells["TDNombProd" + newTrCont].cellIndex);
+                        //Eliminamos la celda que contiene la cantidad a descontar
+                        row.deleteCell(row.cells["TDCantDesc" + newTrCont].cellIndex);
+                        cantCombinar = cantCombinar + 1;
+                        onlyOneCont = 0;
+                    }
+                }
+            }
+            //Para regularizar la ultima iteracion
+            if (onlyOneCont == 0) {
+                if (cantCombinar > 1) {
+                    //Combinamos la celda que contiene el nombre del producto
+                    $('#TDNombProd' + IdTrContComb).attr('rowspan', cantCombinar);
+                    //Combinamos la celda que contiene la cantidad a descontar
+                    $('#TDCantDesc' + IdTrContComb).attr('rowspan', cantCombinar);
+                }
+            }
+        }
+    }
+
+    function FnValidaCantidad(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var CantDesc = document.getElementById('TDHiddCantDesc' + IdTRsele).innerHTML;
+        var FkProdBusq = document.getElementById('TDFkProd' + IdTRsele).innerHTML;
+        var Exist = parseFloat(document.getElementById('TDExis' + IdTRsele).innerHTML);
+        var newCant = parseFloat(obj.value);
+        if (newCant < 0) {
+            sweetAlert("", "Cantidad no válida", "error");
+            obj.value = obj.oldvalue;
+        } else if (newCant > Exist){
+            sweetAlert("", "Cantidad supera el stock disponible en almacén", "error");
+            obj.value = obj.oldvalue;
+        }
+        else { 
+            var table = document.getElementById('tBodyAlmaStoc');
+            var cantRows = table.rows.length;
+            var newTR = "";
+            var newFkProd = "";
+            var SumCant = newCant;
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTR = table.rows[i].id;
+                    if (newTR.trim() != "") {
+                        newFkProd = document.getElementById('TDFkProd' + newTR).innerHTML;
+                        if (newFkProd.trim() == FkProdBusq.trim()) {
+                            if (IdTRsele != newTR) {
+                                var objTxt = document.getElementById("TDTxtCant" + newTR).children;
+                                Cant = parseFloat(objTxt[0].value);
+                                SumCant = SumCant + Cant;
+                            }
+                        }
+                    }
+                }
+            }
+            if (parseFloat(SumCant) > parseFloat(CantDesc)) {
+                sweetAlert("", "El valor supera la cantidad a despachar", "error");
+                obj.value = obj.oldvalue;
+            }
+        }
+    }
+</script>
+@{ 
+    string IdTrAS = "";
+    string TDIdAlmaStoc = "";
+    string TDFkAlma = "";
+    string TDFkProd = "";
+    string TDCantDesc = "";
+    string TDNombProd = "";
+    string TDNombAlma = "";
+    string TDExis = "";
+    string TDTxtCant = "";
+    string TDHiddCantDesc = "";
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-blue">
+                <span class="widget-caption">SELECCIONE DE DONDE SE DESCARGARAN LOS PRODUCTOS</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <div class="col-md-12">
+                                    <div class="table-toolbar">
+                                    </div>
+                                    <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                                        <thead>
+                                            <tr role="row">
+                                                <th style="display: none;">
+                                                    ID_ALMACEN_STOCK
+                                                </th>
+                                                <th style="display: none;">
+                                                    FK_ALMACEN
+                                                </th>
+                                                <th style="display: none;">
+                                                    FK_PRODUCTO
+                                                </th>
+                                                <th>
+                                                    CANT. DESCONTAR
+                                                </th>
+                                                <th>
+                                                    PRODUCTO
+                                                </th>
+                                                <th>
+                                                    ALMACEN
+                                                </th>
+                                                <th>
+                                                    STOCK
+                                                </th>
+                                                <th style="width: 100px;">
+                                                    CANTIDAD
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tBodyAlmaStoc">
+                                            @foreach (var item in Model)
+                                            {
+                                                IdTrAS = "IdTrAS" + item.id_almacen_stock;
+                                                TDIdAlmaStoc = "TDIdAlmaStoc" + IdTrAS;
+                                                TDFkAlma = "TDFkAlma" + IdTrAS;
+                                                TDFkProd = "TDFkProd" + IdTrAS;
+                                                TDCantDesc = "TDCantDesc" + IdTrAS;
+                                                TDNombProd = "TDNombProd" + IdTrAS;
+                                                TDNombAlma = "TDNombAlma" + IdTrAS;
+                                                TDExis = "TDExis" + IdTrAS;
+                                                TDTxtCant = "TDTxtCant" + IdTrAS;
+                                                TDHiddCantDesc = "TDHiddCantDesc" + IdTrAS;
+
+                                                <tr id="@IdTrAS">
+                                                    <td id="@TDIdAlmaStoc" style="display: none;">
+                                                        @Html.DisplayFor(modelItem => item.id_almacen_stock)
+                                                    </td>
+                                                    <td id="@TDFkAlma" style="display: none;">
+                                                        @Html.DisplayFor(modelItem => item.fk_almacen)
+                                                    </td>
+                                                    <td id="@TDFkProd" style="display: none;">
+                                                        @Html.DisplayFor(modelItem => item.fk_producto)
+                                                    </td>
+                                                    <td id="@TDCantDesc" class="input-xs">
+                                                        @Html.DisplayFor(modelItem => item.cantidad_descontar)
+                                                    </td>
+                                                    <td id="@TDNombProd" class="input-xs">
+                                                        @Html.DisplayFor(modelItem => item.nom_producto)
+                                                    </td>
+                                                    <td id="@TDNombAlma" class="input-xs">
+                                                        @Html.DisplayFor(modelItem => item.nombre)
+                                                    </td>
+                                                    <td id="@TDExis" class="input-xs">
+                                                        @Html.DisplayFor(modelItem => item.existencia)
+                                                    </td>
+                                                    <td id="@TDTxtCant" class="input-xs">
+                                                        @Html.Bootstrap().TextBox("txtCant").Value(0).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantidad(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })
+                                                    </td>
+                                                    <td id="@TDHiddCantDesc" style="display: none;">
+                                                        @Html.DisplayFor(modelItem => item.cantidad_descontar)
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Aceptar").Color(BootstrapColors.Warning).Shiny().HtmlAttributes(new { @onclick = "FnAprobarOrdeCompra()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script>
+    var arrAlmaStoc = new Array();
+    function FnAprobarOrdeCompra() {
+        FnLlenaArrayAlmaStock();
+        FnSaveNewNotaCredito(arrAlmaStoc);
+    }
+
+    function FnLlenaArrayAlmaStock() {
+        arrAlmaStoc = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyAlmaStoc');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkAlma = 0;
+        var FkProd = "";
+        var Cant = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkAlma = document.getElementById("TDFkAlma" + newTr).innerHTML;
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDTxtCant" + newTr).children;
+                    Cant = objTxt[0].value;
+                    if (Cant.trim() != "" && Cant.trim() != "0") {
+                        arrAlmaStoc[IndArr] = new Array(3);
+                        arrAlmaStoc[IndArr][0] = FkAlma.trim();
+                        arrAlmaStoc[IndArr][1] = FkProd.trim();
+                        arrAlmaStoc[IndArr][2] = Cant.trim();
+                        IndArr++;
+                    }
+                }
+            }
+        }
+    }
+</script>

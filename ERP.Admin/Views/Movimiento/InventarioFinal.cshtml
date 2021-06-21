@@ -1,0 +1,154 @@
+﻿<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+
+</script>
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">INVENTARIO FINAL </span>
+                <a href="#" onclick="return Exporter.export(editabledataRegiCompras, 'INVENTARIO FINAL.xls', 'INVENTARIO FINAL')">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group" style="margin:0">
+                                    <label class="col-sm-2 control-label" style="text-align: right;">INVENTARIO FINAL AL </label>
+                                    <div class="col-md-2">
+                                        <div class='col-sm-10 input-group'>
+                                            <input class='form-control date-picker' id='txtInveFina_Fecha' type='text' data-date-format='dd/mm/yyyy' autocomplete="off" readonly />
+                                            <span class='input-group-addon'>
+                                                <i class='fa fa-calendar'></i>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-2">
+                                        @Html.Bootstrap().Button().Text("GENERAR").Color(BootstrapColors.Primary).Size(ButtonSize.Mini).HtmlAttributes(new { @onclick = "loadDivTblInveFinal()", @style = "margin-top: 5px;" })
+                                    </div>
+                                </div>
+                                <div class="horizontal-space"></div>
+                            </div>
+                            <div id="DivTblDataInveFinal"></div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#spinner").hide();
+            //Inicia();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+                });
+            $('.date-picker').datepicker();
+        });
+
+        function loadDivTblInveFinal() {
+            var FechInveFinal = $("#txtInveFina_Fecha").val();
+            if (FechInveFinal.trim() != "") {
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("ListDataInventarioFinal", "Movimiento")',
+                    contentType: "application/json; charset=utf-8",
+                    //data: JSON.stringify({
+                    //    FechInveFinal: FechInveFinal
+                    //}),
+                    data: { FechInveFinal: FechInveFinal },
+                    dataType: 'html',
+                    beforeSend: function () {
+                        $('#spinner').show();
+                    },
+                    success: function (response) {
+                        $('#DivTblDataInveFinal').html(response);
+                        //$('#DivTblDataInveFinal').load(response);
+                    },
+                    error: function (request, status, error) {
+                        sweetAlert("", request.responseText, "error");
+                    },
+                    complete: function () {
+                        //check that it does exist and remove
+                        if ($('#spinner').length > 0) {
+                            $('#spinner').hide();
+                        }
+                    }
+                });
+            }
+            else {
+                sweetAlert("", "Seleccione Fecha", "error");
+            }
+
+            //var FechInveFinal = $("#txtInveFina_Fecha").val();
+            //var url = "../Movimiento/ListDataInventarioFinal?FechInveFinal=" + FechInveFinal;
+            //$('#DivTblDataInveFinal').html('');
+            //$('#DivTblDataInveFinal').load(url);
+        }
+    </script>
+}

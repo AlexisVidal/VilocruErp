@@ -1,0 +1,141 @@
+﻿@model IEnumerable<ERP.Admin.Models.NotaCreditoCompra>
+@{
+    string FechEmis = "";
+    string strClie = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="table-toolbar">
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                ID_NOTA_CREDITO
+                            </th>
+                            <th>
+                                F. Emisión
+                            </th>
+                            <th>
+                                NC Nro
+                            </th>
+                            <th>
+                                Importe
+                            </th>
+                            <th>
+                                Comprobante Afecta
+                            </th>
+                            <th>
+                                Cliente
+                            </th>
+                            <th>
+                                Importe
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+
+                            strClie = item.ruc + " " + item.razon_social;
+                            <tr>
+                                <td style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_nota_credito_compra)
+                                </td>
+                                <td class="input-xs">
+                                    @FechEmis
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.nro_comprobante)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.total_bruto)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.descripcion_comprobante_tipo) @Html.DisplayFor(modelItem => item.nro_comprobante_compra)
+                                </td>
+                                <td class="input-xs">
+                                    @strClie
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.total_bruto_comprobante_compra)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.estado)
+                                </td>
+                                <td>
+                                    <a href="#" class="btn btn-default btn-xs ver"><i class="fa fa-search"></i> Ver</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    //InitiateEditableDataTable.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+        var isEditing = null;
+    }
+</script>

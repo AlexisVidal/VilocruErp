@@ -1,0 +1,98 @@
+﻿
+@using ERP.Admin.Models
+@{
+    var _servicio = (ServicioErp)ViewBag.Servicios;
+    int id_servicio = 0;
+    string cod_servicio = "";
+    string descripcion = "";
+    string observacion = "";
+    string codigo_sunat = "";
+    string estado = "";
+    if (_servicio != null)
+    {
+        id_servicio = _servicio.id_servicio;
+        cod_servicio = _servicio.cod_servicio;
+        descripcion = _servicio.descripcion;
+        observacion = _servicio.observacion;
+        codigo_sunat = _servicio.codigo_sunat;
+        estado = _servicio.estado;
+
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("id_serviciox", @id_servicio)
+@Html.Hidden("cod_serviciox", @cod_servicio)
+@Html.Hidden("descripcionx", @descripcion)
+@Html.Hidden("observacionx", @observacion)
+@Html.Hidden("codigo_sunatx", @codigo_sunat)
+@Html.Hidden("estadox", @estado)
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de servicio</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Codigo Sunat </label>
+                                <div class="col-md-3" >
+                                    @Html.Bootstrap().TextBox("codigo_sunat").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Codigo Sunat")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Descripcion <sup>*</sup></label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextBox("descripcion").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Descripcion")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-3 control-label" style="text-align:left;width:120px">Observacion</label>
+                                <div class="col-md-3" style="width:620px">
+                                    @Html.Bootstrap().TextArea("observacion").Rows(2).HtmlAttributes(new { @onkeyup = "InputToUpper(this)" })
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:80%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarServicio").Color(BootstrapColors.Blue).Shiny()
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+
+    </script>
+}
+
+

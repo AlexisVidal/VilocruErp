@@ -1,0 +1,183 @@
+﻿@{
+    string tipousuario = (string)ViewBag.IDUSUARIOTIPO;
+    string urlink = (string)ViewBag.UrlLink;
+}
+    <div class="row">
+        @*<div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">*@
+        <table class="table table-striped table-bordered table-sm" id="editabledatatable" style="font-size: 11px; white-space: nowrap;padding-bottom: 10px">
+            <thead>
+                <tr role="row">
+                    <th style="display: none">
+                        ID
+                    </th>
+                    <th style="font-size: 11px">
+                        Sel.
+                    </th>
+                    <th style="font-size: 11px">
+                        RUC
+                    </th>
+                    <th style="font-size: 11px">
+                        PROVEEDOR
+                    </th>
+                    <th style="font-size: 11px">
+                        MONEDA
+                    </th>
+                    <th style="font-size: 11px">
+                        EMISION
+                    </th>
+                    <th style="font-size: 11px">
+                        VENCIMIENTO
+                    </th>
+                    <th style="font-size: 11px">
+                        TIPO COMP.
+                    </th>
+                    <th style="font-size: 11px">
+                        COMPROBANTE
+                    </th>
+                    <th style="font-size: 11px">
+                        MONTO
+                    </th>
+                    <th style="font-size: 11px">
+                        AF. DETR.
+                    </th>
+                    <th style="font-size: 11px">
+                        DET. PAGO
+                    </th>
+                    <th style="font-size: 11px">
+                        DETRACCION
+                    </th>
+                    <th style="font-size: 11px">
+                        SALDO
+                    </th>
+                    <th style="font-size: 11px">
+                        OBSERVACIONES
+                    </th>
+                    <th>
+                        ...
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    string estatu = item.estado;
+
+                    string fechavence = @item.f_vencimiento.ToString("dd/MM/yyyy");
+
+                    string fechaemision = @item.f_emision.ToString("dd/MM/yyyy");
+                    decimal montox = @item.monto;
+                    decimal saldox = @item.saldo;
+                    decimal detrax = @item.monto_detraccion;
+                    string disable = item.disaled;
+                    
+                    <tr @(((disable == "disabled") || (Convert.ToDateTime(item.f_vencimiento) > Convert.ToDateTime(DateTime.Now) && disable == "disabled") || (Convert.ToDateTime(item.f_vencimiento) > Convert.ToDateTime(DateTime.Now) && item.saldo > 0)) ? String.Empty : "style=background-color:#f5cac3" )>
+                        <td style="display: none">
+                            @item.id_cuentas_por_pagar_proveedor
+                        </td>
+                        <td>
+                            @if (disable == "disabled")
+                            {
+                                /**/
+                            }
+                            else
+                            {
+                                <label><input type="checkbox" id="@item.id_cuentas_por_pagar_proveedor"><span class="text"></span></label>
+                            }
+
+                        </td>
+                        <td>
+                            @item.ruc
+                        </td>
+                        <td>
+                            @item.razon_social
+                        </td>
+
+                        <td>
+                            @item.moneda
+                        </td>
+                        <td>
+                            @fechaemision
+                        </td>
+                        <td>
+                            @item.df_vencimiento
+                        </td>
+                        <td style="">
+                            @item.comprobante_tipo
+                        </td>
+                        <td>
+                            @item.documento
+                        </td>
+                        <td>
+                            @montox.ToString("N")
+                        </td>
+                        <td>
+                            @item.dafecta_detraccion
+                        </td>
+                        <td>
+                            @item.ddetraccion_estado
+                        </td>
+                        <td>
+                            @detrax.ToString("N")
+                        </td>
+                        <td>
+                            @saldox.ToString("N")
+                        </td>
+                        <td>
+                            @item.observacion
+                        </td>
+                        <td style="width: 200px; text-align: center; vertical-align: middle">
+                            @if (estatu == "1")
+                            {
+                                <button class="btn btn-sm btn-primary edita" data-toggle="tooltip" title="Editar Registro" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-edit"></i></button>
+                                <button class="btn btn-sm btn-danger elimina" data-toggle="tooltip" title="Eliminar Registro" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-erase"></i></button>
+                                if (montox > saldox)
+                                {
+                                    <button class="btn btn-sm btn-success detalles" data-toggle="tooltip" title="Ver Pagos" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-record"></i></button>
+                                }
+                                <button class="btn btn-sm btn-warning agregar" data-toggle="tooltip" title="Agregar Pago" style="padding: 2px; font-size: small; margin-top: -5px"><i class="glyphicon glyphicon-plus"></i></button>
+
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+        @*</div>
+    </div>
+</div>*@
+<script>
+    $(document).ready(function () {
+        var table = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, 100, -1],
+                [5, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 20,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    "print"
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+            "scrollY": "auto",
+            "scrollCollapse": true
+
+        });
+    });
+</script>

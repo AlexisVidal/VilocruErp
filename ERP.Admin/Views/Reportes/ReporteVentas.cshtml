@@ -1,0 +1,258 @@
+﻿<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+@{
+    string FechNow = DateTime.Now.ToString("dd/MM/yyyy");
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">REPORTE DE VENTAS </span>
+                <a href="#" onclick="return Exporter.export(tableDataReportVenta, 'REPORTE DE VENTAS.xls', 'REPORTE DE VENTAS')">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    <div class="horizontal-space"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table border="1" class="table" id="editabledataRepoVentas" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                <thead>
+                                    <tr style="text-align: center;">
+                                        <th style="text-align: left; height: 20px; font-size: 11px; padding-right: 20px">
+                                            <div class="row">
+                                                <div class="form-group" style="margin:0">
+                                                    <label class="col-sm-1 control-label" style="text-align: right;">DESDE: </label>
+                                                    <div class="col-md-2">
+                                                        <div class='input-group'>
+                                                            <input class='form-control date-picker' id='txtRepoVent_FechInic' type='text' data-date-format='dd/mm/yyyy' value="@FechNow" readonly>
+                                                            <span class='input-group-addon'>
+                                                                <i class='fa fa-calendar'></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <label class="col-sm-1 control-label" style="text-align: right;">HASTA: </label>
+                                                    <div class="col-md-2">
+                                                        <div class='input-group'>
+                                                            <input class='form-control date-picker' id='txtRepoVent_FechFin' type='text' data-date-format='dd/mm/yyyy' value="@FechNow" readonly>
+                                                            <span class='input-group-addon'>
+                                                                <i class='fa fa-calendar'></i>
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        @Html.Bootstrap().TextBox("txtReportVenta_NombVend").Placeholder("VENDEDOR").Disable().Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaUsuario('ReporteVentas')" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                                        @Html.Hidden("txtReportVenta_FkVend", 0)
+                                                        <div class="horizontal-space"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="form-group" style="margin:0">
+                                                    <div class="col-md-6">
+                                                        @Html.Bootstrap().TextBox("txtReportVenta_NombClie").Placeholder("CLIENTE").Disable().Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaCliente('ReporteVentas')" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                                        @Html.Hidden("txtReportVenta_FkClie", 0)
+                                                        @Html.Hidden("txtReportVenta_FkClieTipo", 0)
+                                                    </div>
+                                                    <div class="col-md-4">
+                                                        @Html.Bootstrap().TextBox("txtReportVenta_DescLine").Placeholder("LINEA").Disable().Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaSubFamilia('ReporteVentas')" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                                        @Html.Hidden("txtReportVenta_FkFami", 0)
+                                                    </div>
+                                                    <div class="col-md-2">
+                                                        <button class="btn btn-sm btn-default" style="margin-top: 0px" onclick="loadDivTblReporteVenta()">BUSCAR</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div id="DivTblDataRepoVenta"></div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalCliente' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentCliente'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalUsuario' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:80%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentUsuario'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalFamilia' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:60%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentFamilia'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#spinner").hide();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+            $('.date-picker').datepicker();
+        });
+
+        function loadDivTblReporteVenta() {
+            var FechInic = $("#txtRepoVent_FechInic").val();
+            var FechFin = $("#txtRepoVent_FechFin").val();
+            var FkUsua = $("#txtReportVenta_FkVend").val();
+            var FkClieTipo = $("#txtReportVenta_FkClieTipo").val();
+            var FkClie = $("#txtReportVenta_FkClie").val();
+            var FkSubFami = $("#txtReportVenta_FkFami").val();
+            var url = "../Reportes/ListDataReporteVenta?FechInic=" + FechInic + "&FechFin=" + FechFin + "&FkUsua=" + FkUsua + "&FkClieTipo=" + FkClieTipo + "&FkClie=" + FkClie + "&FkSubFami=" + FkSubFami;
+            $('#DivTblDataRepoVenta').html('');
+            $('#DivTblDataRepoVenta').load(url);
+        }
+
+        function FnListaCliente(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaClientes", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCliente').html(response);
+                    $('#myModalCliente').modal(options);
+                    $('#myModalCliente').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        }
+
+        function FnAgregaClienteReporteVenta(FkClie, FkClietipo, DniRuc, NombRazoSoci) {
+            $("#txtReportVenta_FkClie").val(FkClie);
+            $("#txtReportVenta_FkClieTipo").val(FkClietipo);
+            $("#txtReportVenta_NombClie").val(NombRazoSoci);
+        }
+
+        function FnListaUsuario(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaUsuario", "Usuario")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentUsuario').html(response);
+                    $('#myModalUsuario').modal(options);
+                    $('#myModalUsuario').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        }
+
+        function FnAgregaUsuarioReporteVenta(FkUsua, DniUsua, NombUsua) {
+            $("#txtReportVenta_FkVend").val(FkUsua);
+            $("#txtReportVenta_NombVend").val(DniUsua + " - " + NombUsua);
+        }
+
+        function FnListaSubFamilia(pCallBy) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("ListaSubFamilia", "Reportes")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    CallBy: pCallBy
+                }),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentFamilia').html(response);
+                    $('#myModalFamilia').modal(options);
+                    $('#myModalFamilia').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        }
+
+        function FnAgregaFamiliaReporteVenta(FkFami, DescFami) {
+            $("#txtReportVenta_FkFami").val(FkFami);
+            $("#txtReportVenta_DescLine").val(DescFami);
+        }
+    </script>
+}

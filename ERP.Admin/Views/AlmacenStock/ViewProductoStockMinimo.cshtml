@@ -1,0 +1,164 @@
+﻿@model IEnumerable<ERP.Admin.Models.AlmacenStock>
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+
+</script>
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Productos con stock insufiente</span>
+                @*<a href="#" onclick="return Exporter.export(editabledataProdStocMini, 'INVENTARIO.xls', 'EXISTENCIAS')">
+        <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+    </a>*@
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table" id="editabledataProdStocMini" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                    <thead>
+                                        <tr style="text-align: center;border: none;">
+                                            <th colspan="7" style="text-align:center;height:20px;border: 0px solid black;font-size:11px;padding-right:20px">PRODUCTOS BAJOS DE STOCK</th>
+                                        </tr>
+                                        <tr role="row">
+                                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                ALMACÉN
+                                            </th>
+                                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                CODIGO PROD.
+                                            </th>
+                                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                PRODUCTO
+                                            </th>
+                                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                MARCA
+                                            </th>
+                                            <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                SUB-FAMILIA
+                                            </th>
+                                            <th style="width: 100px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                PTO LÍMITE
+                                            </th>
+                                            <th style="width: 100px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                                STOCK
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td class="input-xs">
+                                                    @Html.DisplayFor(modelItem => item.nombre)
+                                                </td>
+                                                <td class="input-xs">
+                                                    @Html.DisplayFor(modelItem => item.cod_producto)
+                                                </td>
+                                                <td class="input-xs" style="text-align: left;">
+                                                    @Html.DisplayFor(modelItem => item.nom_producto)
+                                                </td>
+                                                <td class="input-xs" style="text-align: left;">
+                                                    @Html.DisplayFor(modelItem => item.descripcion_producto_marca)
+                                                </td>
+                                                <td class="input-xs" style="text-align: left;">
+                                                    @Html.DisplayFor(modelItem => item.descripcion_producto_subfamilia)
+                                                </td>
+                                                <td class="input-xs" style="text-align: right;">
+                                                    @Html.DisplayFor(modelItem => item.pto_limite)
+                                                </td>
+                                                <td class="input-xs" style="text-align: right;">
+                                                    @Html.DisplayFor(modelItem => item.existencia)
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerProdStocMini" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    var arrGuiaRemiDeta = new Array();
+    $(document).ready(function () {
+        IniciaTblProdStockMinimo();
+        $("#spinnerProdStocMini").hide();
+        //Inicia();
+        $('#spinnerProdStocMini').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function IniciaTblProdStockMinimo() {
+        //Datatable Initiating
+        oTable = $('#editabledataProdStocMini').dataTable({
+            "aLengthMenu": [
+                [5, 15, 20, 100, -1],
+                [5, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 20,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+            ]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledataProdStocMini')));
+        var isEditing = null;
+
+    }
+</script>

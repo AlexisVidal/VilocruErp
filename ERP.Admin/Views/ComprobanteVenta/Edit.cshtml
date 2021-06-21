@@ -1,0 +1,1632 @@
+﻿@model ERP.Admin.Models.ComprobanteVenta
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    var NroTrVD = 1;
+    var NroTrMP = 1;
+    var arrSaveIDGuiaRemi = new Array();
+    var IdTRDistribuir = "";
+    var CantDistribuir = 0;
+    var NombProdDistribuir = "";
+    var arraInitAlmaCant = new Array();
+    var FkProdDistribuir = 0;
+    var vgEstaVent = 1; // 1 => Registra en movimiento, 2 => Venta por regularizar (No registra en movimiento)
+
+    $(document).ready(function () {
+        FnInitFormCompVentaVer();
+    });
+
+    function FnInitFormCompVentaVer() {
+        var CallBy = $("#cmbCompVentEdit_CallBy").val();
+        var FkAlmaDesp = $("#HiddCompVentEdit_FkAlmaDesp").val();
+        if (CallBy == "ComprobanteVentaVer" || CallBy == "ComprobanteVentaPorRegularizar") {
+            $("#cmbCompVentEdit_FkCompTipo").prop('disabled', true);
+            $("#txtCompCompEdit_NroComp").prop('disabled', true);
+            $("#txtCompCompEdit_FechEmis").prop('disabled', true);
+            $("#form-field-checkbox").prop('disabled', true);
+            document.getElementById('btnSaveRevertirCompVenta').style.display = 'none';
+            document.getElementById('btnAddProd').style.display = 'none';
+            $("#cmbCompVentEdit_FkAlma").prop('disabled', true);
+            $("#cmbCompVentEdit_FkMediPago").prop('disabled', true);
+            document.getElementById('btnAddClie').style.display = 'none';
+            document.getElementById('DivMediPagoRadio').style.display = 'none';
+            document.getElementById('DivMediPago0').style.display = 'none';
+            document.getElementById('DivMediPago1').style.display = 'none';
+            //Deshabilitamos opciones de la tabla
+            document.getElementById("THBtnDeleteDeta").style.display = 'none';
+            document.getElementById("TDTotalHidd").style.display = 'none';
+            var table = document.getElementById('tBodyVentDetalle');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        var objTxt = document.getElementById("TDCant" + newTr).children;
+                        objTxt[0].readOnly = true;
+                        objTxt = document.getElementById("TDPrec" + newTr).children;
+                        objTxt[0].readOnly = true;
+                        document.getElementById("TDBtnDeleteDeta" + newTr).style.display = 'none';
+                    }
+                }
+            }
+            if (CallBy == "ComprobanteVentaPorRegularizar") {
+                AjaxValidaStockDisponible();
+                document.getElementById("DivBtnRegularizar").style.display = '';
+            }
+        }
+        else if (CallBy == "ComprobanteVentaRevertir") {
+            FnGetCorrelativo();
+            if (parseInt(FkAlmaDesp) > 0) {
+                $("#cmbCompVentEdit_FkAlma").prop('disabled', false);
+            } else {
+                $('#form-field-checkbox').prop('disabled', false);
+            }
+            /*document.getElementById("THBtnDeleteDeta").style.display = 'none';*/
+            var table = document.getElementById('tBodyVentDetalle');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        var objTxt = document.getElementById("TDCant" + newTr).children;
+                        objTxt[0].readOnly = true;
+                        objTxt = document.getElementById("TDPrec" + newTr).children;
+                        objTxt[0].readOnly = true;
+                        document.getElementById("TDBtnDeleteDeta" + newTr).style.display = 'none';
+                    }
+                }
+            }
+        }
+        if (parseInt(FkAlmaDesp) == 0) {
+            $('#form-field-checkbox').prop('checked', true);
+            FnActivaDistribucion(this);
+        }
+        FnCalculTotalesIni();
+        FnLlenaAlmacenStocReturn();
+    }
+
+    function FnInputDataNotaCredito(IdNotaCred, NroNotaCred, MontDisp) {
+        $("#txtVentNew_NroCheqVoucNotaCred").val(NroNotaCred);
+        $("#txtVentNew_FkNotaCred").val(IdNotaCred);
+        $("#txtCompCompNew_MontMediPago").val(MontDisp);
+    }
+
+    function FnActivaDistribucion(obj) {
+        var strDisplay = ""
+        if (obj.checked == false) {
+            strDisplay = "none";
+            FnResetClassTrDetalle(strDisplay);
+            FnTrDisplayDetalle("none");
+            $('#cmbCompVentEdit_FkAlma').get(0).selectedIndex = 0;
+            $('#cmbCompVentEdit_FkAlma').prop('disabled', false);
+        }
+        else {
+            FnTrDisplayDetalle(strDisplay);
+            $('#cmbCompVentEdit_FkAlma').get(0).selectedIndex = 0;
+            $('#cmbCompVentEdit_FkAlma').prop('disabled', true);
+        }
+    }
+
+    function FnTrDisplayDetalle(strDisplay) {
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        document.getElementById("THBtnAddAlma").style.display = strDisplay;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                document.getElementById("TDBtnAddAlma" + newTr).style.display = strDisplay;
+            }
+        }
+    }
+
+    function FnLlenaAlmacenStocReturn() {
+        var IndArr = 0;
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newFkProd = "";
+        var newStrDist = "";
+        var newFkAlma = "";
+        var newCant = "";
+        var flgExiste = 0;
+        var Idx = 0;
+        arraInitAlmaCant = [];
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newFkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    newStrDist = document.getElementById("TDStrDist" + newTr).innerHTML;
+                    if (newStrDist.trim() != "") {
+                        newStrDist = newStrDist.substring(0, newStrDist.length - 1);
+                        var arraAlmaCant = newStrDist.split(',');
+                        for (var k = 0; k < arraAlmaCant.length; k++) {
+                            flgExiste = 0;
+                            var arraUlti = arraAlmaCant[k].split('[');
+                            var alma_desp = arraUlti[0];
+                            var cant_desp = arraUlti[1];
+                            if (Idx == 0) {
+                                arraInitAlmaCant[Idx] = new Array(3);
+                                arraInitAlmaCant[Idx][0] = alma_desp.trim();
+                                arraInitAlmaCant[Idx][1] = newFkProd.trim();
+                                arraInitAlmaCant[Idx][2] = cant_desp.trim();
+                                Idx++;
+                            } else {
+                                //Buscamos si ya existe en al array
+                                for (var m = 0; m < arraInitAlmaCant.length; m++) {
+                                    //Si ya se encuentra se incrementa la cantidad
+                                    if (arraInitAlmaCant[m][0].trim() == alma_desp.trim() && arraInitAlmaCant[m][1].trim() == newFkProd.trim()) {
+                                        arraInitAlmaCant[0][2] = parseFloat(arraInitAlmaCant[0][2]) + parseFloat(cant_desp);
+                                        flgExiste = 1;
+                                        break;
+                                    }
+                                }
+                                if (flgExiste == 0) {
+                                    arraInitAlmaCant[Idx] = new Array(3);
+                                    arraInitAlmaCant[Idx][0] = alma_desp.trim();
+                                    arraInitAlmaCant[Idx][1] = newFkProd.trim();
+                                    arraInitAlmaCant[Idx][2] = cant_desp.trim();
+                                    Idx++;
+                                }
+                            }
+
+                        }
+                    }
+                }
+            }
+        }
+        ////alert(arraInitAlmaCat.length)
+        //for (var j = 0; j < arraInitAlmaCant.length; j++) {
+        //    alert(arraInitAlmaCant[j][0] + " - " + arraInitAlmaCant[j][1] + " - " + arraInitAlmaCant[j][2] + " - ")
+        //}
+    }
+
+    function FnCalculTotalesIni() {
+        var IndArr = 0;
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkProd = "";
+        var Cant = "";
+        var Prec = "";
+        var Brut = 0;
+        var pFlgAfecIgv = "";
+        var pPorcIgv = "";
+        var pTotaNeto = 0;
+        var pTotaIgv = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    //Cant = document.getElementById("TDCant" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDCant" + newTr).children;
+                    Cant = objTxt[0].value;
+                    //Prec = document.getElementById("TDPrec" + newTr).innerHTML;
+                    objTxt = document.getElementById("TDPrec" + newTr).children;
+                    Prec = objTxt[0].value;
+                    pFlgAfecIgv = document.getElementById("TDFlgAfecIgv" + newTr).innerHTML;
+                    pPorcIgv = document.getElementById("TDPorcIgv" + newTr).innerHTML;
+                    Brut = parseFloat(Cant) * parseFloat(Prec);
+                    if (pFlgAfecIgv.trim() == "1") {
+                        pTotaIgv = CalculaIgv(Brut, pPorcIgv);
+                    }
+                    pTotaNeto = (parseFloat(Brut) - parseFloat(pTotaIgv)).toFixed(2);
+                    document.getElementById("TDTotaNeto" + newTr).innerHTML = pTotaNeto;
+                    document.getElementById("TDTotaIgv" + newTr).innerHTML = parseFloat(pTotaIgv).toFixed(2);
+                    document.getElementById("TDTotaBruto" + newTr).innerHTML = parseFloat(Brut).toFixed(2);
+                }
+            }
+        }
+    }
+
+    function FnAgregaVentaDetalle(IdPedi, FkClie, NroPedi, DniRuc, NombRazoSoci, FkUserVent, NombUserVent, PediTotaNeto,
+        PediTotaIgv, PediTotaBruto, arrVentDeta) {
+        NroTrVD = 1;
+
+        $("#txtVentEdit_FkPedi").val(IdPedi);
+        $("#txtVentEdit_NroPedi").val(NroPedi);
+        $("#txtVentEdit_FkClie").val(FkClie);
+        $("#txtVentEdit_DniRucClie").val(DniRuc);
+        $("#txtVentEdit_NombRazoSocialClie").val(NombRazoSoci);
+        $("#txtVentEdit_FkUsuaVent").val(FkUserVent);
+        document.getElementById("lblVentEdit_NombUsuaVent").innerHTML = "Pedido registrado por: " + NombUserVent;
+
+        $("#tBodyVentDetalle tr").remove();
+        for (var j = 0; j < arrVentDeta.length; j++) {
+            AddTRTableGuiaDetalle(arrVentDeta[j][0], arrVentDeta[j][1], arrVentDeta[j][2], arrVentDeta[j][3], arrVentDeta[j][4],
+                arrVentDeta[j][5], arrVentDeta[j][6], arrVentDeta[j][7], arrVentDeta[j][8], arrVentDeta[j][9], arrVentDeta[j][10],
+                arrVentDeta[j][11], arrVentDeta[j][12], arrVentDeta[j][13], arrVentDeta[j][7], arrVentDeta[j][7]);
+        }
+        document.getElementById("TDCompVentTotaNeto").innerHTML = parseFloat(PediTotaNeto).toFixed(2);
+        document.getElementById("TDCompVentTotaIgv").innerHTML = parseFloat(PediTotaIgv).toFixed(2);
+        document.getElementById("TDCompVentTotaBruto").innerHTML = parseFloat(PediTotaBruto).toFixed(2);
+        $('#btnAddProd').prop('disabled', false);
+        FnResetAlmacen();
+    }
+
+    function FnAgregaNeProductoVentaDetalle(arrVentDeta) {
+        var pCant = 1;
+        var pBruto = parseFloat(pCant) * parseFloat(arrVentDeta[6]);
+        var pTotaIgv = 0;
+        if (arrVentDeta[8].trim() == "1") {
+            pTotaIgv = parseFloat(CalculaIgv(pBruto, arrVentDeta[9])).toFixed(2);
+        }
+        var pTotaNeto = parseFloat(pBruto - pTotaIgv).toFixed(2);
+
+        AddTRTableGuiaDetalle(arrVentDeta[0], arrVentDeta[1], arrVentDeta[2], arrVentDeta[3], arrVentDeta[4],
+            arrVentDeta[5], pCant, arrVentDeta[6], pTotaNeto, pTotaIgv, pBruto, arrVentDeta[7], arrVentDeta[8],
+            arrVentDeta[9], arrVentDeta[10], arrVentDeta[11]);
+        FnCalculaTotaleComprobanteVenta();
+    }
+
+    function FnValidaExisteProducto(FkProd) {
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newFkPro = "";
+        var rptaReturn = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newFkPro = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    if (parseInt(FkProd) == parseInt(newFkPro)) {
+                        rptaReturn = 1;
+                        break;
+                    }
+                }
+            }
+        }
+        return rptaReturn;
+    }
+
+    function AddTRTableGuiaDetalle(pFkProd, pCodiProd, pCodiSku, pNombProd, pDescMarc, pDescSubFami, pCant, pPrec, pTotaNeto,
+        pTotaIgv, pTotaBruto, pFkTipoAfecIgv, pFlgAfecIgv, pPorcIgv, pPrecUnit, pPrecMayo) {
+        debugger;
+        var IdTrVD = "IdTrVD" + NroTrVD;
+        var TDFkProd = "TDFkProd" + IdTrVD;
+        var TDBtnAddAlma = "TDBtnAddAlma" + IdTrVD;
+        var TDStrDist = "TDStrDist" + IdTrVD;
+        var TDNombProd = "TDNombProd" + IdTrVD;
+        var TDCant = "TDCant" + IdTrVD;
+        var TDPrec = "TDPrec" + IdTrVD;
+        var TDTotaNeto = "TDTotaNeto" + IdTrVD;
+        var TDTotaIgv = "TDTotaIgv" + IdTrVD;
+        var TDTotaBruto = "TDTotaBruto" + IdTrVD;
+        var TDBtnDeleteDeta = "TDBtnDeleteDeta" + IdTrVD;
+        var TDFkTipoAfecIgv = "TDFkTipoAfecIgv" + IdTrVD;
+        var TDFlgAfecIgv = "TDFlgAfecIgv" + IdTrVD;
+        var TDPorcIgv = "TDPorcIgv" + IdTrVD;
+        var TDHiddPrecUnit = "TDHiddPrecUnit" + IdTrVD;
+        var TDHiddPrecMayo = "TDHiddPrecMayo" + IdTrVD;
+        var TDHiddPorRegu = "TDHiddPorRegu" + IdTrVD;
+        var strStyle = " display: none;";
+
+        if (document.getElementById("form-field-checkbox").checked) {
+            strStyle = "";
+        }
+
+        var strBtnAddAlma = '@Html.Bootstrap().Button().Text("Seleccione").Color(BootstrapColors.Success).Size(ButtonSize.Mini).HtmlAttributes(new { @onclick = "FnAddAlmacen(this)" })';
+        var strTxtCant = '@Html.Bootstrap().TextBox("txtCant").Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantidad(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })';
+        var strTxtPrec = '@Html.Bootstrap().TextBox("txtPrec").Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaPrecio(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })';
+        var strBtnDeta= '@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title="Eliminar Detalle", @onclick = "FnDeleteDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)';
+
+        var row = $("<tr id='" + IdTrVD + "'>" +
+            "<td id='" + TDFkProd + "' class='input-xs' style='display: none;'>" + pFkProd + "</td>" +
+            "<td id='" + TDBtnAddAlma + "' class='input-xs' style='width: 10%; text-align: center;" + strStyle + "'>" + strBtnAddAlma + "</td>" +
+            "<td id='" + TDStrDist + "' class='input-xs' style='display: none;'></td>" +
+            "<td class='input-xs' style='text-align: center;'>" + pCodiProd + "</td>" +
+            "<td class='input-xs' style='text-align: center;'>" + pCodiSku + "</td>" +
+            "<td id='" + TDNombProd + "' class='input-xs'>" + pNombProd + "</td>" +
+            "<td class='input-xs'>" + pDescMarc + "</td>" +
+            "<td class='input-xs'>" + pDescSubFami + "</td>" +
+            //"<td id='" + TDCant + "' class='input-xs' style='text-align: right;'>" + pCant + "</td>" +
+            "<td id='" + TDCant + "' class='input-xs' style='text-align: right;'>" + strTxtCant + "</td>" +
+            "<td id='" + TDPrec + "' class='input-xs' style='text-align: right;'>" + strTxtPrec + "</td>" +
+            "<td id='" + TDTotaNeto + "' class='input-xs' style='text-align: right;'>" + pTotaNeto + "</td>" +
+            "<td id='" + TDTotaIgv + "' class='input-xs' style='text-align: right;'>" + pTotaIgv + "</td>" +
+            "<td id='" + TDTotaBruto + "' class='input-xs' style='text-align: right;'>" + pTotaBruto + "</td>" +
+            "<td id='" + TDBtnDeleteDeta + "' class='input-xs' style='text-align: center;'>" + strBtnDeta + "</td>" +
+            "<td id='" + TDFkTipoAfecIgv + "' class='input-xs' style='display: none;'>" + pFkTipoAfecIgv + "</td>" +
+            "<td id='" + TDFlgAfecIgv + "' class='input-xs' style='display: none;'>" + pFlgAfecIgv + "</td>" +
+            "<td id='" + TDPorcIgv + "' class='input-xs' style='display: none;'>" + pPorcIgv + "</td>" +
+            "<td id='" + TDHiddPrecUnit + "' class='input-xs' style='display: none;'>" + pPrecUnit + "</td>" +
+            "<td id='" + TDHiddPrecMayo + "' class='input-xs' style='display: none;'>" + pPrecMayo + "</td>" +
+            "<td id='" + TDHiddPorRegu + "' class='input-xs' style='display: none;'>1</td>" +
+            "</tr>");
+        $("#tBodyVentDetalle").append(row);
+        var objTxt = document.getElementById(TDCant).children;
+        objTxt[0].value = pCant;
+        objTxt = document.getElementById(TDPrec).children;
+        objTxt[0].value = pPrec;
+        NroTrVD++;
+    }
+
+    function FnDeleteDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+        FnCalculaTotaleComprobanteVenta();
+    }
+
+    function FnValidaPrecio(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newPrec = parseInt(obj.value);
+        if (newPrec <= 0) {
+            sweetAlert("", "Precio no válido", "error");
+            obj.value = obj.oldvalue;
+        } else {
+            FnCalculaSubtotal(IdTRsele);
+        }
+    }
+
+    function FnValidaCantidad(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newCant = parseInt(obj.value);
+        //var newFlgAfecIgv = "";
+        //var newTotaBruto = 0;
+        //var newTotaNeto = 0;
+        //var newTotaIgv = 0;
+        //var newPorcIgv = 0;
+        var newPrec = 0;
+        if (newCant <= 0) {
+            sweetAlert("", "Cantidad no válida", "error");
+            obj.value = obj.oldvalue;
+        }
+        else {
+            var PrecUnitMayo = 0;
+            if (newCant >= 3) {
+                PrecUnitMayo = document.getElementById("TDHiddPrecMayo" + IdTRsele).innerHTML.trim();
+            }
+            else {
+                PrecUnitMayo = document.getElementById("TDHiddPrecUnit" + IdTRsele).innerHTML.trim();
+            }
+            var objTxt = document.getElementById("TDPrec" + IdTRsele).children;
+            objTxt[0].value = PrecUnitMayo;
+            FnCalculaSubtotal(IdTRsele);
+            //newPrec = document.getElementById("TDPrec" + IdTRsele).innerHTML;
+            //newTotaBruto = (parseFloat(newCant) * parseFloat(newPrec)).toFixed(2);
+            //newFlgAfecIgv = document.getElementById("TDFlgAfecIgv" + IdTRsele).innerHTML;
+            //if (newFlgAfecIgv.trim() == "1") {
+            //    newPorcIgv = document.getElementById("TDPorcIgv" + IdTRsele).innerHTML;
+            //    newTotaIgv = CalculaIgv(newTotaBruto, newPorcIgv);
+            //}
+            //newTotaNeto = newTotaBruto - newTotaIgv;
+
+            //document.getElementById("TDTotaNeto" + IdTRsele).innerHTML = parseFloat(newTotaNeto).toFixed(2);
+            //document.getElementById("TDTotaIgv" + IdTRsele).innerHTML = parseFloat(newTotaIgv).toFixed(2)
+            //document.getElementById("TDTotaBruto" + IdTRsele).innerHTML = parseFloat(newTotaBruto).toFixed(2)
+            //FnCalculaTotaleComprobanteVenta();
+        }
+    }
+
+    function FnCalculaSubtotal(IdTRsele) {
+        var objTxt = document.getElementById("TDCant" + IdTRsele).children;
+        var newCant = objTxt[0].value;
+        objTxt = document.getElementById("TDPrec" + IdTRsele).children;
+        var newPrec = objTxt[0].value;
+
+        var newFlgAfecIgv = "";
+        var newTotaBruto = 0;
+        var newTotaNeto = 0;
+        var newTotaIgv = 0;
+        var newPorcIgv = 0;
+
+        newTotaBruto = (parseFloat(newCant) * parseFloat(newPrec)).toFixed(2);
+        newFlgAfecIgv = document.getElementById("TDFlgAfecIgv" + IdTRsele).innerHTML;
+        if (newFlgAfecIgv.trim() == "1") {
+            newPorcIgv = document.getElementById("TDPorcIgv" + IdTRsele).innerHTML;
+            newTotaIgv = CalculaIgv(newTotaBruto, newPorcIgv);
+        }
+        newTotaNeto = newTotaBruto - newTotaIgv;
+
+        document.getElementById("TDTotaNeto" + IdTRsele).innerHTML = parseFloat(newTotaNeto).toFixed(2);
+        document.getElementById("TDTotaIgv" + IdTRsele).innerHTML = parseFloat(newTotaIgv).toFixed(2)
+        document.getElementById("TDTotaBruto" + IdTRsele).innerHTML = parseFloat(newTotaBruto).toFixed(2)
+        FnCalculaTotaleComprobanteVenta();
+    }
+
+    function FnCalculaTotaleComprobanteVenta() {
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newTotaNeto = "";
+        var newTotaIgv = "";
+        var newTotaBruto = "";
+        var ventSumaTotaNeto = 0;
+        var ventSumaTotaIgv = 0;
+        var ventSumaTotaBruto = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newTotaNeto = document.getElementById("TDTotaNeto" + newTr).innerHTML;
+                    newTotaIgv = document.getElementById("TDTotaIgv" + newTr).innerHTML;
+                    newTotaBruto = document.getElementById("TDTotaBruto" + newTr).innerHTML;
+                    ventSumaTotaNeto = parseFloat(ventSumaTotaNeto) + parseFloat(newTotaNeto);
+                    ventSumaTotaIgv = parseFloat(ventSumaTotaIgv) + parseFloat(newTotaIgv);
+                    ventSumaTotaBruto = parseFloat(ventSumaTotaBruto) + parseFloat(newTotaBruto);
+                }
+            }
+            document.getElementById("TDCompVentTotaNeto").innerHTML = ventSumaTotaNeto.toFixed(2);
+            document.getElementById("TDCompVentTotaIgv").innerHTML = ventSumaTotaIgv.toFixed(2);
+            document.getElementById("TDCompVentTotaBruto").innerHTML = ventSumaTotaBruto.toFixed(2);
+        }
+    }
+
+    function FnAddAlmacen(obj) {
+        IdTRDistribuir = obj.parentElement.parentElement.id;
+        //CantDistribuir = document.getElementById("TDCant" + IdTRDistribuir).innerHTML;
+        var objTxt = document.getElementById("TDCant" + IdTRDistribuir).children;
+        CantDistribuir = objTxt[0].value;
+        var CallBy = "ComprobanteVentaRevertir";
+        NombProdDistribuir = document.getElementById("TDNombProd" + IdTRDistribuir).innerHTML;
+        FkProdDistribuir = document.getElementById("TDFkProd" + IdTRDistribuir).innerHTML;
+        var options = { "backdrop": "static", keyboard: false };
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ViewDistribuirCantidad", "ComprobanteVenta")',
+            contentType: "application/json; charset=utf-8",
+            data: "{ 'FkProd': '" + FkProdDistribuir + "', 'CallBy':'" + CallBy + "'}",
+            datatype: "json",
+            success: function (response) {
+                $('#myModalContentDistCantidad').html(response);
+                $('#myModalDistCantidad').modal(options);
+                $('#myModalDistCantidad').modal('show');
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+        });
+    }
+
+    function FnAddNotaCredito() {
+        var options = { "backdrop": "static", keyboard: false };
+        CallBy = "ComprobanteVentaCreate";
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("ViewNotaCreditoPendientes", "NotaCredito")',
+            contentType: "application/json; charset=utf-8",
+            data: "{ 'CallBy': '" + CallBy + "'}",
+            datatype: "json",
+            success: function (response) {
+                $('#myModalContentListNotaCredito').html(response);
+                $('#myModalListNotaCredito').modal(options);
+                $('#myModalListNotaCredito').modal('show');
+            },
+            error: function (request, status, error) {
+                alert(request.responseText);
+            }
+        });
+    }
+    function AjaxValidaStockDisponible() {
+        FnValidaStockDisponible(function (d) {
+            console.log(d);
+        });
+    }
+
+    function FnValidaStockDisponible(callback) {
+        FnResetClassTrDetalle();
+        var FkAlma = $("#cmbCompVentEdit_FkAlma").val();
+        var arraVali = new Array();
+        var Idx = 0;
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkProd = "";
+        var CantPedi = "";
+        var pFkProd = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    //CantPedi = document.getElementById("TDCant" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDCant" + newTr).children;
+                    CantPedi = objTxt[0].value;
+                    arraVali[Idx] = new Array(2);
+                    arraVali[Idx][0] = FkProd.trim();
+                    arraVali[Idx][1] = CantPedi.trim();
+                    Idx++;
+                }
+            }
+        }
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_ValidaStock", "ComprobanteVenta")',
+            data: JSON.stringify({
+                FkAlma: FkAlma, arraVali: arraVali
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                var dataLen = response.length;
+                for (i = 0; i < dataLen; i++) {
+                    pFkProd = response[i].fk_producto;
+                    FnChangeClassNameTr(pFkProd);
+                }
+                if (dataLen > 0){
+                    //sweetAlert("", "El alamacén no cuenta con el stock suficiente para atender la cantidad solicitada de los productos marcados", "error");
+                    vgEstaVent = 2;
+                } else {
+                    vgEstaVent = 1;
+                    FnLLenaTdStrDistribuir(FkAlma);
+                }
+                callback(vgEstaVent);
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+		});
+    }
+
+    function FnLLenaTdStrDistribuir(FkAlma) {
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newCantPedi = "";
+        var newFkProd = "";
+        var newStrDist = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    //newCantPedi = document.getElementById("TDCant" + newTr).innerHTML.trim();
+                    var objTxt = document.getElementById("TDCant" + newTr).children;
+                    newCantPedi = objTxt[0].value;
+
+                    newStrDist = FkAlma + "[" + newCantPedi.trim() + ",";
+                    document.getElementById("TDStrDist" + newTr).innerHTML = newStrDist;
+                }
+            }
+        }
+    }
+
+    function FnChangeClassNameTr(pFkProd) {
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var newFkProd = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    newFkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    if (parseInt(newFkProd) == parseInt(pFkProd)) {
+                        document.getElementById(newTr).className = "cssTrSinStock";
+                        document.getElementById("TDHiddPorRegu" + newTr).innerHTML = "2";
+                    }
+                }
+            }
+        }
+    }
+
+    function FnAgregaClienteComprobanteVenta(FkClie, FkClietipo, DniRuc, NombRazoSoci) {
+        $("#txtVentEdit_DniRucClie").val(DniRuc);
+        $("#txtVentEdit_FkClie").val(FkClie);
+        $("#txtVentEdit_FkClieTipo").val(FkClietipo);
+        $("#txtVentEdit_NombRazoSocialClie").val(NombRazoSoci);
+    }
+
+    function FnActivaMedioPago(obj) {
+        var FkMediPago = obj.value;
+
+        var MediPagoCheq = $("#HiddCompVentEdit_FkMediPagoCheq").val();
+        var MediPagoDepo = $("#HiddCompVentEdit_FkMediPagoDepo").val();
+        var MediPagoTarj = $("#HiddCompVentEdit_FkMediPagoTarj").val();
+        var MediPagoNotaCred = $("#HiddCompVentEdit_FkMediPagoNotaCred").val();
+        if (FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "none";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('btnAddNotaCred').style.display = 'none';
+            $("#txtVentNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCompVentNew_BancTarj').innerHTML = "Banco ";
+            if (FkMediPago == MediPagoCheq) {
+                document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').innerHTML = "Nro ";
+            } else {
+                document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').innerHTML = "Nro ";
+            }
+        } else if (FkMediPago == MediPagoTarj) {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('btnAddNotaCred').style.display = 'none';
+            $("#txtVentNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCompVentNew_BancTarj').innerHTML = "Tipo ";
+        } else if (FkMediPago == MediPagoNotaCred) {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "none";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "";
+            document.getElementById('btnAddNotaCred').style.display = '';
+            $("#txtVentNew_NroCheqVoucNotaCred").val("");
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').innerHTML = "Nro ";
+        } else {
+            document.getElementById('lblCompVentNew_BancTarj').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkBanco').style.display = "none";
+            document.getElementById('cmbCompVentNew_FkTarj').style.display = "none";
+            document.getElementById('lblCompVentNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('txtVentNew_NroCheqVoucNotaCred').style.display = "none";
+            document.getElementById('btnAddNotaCred').style.display = 'none';
+        }
+    }
+
+    function FnGetCorrelativo() {
+        var FkCompTipo = $("#cmbCompVentEdit_FkCompTipo").val();
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_Correlativo_ByComprobanteTipo", "Correlativo")',
+            data: JSON.stringify({
+                FkCompTipo: FkCompTipo
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                var dataLen = response.length;
+                $("#txtCompCompEdit_NroComp").val(response.nro_correlativo);
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+		});
+    }
+
+    function FnAddMedioPago() {
+        var opcion = $('input[name=radioMedioPago]:checked').val();
+        var flgError = 0;
+        if (parseInt(opcion) == 1) {
+            alert("Efectivo")
+        } else {
+            var MediPagoEfec = $("#HiddCompVentEdit_FkMediPagoEfec").val();
+            var MediPagoCheq = $("#HiddCompVentEdit_FkMediPagoCheq").val();
+            var MediPagoDepo = $("#HiddCompVentEdit_FkMediPagoDepo").val();
+            var MediPagoTarj = $("#HiddCompVentEdit_FkMediPagoTarj").val();
+            var MediPagoLineCred = $("#HiddCompVentEdit_FkMediPagoLineCred").val();
+            var MediPagoNotaCred = $("#HiddCompVentEdit_FkMediPagoNotaCred").val();
+
+            var FkTipoTarj = 0;
+            var FkNotaCred = 0;
+            var FkBanc = 0;
+            var strTipoTarj = "";
+            var strBanc = "";
+            var strNro = "";
+
+            var FkMediPago = $("#cmbCompVentNew_FkMediPago").val();
+            var strMediPago = document.getElementById('cmbCompVentNew_FkMediPago')[document.getElementById('cmbCompVentNew_FkMediPago').selectedIndex].innerHTML;
+            var MontMedPago = $("#txtCompCompNew_MontMediPago").val();
+            var SaldMediPago = 0;
+            if (MontMedPago == "") {
+                sweetAlert("", "MONTO NO VÁLIDO", "error");
+            } else if (parseFloat(MontMedPago) <= 0) {
+                sweetAlert("", "MONTO NO VÁLIDO", "error");
+            } else {
+                if (FkMediPago == MediPagoEfec || FkMediPago == MediPagoLineCred) { //Efectivo y Linea de credito
+                    FkTipoTarj = 0;
+                    FkNotaCred = 0;
+                    FkBanc = 0;
+                    strTipoTarj = "";
+                    strBanc = "";
+                    strNro = "";
+                    if (FkMediPago == MediPagoLineCred) {
+                        SaldMediPago = MontMedPago;
+                    }
+                } else if (FkMediPago == MediPagoCheq || FkMediPago == MediPagoDepo) { //Cheque y Deposito
+                    FkTipoTarj = 0;
+                    FkNotaCred = 0;
+                    FkBanc = $("#cmbCompVentNew_FkBanco").val();
+                    strTipoTarj = "";
+                    strBanc = document.getElementById('cmbCompVentNew_FkBanco')[document.getElementById('cmbCompVentNew_FkBanco').selectedIndex].innerHTML;
+                    strNro = $("#txtVentNew_NroCheqVoucNotaCred").val();
+                    if (parseInt(FkBanc) <= 0) {
+                        sweetAlert("", "SELECCIONE BANCO", "error");
+                        flgError = 1;
+                    } else if (strNro.trim() == "") {
+                        sweetAlert("", "INGRESE NRO DE " + strMediPago, "error");
+                        flgError = 1;
+                    }
+                } else if (FkMediPago == MediPagoTarj) { //Tarjeta
+                    FkTipoTarj = $("#cmbCompVentNew_FkTarj").val();
+                    FkNotaCred = 0;
+                    FkBanc = 0;
+                    strTipoTarj = document.getElementById('cmbCompVentNew_FkTarj')[document.getElementById('cmbCompVentNew_FkTarj').selectedIndex].innerHTML;
+                    strBanc = "";
+                    strNro = "";
+                    if (parseInt(FkTipoTarj) <= 0) {
+                        sweetAlert("", "SELECCIONE TIPO DE TARJETA", "error");
+                        flgError = 1;
+                    }
+                } else if (FkMediPago == MediPagoNotaCred) { //Nota de Credito
+                    FkTipoTarj = 0;
+                    FkNotaCred = $("#txtVentNew_FkNotaCred").val();
+                    FkBanc = 0;
+                    strTipoTarj = "";
+                    strBanc = "";
+                    strNro = $("#txtVentNew_NroCheqVoucNotaCred").val();
+                    if (parseInt(FkNotaCred) <= 0) {
+                        sweetAlert("", "SELECCIONE NOTA DE CREDITO", "error");
+                        flgError = 1;
+                    }
+                }
+                if (flgError == 0) {
+                    var IdTrMP = "IdTrMP" + NroTrMP;
+                    var TDFkMediPago = "TDFkMediPago" + IdTrMP;
+                    var TDFkTarj = "TDFkTarj" + IdTrMP;
+                    var TDFkNotaCred = "TDFkNotaCred" + IdTrMP;
+                    var TDFkBanc = "TDFkBanc" + IdTrMP;
+                    var TDNroDocu = "TDNroDocu" + IdTrMP;
+                    var TDMontMediPago = "TDMontMediPago" + IdTrMP;
+                    var TDSaldMediPago = "TDSaldMediPago" + IdTrMP;
+                    var TDBtnDeleteDeta = "TDBtnDeleteDeta" + IdTrMP;
+
+                    var strBtnDeta= '@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title="Eliminar Medio Pago", @onclick = "FnDeleteMedioPago(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)';
+
+                    var row = $("<tr id='" + IdTrMP + "'>" +
+                        "<td id='" + TDFkMediPago + "' class='input-xs' style='display: none;'>" + FkMediPago + "</td>" +
+                        "<td id='" + TDFkTarj + "' class='input-xs' style='display: none;'>" + FkTipoTarj + "</td>" +
+                        "<td id='" + TDFkNotaCred + "' class='input-xs' style='display: none;'>" + FkNotaCred + "</td>" +
+                        "<td id='" + TDFkBanc + "' class='input-xs' style='display: none;'>" + FkBanc + "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" + strMediPago + "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" + strTipoTarj + "</td>" +
+                        "<td class='input-xs' style='text-align: center;'>" + strBanc + "</td>" +
+                        "<td id='" + TDNroDocu + "' class='input-xs'>" + strNro + "</td>" +
+                        "<td id='" + TDMontMediPago + "' class='input-xs' style='text-align: right;'>" + MontMedPago + "</td>" +
+                        "<td id='" + TDSaldMediPago + "' class='input-xs' style='display: none;'>" + SaldMediPago + "</td>" +
+                        "<td id='" + TDBtnDeleteDeta + "' class='input-xs' style='text-align: center;'>" + strBtnDeta + "</td>" +
+                        "</tr>");
+                    $("#tBodyMedioPago").append(row);
+                    $("#txtCompCompNew_MontMediPago").val(0);
+                    NroTrMP++;
+                }
+            }
+
+        }
+    }
+
+    function FnDeleteMedioPago(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+    }
+    function FnGetValueRadio() {
+        var opcion = $('input[name=radioMedioPago]:checked').val();
+        if (parseInt(opcion) == 1) {
+            document.getElementById('DivMediPago0').style.display = "";
+            document.getElementById('DivMediPago1').style.display = "";
+            document.getElementById('DivMediPago2').style.display = "none";
+            document.getElementById('DivMediPago3').style.display = "none";
+            document.getElementById('DivMediPago4').style.display = "none";
+        } else {
+            document.getElementById('DivMediPago0').style.display = "none";
+            document.getElementById('DivMediPago1').style.display = "none";
+            document.getElementById('DivMediPago2').style.display = "";
+            document.getElementById('DivMediPago3').style.display = "";
+            document.getElementById('DivMediPago4').style.display = "";
+        }
+    }
+
+    function CalculaVuelto(e) {
+        if (e.keyCode == 13) {
+            var MontReci = $("#txtCompCompNew_EfecReci").val();
+            var MontBruto = document.getElementById('TDCompVentTotaBruto').innerHTML;
+            if (parseFloat(MontReci) < parseFloat(MontBruto)) {
+                sweetAlert("", "TOTAL RECIBIDO ES MENOR AL IMPORTE DE LA VENTA", "error");
+            } else {
+                var vuelto = (parseFloat(MontReci) - parseFloat(MontBruto)).toFixed(2);
+                document.getElementById('lblVuelto').innerHTML = vuelto;
+                $("#btnSaveRevertirCompVenta").focus();
+            }
+        }
+    }
+
+    function FnResetClassTrDetalle() {
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                document.getElementById(newTr).className = "";
+            }
+        }
+    }
+</script>
+@{
+    string strFechEmis = Convert.ToDateTime(Model.f_emision).ToString("dd/MM/yyyy");
+    string CallBy = ViewBag.CallBy;
+    string strTitle = "Detalle Venta";
+    if (CallBy == "ComprobanteVentaRevertir")
+    {
+        strTitle = "Revertir Venta";
+    }
+    string strUsuaVenta = Model.nombre_usuario_venta + " " + Model.apellido_paterno_usuario_venta + " " + Model.apellido_materno_usuario_venta;
+    string DniRuc = "";
+    string NombRazoSoci = "";
+    string ClieDire = "";
+    int FkClie = 0;
+    int FkClieTipo = Model.fk_cliente_tipo;
+    if (Model.id_cliente_juridico.Equals(0))
+    {
+        FkClie = Model.id_cliente_natural;
+        DniRuc = Model.dni_cliente_natural;
+        NombRazoSoci = Model.nombre_cliente_natural + " " + Model.apellido_paterno_cliente_natural + " " + Model.apellido_materno_cliente_natural;
+        ClieDire = Model.direccion_cliente_natural;
+    }
+    else
+    {
+        FkClie = Model.id_cliente_juridico;
+        DniRuc = Model.ruc_empresa_cliente_juridico;
+        NombRazoSoci = Model.razon_social;
+        ClieDire = Model.direccion_empresa;
+    }
+
+    int FkAlmaDesp = ViewBag.FkAlmacenDespacho;
+    int FkClieGene = ViewBag.FkClienteGenerico;
+
+    int FkMediPagoEfec = ViewBag.MedioPagoEfectivo;
+    int FkMediPagoCheq = ViewBag.MedioPagoCheque;
+    int FkMediPagoDepo = ViewBag.MedioPagoDeposito;
+    int FkMediPagoTarj = ViewBag.MedioPagoTarjeta;
+    int FkMediPagoNotaCred = ViewBag.MedioPagoNotaCredito;
+    int FkMediPagoLineCred = ViewBag.MedioPagoLineaCredito;
+    int FkCaja = ViewBag.Caja.id_caja;
+}
+@Html.Hidden("HiddCompVentEdit_IdCompVent", Model.id_comprobante_venta)
+@Html.Hidden("cmbCompVentEdit_CallBy", CallBy)
+@Html.Hidden("HiddCompVentEdit_FkAlmaDesp", FkAlmaDesp)
+@Html.Hidden("HiddCompVentEdit_FkClieGene", FkClieGene)
+@Html.Hidden("HiddCompVentEdit_FkCaja", FkCaja)
+@Html.Hidden("HiddCompVentEdit_FkMediPagoEfec", FkMediPagoEfec)
+@Html.Hidden("HiddCompVentEdit_FkMediPagoCheq", FkMediPagoCheq)
+@Html.Hidden("HiddCompVentEdit_FkMediPagoDepo", FkMediPagoDepo)
+@Html.Hidden("HiddCompVentEdit_FkMediPagoTarj", FkMediPagoTarj)
+@Html.Hidden("HiddCompVentEdit_FkMediPagoNotaCred", FkMediPagoNotaCred)
+@Html.Hidden("HiddCompVentEdit_FkMediPagoLineCred", FkMediPagoLineCred)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">@strTitle</span>
+            </div>
+            @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+            {
+                <div class="widget-body">
+                    <div id="horizontal-form">
+
+                        <div class="row">
+                            <div class="col-sm-6">
+                                <div class="form-group" style="margin:0">
+                                    <label class="col-sm-2 control-label" style="text-align: right;">Emision <sup>*</sup></label>
+                                    <div class="col-md-3">
+                                        @*<input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtCompCompEdit_FechEmis" value="@strFechEmis" type="text">*@
+                                        @Html.Bootstrap().TextBox("txtCompCompEdit_FechEmis").Value(@strFechEmis).HtmlAttributes(new { @class = "form-control", @readonly = "readonly" }).Size(InputSize.XSmall)
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin:0">
+                                    <label class="col-sm-2 control-label" style="text-align: right; ">Comprob.<sup>*</sup></label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().DropDownList("cmbCompVentEdit_FkCompTipo", new SelectList(ViewBag.ComprobanteTipo, "id_comprobante_tipo", "descripcion", selectedValue: Model.fk_comprobante_tipo)).HtmlAttributes(new { @onchange = "FnGetCorrelativo()" }).Size(InputSize.XSmall)
+                                    </div>
+                                    <label class="col-sm-2 control-label" style="text-align: right; ">Nro <sup>*</sup></label>
+                                    <div class="col-md-4">
+                                        @*<input type="text" id="txtCompCompEdit_NroComp" value="@Model.nro_comprobante" data-mask="9999-9999999" class="form-control" placeholder="Nro Comprobante">*@
+                                        @Html.Bootstrap().TextBox("txtCompCompEdit_NroComp").Value(@Model.nro_comprobante).HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)" }).Size(InputSize.XSmall)
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin:0">
+                                    @*<label class="col-sm-2 control-label" style="text-align: right; ">Pedido <sup>*</sup></label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().TextBox("txtVentEdit_NroPedi").Value(Model.n_pedido).Placeholder("Nro Pedido").Disable().Size(InputSize.XSmall)
+                                        @Html.Hidden("txtVentEdit_FkPedi", Model.fk_pedido)
+                                    </div>*@
+                                    <label class="col-sm-2 control-label" style="text-align: right; ">Cliente </label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().TextBox("txtVentEdit_DniRucClie").Value(DniRuc).Placeholder("DNI / RUC").Disable().Append(new BootstrapButton("button").Id("btnAddClie").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaCliente('ComprobanteVentaCreate')" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.XSmall)
+                                        @Html.Hidden("txtVentEdit_FkClie", FkClie)
+                                        @Html.Hidden("txtVentEdit_FkClieTipo", FkClieTipo)
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin:0">
+                                    <label class="col-sm-2 control-label" style="text-align: right; "> </label>
+                                    <div class="col-md-10">
+                                        @Html.Bootstrap().TextBox("txtVentEdit_NombRazoSocialClie").Value(NombRazoSoci).Placeholder("Nombres / Razón Social").HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Size(InputSize.XSmall)
+                                    </div>
+                                    <label class="col-sm-2 control-label" style="text-align: right; "> </label>
+                                    <div class="col-md-10">
+                                        @Html.Bootstrap().TextBox("txtVentEdit_DireClie").Value(ClieDire).Placeholder("Dirección").HtmlAttributes(new { @class = "form-control", @style = "text-transform: uppercase;", @onchange = "FnActivaSaveCliente()", @disabled = "disabled" }).Size(InputSize.XSmall)
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin: 0; display: none;">
+                                    <label class="col-sm-2 control-label" style="text-align: right; ">Almacén</label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().DropDownList("cmbCompVentEdit_FkAlma", new SelectList(ViewBag.Almacen, "id_almacen", "nombre", selectedValue: ViewBag.FkAlmacenDespacho)).HtmlAttributes(new { @onchange = "FnValidaStockDisponible(this)", @disabled = "disabled" }).Size(InputSize.XSmall)
+                                    </div>
+                                    <div class="col-md-6">
+                                        @Html.Bootstrap().CheckBox("form-field-checkbox").Text("Distribuir despacho").IsChecked(false).HtmlAttributes(new { @class = "colored-default", @onchange = "FnActivaDistribucion(this)", @disabled = "disabled" })
+                                    </div>
+                                </div>
+                                @*<div class="form-group" style="margin:0">
+                                    <label class="col-sm-12 control-label" id="lblVentEdit_NombUsuaVent" style="text-align: right; ">Pedido registrado por: @strUsuaVenta</label>
+                                    @Html.Hidden("txtVentEdit_FkUsuaVent", Model.fk_usuario_venta)
+                                </div>*@
+                            </div>
+                            <div class="col-sm-6">
+                                <div id="DivMediPagoRadio" class="form-group" style="margin: 0">
+                                    <label class="col-sm-3 control-label" style="text-align: right;"><u>MEDIO PAGO</u></label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().RadioButton("radioMedioPago", null).Text("Solo Efectivo").HtmlAttributes(new { @class = "colored-success", @onchange = "FnGetValueRadio()", @value = 1 }).IsChecked(true)
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().RadioButton("radioMedioPago", null).Text("Otros").HtmlAttributes(new { @class = "colored-danger", @onchange = "FnGetValueRadio()", @value = 2 })
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                </div>
+                                <div id="DivMediPago0" class="form-group" style="margin: 0;">
+                                    <label class="col-sm-3 control-label" style="text-align: right;">Efectivo Recibido </label>
+                                    <div class="col-md-3">
+                                        @Html.Bootstrap().TextBox("txtCompCompNew_EfecReci").HtmlAttributes(new { @class = "form-control", @type = "number", @style = "text-align: right;", @onkeypress = "CalculaVuelto(event)" }).Size(InputSize.XSmall)
+                                    </div>
+                                </div>
+                                <div id="DivMediPago1" class="form-group" style="margin: 0;">
+                                    <label class="col-sm-3 control-label" style="text-align: right; color: #ff0000; font-weight: bold; font-size: 1.5em;">Vuelto </label>
+                                    <label class="col-sm-3 control-label" style="text-align: right; color: #ff0000; font-weight: bold; font-size: 1.5em;" id="lblVuelto">0.00 </label>
+                                </div>
+                                <div id="DivMediPago2" class="form-group" style="margin: 0; display: none;">
+                                    <label class="col-sm-1 control-label" style="text-align: right; ">Tipo</label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().DropDownList("cmbCompVentNew_FkMediPago", new SelectList(ViewBag.MedioPago, "id_medio_pago", "descripcion", selectedValue: FkMediPagoEfec)).HtmlAttributes(new { @id = "cmbCompVentNew_FkMediPago", @onchange = "FnActivaMedioPago(this)" }).Size(InputSize.XSmall)
+                                    </div>
+                                    <label class="col-sm-1 control-label" id="lblCompVentNew_BancTarj" style="text-align: right; display: none;">Banco</label>
+                                    <div class="col-md-3">
+                                        @Html.Bootstrap().DropDownList("cmbCompVentNew_FkBanco", new SelectList(ViewBag.Banco, "id_banco", "descripcion", selectedValue: 0)).HtmlAttributes(new { @id = "cmbCompVentNew_FkBanco", style = "display: none;" }).Size(InputSize.XSmall)
+                                        @Html.Bootstrap().DropDownList("cmbCompVentNew_FkTarj", new SelectList(ViewBag.TarjetaCredito, "id_tarjeta_credito", "descripcion", selectedValue: 0)).HtmlAttributes(new { @id = "cmbCompVentNew_FkTarj", style = "display: none;" }).Size(InputSize.XSmall)
+                                    </div>
+                                    <label class="col-sm-1 control-label" style="text-align: right;">Monto </label>
+                                    <div class="col-md-2">
+                                        @Html.Bootstrap().TextBox("txtCompCompNew_MontMediPago").HtmlAttributes(new { @class = "form-control", @type = "number", @style = "text-align: right;" }).Size(InputSize.XSmall)
+                                    </div>
+                                </div>
+                                <div id="DivMediPago3" class="form-group" style="margin:0; display: none;">
+                                    <label class="col-sm-1 control-label" id="lblCompVentNew_NroCheqVoucNotaCred" style="text-align: right; display: none;"># Nota Crédito </label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().TextBox("txtVentNew_NroCheqVoucNotaCred").HtmlAttributes(new { style = "display: none; text-transform: uppercase;" }).Size(InputSize.XSmall)
+                                        @Html.Hidden("txtVentNew_FkNotaCred", 0)
+                                    </div>
+                                    <div class="col-md-1">
+                                        @Html.Bootstrap().Button().Text("").Id("btnAddNotaCred").Color(BootstrapColors.Default).IconPrepend(FontAwesome.Search).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnAddNotaCredito()", @style = "margin-top: 5px; float: right; display: none;" })
+                                    </div>
+                                </div>
+                                <div id="DivMediPago4" class="form-group" style="margin:0; display: none;">
+                                    <div class="col-md-12">
+                                        @Html.Bootstrap().Button().Text("Agregar").Id("btnAddMediPago").Color(BootstrapColors.Primary).IconPrepend(FontAwesome.Download).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnAddMedioPago()", @style = "margin-top: 5px; float: right;" })
+                                    </div>
+                                    <table class="table-striped table-hover table-bordered" id="tblMedioPago">
+                                        <thead>
+                                            <tr role="row">
+                                                <th style="display: none;">
+                                                    Fk_MEDIO_PAGO
+                                                </th>
+                                                <th style="display: none;">
+                                                    Fk_TIPO_TARJETA
+                                                </th>
+                                                <th style="display: none;">
+                                                    Fk_NOTA_CREDITO
+                                                </th>
+                                                <th style="display: none;">
+                                                    Fk_BANCO
+                                                </th>
+                                                <th style="width: 20%; text-align: center;">
+                                                    Medio Pago
+                                                </th>
+                                                <th style="width: 20%; text-align: center;">
+                                                    Tipo Tarjeta
+                                                </th>
+                                                <th style="width: 20%; text-align: center;">
+                                                    Banco
+                                                </th>
+                                                <th style="width: 20%; text-align: center;">
+                                                    Nro
+                                                </th>
+                                                <th style="width: 15%; text-align: center;">
+                                                    Monto
+                                                </th>
+                                                <th style="display: none;">
+                                                    Saldo
+                                                </th>
+                                                <th style="width: 50px; text-align: center;">
+                                                    ...
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tBodyMedioPago"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-header bordered-bottom bordered-blue">
+                    <span class="widget-caption">Detalles</span>
+                    @Html.Bootstrap().Button().Text("Agregar").Id("btnAddProd").Color(BootstrapColors.Primary).IconPrepend(FontAwesome.ShoppingCart).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnListaPrecioVenta('ComprobanteVentaCreate')", @style = "margin-top: 5px;" })
+                </div>
+                <div class="widget-body">
+                    <div id="horizontal-form">
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblVentDetalle">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="display: none;">
+                                                Fk_producto
+                                            </th>
+                                            <th id="THBtnAddAlma" style="text-align: center; display: none;">
+                                                Despachar de
+                                            </th>
+                                            <th style="text-align: center;width: 150px">
+                                                Código
+                                            </th>
+                                            <th style="text-align: center;width: 100px">
+                                                Cod. Sunat
+                                            </th>
+                                            <th style="display: none;">
+                                                Distribuir
+                                            </th>
+                                            <th style="display: none;">
+                                                FK EMPRESA
+                                            </th>
+                                            <th>
+                                                Servicio / Bien
+                                            </th>
+                                            <th style="width:100px;text-align:center">
+                                                Afectacion
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Cantidad
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Precio
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Valor Venta
+                                            </th>
+                                            <th style="width: 70px; text-align: right;">
+                                                IGV
+                                            </th>
+                                            <th style="width: 100px; text-align: right;">
+                                                Importe
+                                            </th>
+                                            <th style="width: 50px; text-align: center;">
+                                                ...
+                                            </th>
+                                            <th style="display: none;">
+                                                FK_TIPO_AFECTACION_IGV
+                                            </th>
+                                            <th style="display: none;">
+                                                FLG_AFECTO_IGV
+                                            </th>
+                                            <th style="display: none;">
+                                                PORCENTAJE_IGV
+                                            </th>
+                                            <th style="display: none;">
+                                                PRECIO_UNIDAD
+                                            </th>
+                                            <th style="display: none;">
+                                                PRECIO_MAYOR
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyVentDetalle">
+                                        @foreach (var item in ViewBag.VentaDetalle)
+                                        {
+                                            var IdTrVD = "IdTrEditVD" + item.id_venta_detalle;
+                                            var TDFkProd = "TDFkProd" + IdTrVD;
+                                            var TDCodiProd = "TDCodiProd" + IdTrVD;
+                                            var TDBtnAddAlma = "TDBtnAddAlma" + IdTrVD;
+                                            var TDStrDist = "TDStrDist" + IdTrVD;
+                                            var TDNombProd = "TDNombProd" + IdTrVD;
+                                            var TDIgvSelecProd = "TDIgvSelecProd" + IdTrVD;
+                                            var TDCant = "TDCant" + IdTrVD;
+                                            var TDCodSunat = "TDCodSunat" + IdTrVD;
+                                            var TDPrec = "TDPrec" + IdTrVD;
+                                            var TDTotaNeto = "TDTotaNeto" + IdTrVD;
+                                            var TDTotaIgv = "TDTotaIgv" + IdTrVD;
+                                            var TDTotaBruto = "TDTotaBruto" + IdTrVD;
+                                            var TDBtnDeleteDeta = "TDBtnDeleteDeta" + IdTrVD;
+                                            var TDFkTipoAfecIgv = "TDFkTipoAfecIgv" + IdTrVD;
+                                            var TDFlgAfecIgv = "TDFlgAfecIgv" + IdTrVD;
+                                            var TDPorcIgv = "TDPorcIgv" + IdTrVD;
+                                            var TDHiddPrecUnit = "TDHiddPrecUnit" + IdTrVD;
+                                            var TDHiddPrecMayo = "TDHiddPrecMayo" + IdTrVD;
+                                            var TDHiddPorRegu = "TDHiddPorRegu" + IdTrVD;
+                                            var TDHiddIdVentDeta = "TDHiddIdVentDeta" + IdTrVD;
+                                            var strClassPorRegu = "";
+                                            if (CallBy == "ComprobanteVentaPorRegularizar" && item.estado == "2")
+                                            {
+                                                strClassPorRegu = "cssTrSinStock";
+                                            }
+                                            <tr id='@IdTrVD' class="@strClassPorRegu">
+                                                <td id='@TDFkProd' class='input-xs' style='display: none;'>@item.fk_proyecto</td>
+                                                <td id='@TDBtnAddAlma' class='input-xs' style='text-align: center; display: none;'>
+                                                    @Html.Bootstrap().Button().Text("Seleccione").Color(BootstrapColors.Success).Size(ButtonSize.Mini).HtmlAttributes(new { @onclick = "FnAddAlmacen(this)" })
+                                                </td>
+                                                <td id='@TDStrDist' style='display: none;' class='input-xs'>@item.str_distribuir</td>
+                                                <td class='input-xs' style='text-align: center;'>@item.cod_producto</td>
+                                                <td class='input-xs' style='text-align: center;'>@item.codigo_sku</td>
+                                                <td id="@TDNombProd" class='input-xs'>@item.nom_producto</td>
+                                                <td class='input-xs'>@item.descripcion_marca</td>
+                                                <td class='input-xs'>@item.descripcion_producto_subfamilia</td>
+                                                <td id='@TDCant' class='input-xs' style='text-align: right;'>
+                                                    @Html.Bootstrap().TextBox("txtCant").Value(@item.cantidad).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaCantidad(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })
+                                                </td>
+                                                <td id='@TDPrec' class='input-xs' style='text-align: right;'>
+                                                    @Html.Bootstrap().TextBox("txtCant").Value(@item.precio).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnValidaPrecio(this)", @onfocus = "this.oldvalue = this.value;", @type = "number", @min = "0", @style = "text-align: right;" })
+                                                </td>
+                                                <td id='@TDTotaNeto' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDTotaIgv' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDTotaBruto' class='input-xs' style='text-align: right;'></td>
+                                                <td id='@TDBtnDeleteDeta' class='input-xs' style='text-align: center;'>
+                                                    @Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title = "Eliminar Detalle", @onclick = "FnDeleteDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)
+                                                </td>
+                                                <td id='@TDFkTipoAfecIgv' class='input-xs' style='display: none;'>@item.fk_tipo_afectacion_igv</td>
+                                                <td id='@TDFlgAfecIgv' class='input-xs' style='display: none;'>@item.flag_afecto_igv</td>
+                                                <td id='@TDPorcIgv' class='input-xs' style='display: none;'>@item.porcentaje</td>
+                                                <td id='@TDHiddPrecUnit' class='input-xs' style='display: none;'>@item.precio</td>
+                                                <td id='@TDHiddPrecMayo' class='input-xs' style='display: none;'>@item.precio</td>
+                                                <td id='@TDHiddPorRegu' class='input-xs' style='display: none;'>1</td>
+                                                <td id='@TDHiddIdVentDeta' class='input-xs' style='display: none;'>@item.id_venta_detalle</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                                <table class="table table-striped table-hover table-bordered" id="tblCompVentaTotal">
+                                    <thead>
+                                        <tr role="row">
+                                            <td style="text-align: right; font-weight: bold;">
+                                                TOTAL
+                                            </td>
+                                            <td id="TDCompVentTotaNeto" style="width: 100px; font-weight: bold; text-align: right;">@Model.total_neto</td>
+                                            <td id="TDCompVentTotaIgv" style="width: 70px; font-weight: bold; text-align: right;">@Model.total_igv</td>
+                                            <td id="TDCompVentTotaBruto" style="width: 100px; font-weight: bold; text-align: right;">@Model.total_bruto</td>
+                                            <td id="TDTotalHidd" style="width: 50px; font-weight: bold; text-align: right;"></td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Revertir").Id("btnSaveRevertirCompVenta").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnConfirmRevertirCompVenta()" })
+                            </div>
+                            <div id="DivBtnRegularizar" class="col-md-1" style="text-align: right; vertical-align: middle; display: none;">
+                                @Html.Bootstrap().Button().Text("Regularizar").Id("btnSaveRegularizarCompVenta").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnRegularizarCompVenta()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cerrar</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+<div id="spinnerCompVentCreate" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script src="~/Scripts/UserFunction.js"></script>
+<script type="text/javascript">
+    var arrVentDeta = new Array();
+    var arrCompVentMediPago = new Array();
+    $(document).ready(function () {
+        $("#spinnerCompVentCreate").hide();
+        //Inicia();
+        $('#spinnerCompVentCreate').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+    function FnRegularizarCompVenta() {
+        if (vgEstaVent == "2") {
+            sweetAlert("", "El almacén aún no cuenta con el stock suficiente para atender la cantidad solicitada de los productos marcados", "error");
+        }
+        else {
+            FnLlenaArrayVentaDetalle();
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveRegularizarComprobanteVenta", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdCompVent: IdCompVent, arrVentDeta: arrVentDeta
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCompVentCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    //sweetAlert("", data.responseText, "");
+                    swal({
+                        title: "Exito!",
+                        text: data.responseText,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCompVentCreate').length > 0) {
+                        $('#spinnerCompVentCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    function FnConfirmRevertirCompVenta() {
+        AjaxValidaStockDisponible();
+        var flgError = 0;
+        var FkCompTipo = $("#cmbCompVentEdit_FkCompTipo").val();
+        var FkClieTipo = $("#txtVentEdit_FkClieTipo").val();
+        var FkClie = $("#txtVentEdit_FkClie").val();
+        var FkClieGene = $("#HiddCompVentEdit_FkClieGene").val();
+        var CVTotaBrut = parseFloat(document.getElementById("TDCompVentTotaBruto").innerHTML);
+        //Medio de Pago
+        var FkMediPago = 0;
+        var MediPagoLineCred = $("#HiddCompVentEdit_FkMediPagoLineCred").val();
+        var optMediPago = $('input[name=radioMedioPago]:checked').val();
+        var sumaMediPago = 0;
+        //Preguntamos si ha selecciones solo efectivo u otros medios de pago
+        if (parseInt(optMediPago) == 1) {
+            arrCompVentMediPago = [];
+            arrCompVentMediPago[0] = new Array(5);
+            FkMediPago = $("#HiddCompVentEdit_FkMediPagoEfec").val();
+            CVSaldBrut = 0;
+            arrCompVentMediPago[0][0] = FkMediPago.trim();
+            arrCompVentMediPago[0][1] = 0;
+            arrCompVentMediPago[0][2] = 0;
+            arrCompVentMediPago[0][3] = 0;
+            arrCompVentMediPago[0][4] = "";
+            arrCompVentMediPago[0][5] = CVTotaBrut;
+            arrCompVentMediPago[0][6] = 0;
+            sumaMediPago = CVTotaBrut;
+        } else {
+            arrCompVentMediPago = [];
+            var IndArr = 0;
+            var table = document.getElementById('tBodyMedioPago');
+            var cantRows = table.rows.length;
+            var newTr = "";
+            var tFkMedPago = "";
+            var tFkTarjCred = "";
+            var tFkNotaCred = "";
+            var tFkBanc = 0;
+            var tNroDocu = "";
+            var tMont = 0;
+            var tSald = 0;
+            if (cantRows > 0) {
+                for (var i = 0; i < cantRows; i++) {
+                    newTr = table.rows[i].id;
+                    if (newTr.trim() != "") {
+                        tFkMedPago = document.getElementById("TDFkMediPago" + newTr).innerHTML;
+                        tFkTarjCred = document.getElementById("TDFkTarj" + newTr).innerHTML;
+                        tFkNotaCred = document.getElementById("TDFkNotaCred" + newTr).innerHTML;
+                        tFkBanc = document.getElementById("TDFkBanc" + newTr).innerHTML;
+                        tNroDocu = document.getElementById("TDNroDocu" + newTr).innerHTML;
+                        tMont = document.getElementById("TDMontMediPago" + newTr).innerHTML;
+                        tSald = document.getElementById("TDSaldMediPago" + newTr).innerHTML;
+                        sumaMediPago = parseFloat(sumaMediPago) + parseFloat(tMont);
+                        arrCompVentMediPago[IndArr] = new Array(5);
+                        arrCompVentMediPago[IndArr][0] = tFkMedPago.trim();
+                        arrCompVentMediPago[IndArr][1] = tFkTarjCred.trim();
+                        arrCompVentMediPago[IndArr][2] = tFkNotaCred.trim();
+                        arrCompVentMediPago[IndArr][3] = tFkBanc.trim();
+                        arrCompVentMediPago[IndArr][4] = tNroDocu.trim();
+                        arrCompVentMediPago[IndArr][5] = tMont.trim();
+                        arrCompVentMediPago[IndArr][6] = tSald.trim();
+                        IndArr++;
+                    }
+                }
+            }
+        }
+        //var flgErrorDist = ValidaDistribucion();
+
+        //if (flgErrorDist == 1) {
+        //    sweetAlert("", "Falta especificar el despacho para los detalles marcados", "error");
+        //    flgError = 1;
+        //} else
+        if (CVTotaBrut > 700 && parseInt(FkClie) == parseInt(FkClieGene)) {
+            sweetAlert("", "La venta supera los 700 Soles, es necesario especificar nombre del cliente", "error");
+            flgError = 1;
+        } else if (parseInt(FkCompTipo) == 2 && parseInt(FkClieTipo) == 1) {
+            sweetAlert("", "El Tipo de comprobante, no es válido para el tipo de cliente seleccionado", "error");
+            flgError = 1;
+        } else if (parseFloat(sumaMediPago) != CVTotaBrut) {
+            sweetAlert("", "Total cobrado no coincide con el importe de la venta", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            swal({
+                //html: true,
+                title: 'REVERTIR',
+                text: "¿Seguro de Revertir Comprobante?",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Si!',
+                cancelButtonText: 'No!'
+            },
+                function (isConfirm) {
+                    if (isConfirm) {
+                        FnRevertirCompVenta()
+                    }
+                });
+        }
+    }
+
+    function FnRevertirCompVenta() {
+        var IdCompVent = $("#HiddCompVentEdit_IdCompVent").val();
+        //De la Venta
+        var FkUsuaVent = $("#txtVentEdit_FkUsuaVent").val();
+        var FkClie = $("#txtVentEdit_FkClie").val();
+        var FkClieTipo = $("#txtVentEdit_FkClieTipo").val();
+        var FkPedi = $("#txtVentEdit_FkPedi").val();
+        //Del comprobante de venta
+        var FkCompTipo = $("#cmbCompVentEdit_FkCompTipo").val();
+        var FkCaja = $("#HiddCompVentEdit_FkCaja").val();
+        var FechEmis = $("#txtCompCompEdit_FechEmis").val();
+        var NroCompVent = $("#txtCompCompEdit_NroComp").val();
+        var CantTrs = document.getElementById("tBodyVentDetalle").rows.length;
+        var CVTotaNeto = parseFloat(document.getElementById("TDCompVentTotaNeto").innerHTML);
+        var CVTotaIgv = parseFloat(document.getElementById("TDCompVentTotaIgv").innerHTML);
+        var CVTotaBrut = parseFloat(document.getElementById("TDCompVentTotaBruto").innerHTML);
+        var flgChkDist = document.getElementById("form-field-checkbox").checked;
+        var FkAlma = $("#cmbCompVentEdit_FkAlma").val();
+        //Medio de Pago
+        var MediPagoCheq = $("#HiddCompVentEdit_FkMediPagoCheq").val();
+        var MediPagoDepo = $("#HiddCompVentEdit_FkMediPagoDepo").val();
+        var MediPagoTarj = $("#HiddCompVentEdit_FkMediPagoTarj").val();
+        var MediPagoNotaCred = $("#HiddCompVentEdit_FkMediPagoNotaCred").val();
+        var MediPagoLineCred = $("#HiddCompVentEdit_FkMediPagoLineCred").val();
+        var FkBanc = $("#cmbCompVentEdit_FkBanco").val();
+        var FkTarjCred = $("#cmbCompVentEdit_FkTarj").val();
+        var FkNotaCred = $("#cmbCompVentEdit_FkTarj").val();
+        var NroDocuPago = $("#txtVentEdit_NroCheqVoucNotaCred").val();
+        var flgErrorDist = 0;
+        FnLlenaArrayVentaDetalle();
+        var flgError = 0;
+        if (CantTrs == 0) {
+            sweetAlert("", "No existen detalles para el comprobante", "error");
+            flgError = 1;
+        } else if (parseInt(FkCompTipo) == 0) {
+            sweetAlert("", "Seleccione Tipo de Comprobante", "error");
+            flgError = 1;
+        } else if (NroCompVent.trim() == "") {
+            sweetAlert("", "Ingrese Nro del Comprobante", "error");
+            flgError = 1;
+        } else if (FechEmis.trim() == "") {
+            sweetAlert("", "Ingrese fecha de emisión", "error");
+            flgError = 1;
+        } else if (parseInt(FkPedi) == 0) {
+            sweetAlert("", "Seleccione Pedido", "error");
+            flgError = 1;
+        //} else if (flgChkDist == false) {
+        //    if (parseInt(FkAlma) == -1) {
+        //        sweetAlert("", "Seleccione el almacén donde se atenderá el pedido", "error");
+        //        flgError = 1;
+        //    }
+        //} else {
+        //    flgErrorDist = ValidaDistribucion();
+        //    if (flgErrorDist == 1) {
+        //        sweetAlert("", "Falta especificar el despacho para los detalles marcados", "error");
+        //        flgError = 1;
+        //    }
+        }
+        NroPrint = 1;
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveRevertirComprobanteVenta", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdCompVent: IdCompVent, FkUsuaVent: 0, FkClie: FkClie, FkPedi: FkPedi, FkCompTipo: FkCompTipo,
+                    FkCaja: FkCaja, FechEmis: FechEmis, NroCompVent: NroCompVent, CVTotaNeto: CVTotaNeto,
+                    CVTotaIgv: CVTotaIgv, CVTotaBrut: CVTotaBrut, EstaVent: vgEstaVent, FkAlma: FkAlma, arrVentDeta: arrVentDeta, arrCompVentMediPago: arrCompVentMediPago
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCompVentCreate').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    if (parseInt(data.IdNewVent) == -1) {
+                        sweetAlert("", data.msgRpta, "error");
+                    }
+                    else {
+                        for (var j = 0; j < NroPrint; j++) {
+                            FnPrinterComprobanteVenta(data.IdNewVent, data.IdCompVent, data.DataQr);
+                        }
+                        location.reload();
+                    }
+                    //swal({
+                    //    title: "Exito!",
+                    //    text: data,
+                    //    type: "success",
+                    //    confirmButtonText: "Ok",
+                    //    closeOnConfirm: false,
+                    //    closeOnCancel: false
+                    //},
+                    //    function (isConfirm) {
+                    //        if (isConfirm) {
+                    //            location.reload();
+                    //        }
+                    //    });
+                },
+                error: function (data) {
+                    //sweetAlert("", data.responseText, "");
+                    swal({
+                        title: "Exito!",
+                        text: data.responseText,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCompVentCreate').length > 0) {
+                        $('#spinnerCompVentCreate').hide();
+                    }
+                }
+            });
+        }
+    }
+
+    function FnPrinterComprobanteVenta(FkVent, FkCompVent, DataQr) {
+        DescTipoComp = document.getElementById('cmbCompVentEdit_FkCompTipo')[document.getElementById('cmbCompVentEdit_FkCompTipo').selectedIndex].innerHTML;
+        NroCompVent = $("#txtCompCompEdit_NroComp").val();
+        DniRuc = $("#txtVentEdit_DniRucClie").val();
+        NombClie = $("#txtVentEdit_NombRazoSocialClie").val();
+        DireClie = $("#txtVentEdit_DireClie").val();
+        EfecReci = document.getElementById('TDCompVentTotaBruto').innerHTML;;
+        Vuel = 0;
+
+        @*var url = '@Url.Action("PrintComprobanteVenta", "ComprobanteVenta")?FkVent=' + FkVent +
+            '&FkCompVent=' + FkCompVent + '&DescTipoComp=' + DescTipoComp + '&NroCompVent=' + NroCompVent + '&DniRuc=' + DniRuc +
+            '&NombClie=' + NombClie + '&DireClie=' + DireClie + '&EfecReci=' + EfecReci + '&Vuel=' + Vuel + '&DataQr=' + DataQr;*@
+
+        var url = '@Url.Action("PrintComprobanteVentaView", "ComprobanteVenta")?FkVent=' + FkVent +
+            '&FkCompVent=' + FkCompVent + '&DescTipoComp=' + DescTipoComp + '&NroCompVent=' + NroCompVent + '&DniRuc=' + DniRuc +
+            '&NombClie=' + NombClie + '&DireClie=' + DireClie + '&EfecReci=' + EfecReci + '&Vuel=' + Vuel + '&DataQr=' + DataQr;
+
+        window.open(url, "_blank")
+    }
+
+    function FnResetAlmacen() {
+        $('#cmbCompVentEdit_FkAlma').get(0).selectedIndex = 0;
+        $('#cmbCompVentEdit_FkAlma').prop('disabled', false);
+        $('#form-field-checkbox').prop('disabled', false);
+        $('#form-field-checkbox').prop('checked', false);
+    }
+
+    function FnLlenaArrayVentaDetalle() {
+        arrVentDeta = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var IdVentDeta = "";
+        var FkProd = "";
+        var Cant = "";
+        var Prec = "";
+        var FkTipoAfecIGV = 0;
+        var StrDisp = "";
+        var PorRegu = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    IdVentDeta = document.getElementById("TDHiddIdVentDeta" + newTr).innerHTML;
+                    FkProd = document.getElementById("TDFkProd" + newTr).innerHTML;
+                    //Cant = document.getElementById("TDCant" + newTr).innerHTML;
+                    var objTxt = document.getElementById("TDCant" + newTr).children;
+                    Cant = objTxt[0].value;
+                    //Prec = document.getElementById("TDPrec" + newTr).innerHTML;
+                    objTxt = document.getElementById("TDPrec" + newTr).children;
+                    Prec = objTxt[0].value;
+                    FkTipoAfecIGV = document.getElementById("TDFkTipoAfecIgv" + newTr).innerHTML;
+                    StrDisp = document.getElementById("TDStrDist" + newTr).innerHTML.trim();
+                    if (StrDisp != "") {
+                        StrDisp = StrDisp.substring(0, StrDisp.length - 1);
+                    }
+                    PorRegu = document.getElementById("TDHiddPorRegu" + newTr).innerHTML.trim();
+                    arrVentDeta[IndArr] = new Array(6);
+                    arrVentDeta[IndArr][0] = FkProd.trim();
+                    arrVentDeta[IndArr][1] = Cant.trim();
+                    arrVentDeta[IndArr][2] = Prec.trim();
+                    arrVentDeta[IndArr][3] = FkTipoAfecIGV.trim();
+                    arrVentDeta[IndArr][4] = StrDisp.trim();
+                    arrVentDeta[IndArr][5] = PorRegu.trim();
+                    arrVentDeta[IndArr][6] = IdVentDeta.trim();//Utilizado en regularizarComprobanteVenta
+                    IndArr++;
+                }
+            }
+        }
+    }
+
+    function ValidaDistribucion() {
+        var table = document.getElementById('tBodyVentDetalle');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var flgReturn = 0;
+        var strDist = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    strDist = document.getElementById("TDStrDist" + newTr).innerHTML;
+                    if (strDist.trim() == "") {
+                        document.getElementById(newTr).className = "cssTrSinStock";
+                        flgReturn = 1;
+                    }
+                }
+            }
+        }
+        return flgReturn;
+    }
+
+</script>
+<style type="text/css">
+    .modal-backdrop {
+        z-index: -1;
+    }
+
+    .cssTrSinStock {
+        background-color: rgba(244,157,138,0.8) !important;
+    }
+</style>

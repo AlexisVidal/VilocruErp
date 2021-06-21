@@ -1,0 +1,159 @@
+﻿@using ERP.Admin.Models
+@{
+    var _entidadp = (PersonalFamiliarErp)ViewBag.FamiliarExist;
+    int IDPERSONALFAMILIARs = 0;
+    string IDCODIGOGENERALs = "";
+    string CODIGOGENERALs = "";
+    string IDVINCULOs = "";
+    string NOMBRESs = "";
+    string TELEFONOs = "";
+    string vinculos = "";
+    string IDDOCVINCs = "";
+    string DOCVINCs = "";
+    string fecha_nacimientos = "";
+    string documento_adjuntos = "";
+
+
+
+    if (_entidadp != null)
+    {
+        IDPERSONALFAMILIARs = _entidadp.IDPERSONALFAMILIAR;
+        IDCODIGOGENERALs = _entidadp.IDCODIGOGENERAL;
+        CODIGOGENERALs = _entidadp.CODIGOGENERAL;
+        IDVINCULOs = _entidadp.IDVINCULO;
+        NOMBRESs = _entidadp.NOMBRES;
+        vinculos = _entidadp.vinculo;
+        TELEFONOs = _entidadp.TELEFONO;
+        IDDOCVINCs = _entidadp.IDDOCVINC;
+        DOCVINCs = _entidadp.DOCVINC;
+        fecha_nacimientos = _entidadp.fecha_nacimiento.ToString("dd/MM/yyyy");
+        documento_adjuntos = _entidadp.documento_adjunto;
+        
+    }
+}
+
+@Html.Hidden("IDPERSONALFAMILIARx", @IDPERSONALFAMILIARs)
+@Html.Hidden("IDCODIGOGENERALx", @IDCODIGOGENERALs)
+@Html.Hidden("CODIGOGENERALx", @CODIGOGENERALs)
+@Html.Hidden("IDVINCULOx", @IDVINCULOs)
+@Html.Hidden("NOMBRESx", @NOMBRESs)
+@Html.Hidden("vinculox", @vinculos)
+@Html.Hidden("TELEFONOx", @TELEFONOs)
+@Html.Hidden("IDDOCVINCx", @IDDOCVINCs)
+@Html.Hidden("DOCVINCx", @DOCVINCs)
+@Html.Hidden("fecha_nacimientox", @fecha_nacimientos)
+@Html.Hidden("stradjunto", documento_adjuntos)
+@Html.Hidden("sfecha_nac", "")
+
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Registro de derecho habientes</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Nro Documento <sup>*</sup></label>
+                                <div class="col-md-4" style="">
+                                    @Html.Bootstrap().TextBox("CODIGOGENERALFAM").HtmlAttributes(new { @type = "number", @maxlength = "8", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", @class = "form-control", @onkeyup = "InputToUpper(this)" }).Placeholder("Nro Documento")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Nombres <sup>*</sup></label>
+                                <div class="col-md-8" style="">
+                                    @Html.Bootstrap().TextBox("NOMBRESFAM").HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)" }).Placeholder("Nombres")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">F. Nacimiento <sup>*</sup></label>
+                                <div class="col-md-3" style="">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerf' id='txtfecha_nacDerec' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+                                    </div>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align:left;width:110px">Tel. </label>
+                                <div class="col-md-3" style="">
+                                    @Html.Bootstrap().TextBox("TELEFONOFAM").HtmlAttributes(new { @type = "number", @maxlength = "11", @oninput = "javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);", @class = "form-control", @onkeyup = "InputToUpper(this)" }).Placeholder("Telefono")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Vinculo <sup>*</sup></label>
+                                <div class="col-sm-8" style="">
+                                    @Html.DropDownList("IDVINCULOFAM", new SelectList(ViewBag.Vinculos, "IDVINCULO", "DESCRIPCION"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("IDVINCULOC")
+                                    @Html.Hidden("VINCULOCX")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Documento </label>
+                                <div class="col-sm-8" style="">
+                                    @Html.DropDownList("IDDOCVINCFAM", new List<SelectListItem>(), new { @class = "form-control select2ddl" })
+                                    @Html.Hidden("IDPROVINCIAx")
+                                    @Html.Hidden("provinciax")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:140px">Adjunto </label>
+                                <div class="col-sm-8" style="">
+                                    <input type="text" id="lblNombArchd" style="margin-top:15px; background-color: transparent; border: none;display:none" readonly="readonly" />
+                                    <input type="file" name="FileUpload2" id="FileUpload2" onChange="Handlechange2();" style="margin-top:5px;" accept=".png , .jpg, .pdf, .doc, .docx" />
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarDerec").Color(BootstrapColors.Success)
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-danger" type="button" style="color:white" id="btnCancelfam" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}

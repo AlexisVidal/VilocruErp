@@ -1,0 +1,119 @@
+﻿@model IEnumerable<ERP.Admin.Models.ComprobanteVenta>
+@{
+    string strFechEmis = "";
+    string strDniRuc = "";
+    string strNombRazoSoci = "";
+    string strNeto = "";
+    string strISC = "";
+    string strIgv = "";
+    string strBrut = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="editabledataKardex" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                FECHA
+                            </th>
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                TIPO_DOC
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                RUC
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                NOMBRE
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                AFECTO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                EXONERADO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                IMPUESTO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                TOTAL
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">
+                                COD_MONEDA
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            strFechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                            if (item.estado.Equals("0"))
+                            {
+                                strNeto = "-";
+                                strISC = "-";
+                                strIgv = "-";
+                                strBrut = "-";
+                            }
+                            else
+                            {
+                                strNeto = item.total_neto.ToString("#,##0.00");
+                                strISC = Convert.ToDecimal("0").ToString("#,##0.00");
+                                strIgv = item.total_igv.ToString("#,##0.00");
+                                strBrut = item.total_bruto.ToString("#,##0.00");
+                            }
+                            if (!item.id_cliente_natural.Equals(0))
+                            {
+                                strDniRuc = item.dni_cliente_natural;
+                                strNombRazoSoci = item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                            }
+                            else if (!item.id_cliente_juridico.Equals(0))
+                            {
+                                strDniRuc = item.ruc_empresa_cliente_juridico;
+                                strNombRazoSoci = item.razon_social;
+                            }
+                            <tr>
+                                <td class="input-xs">
+                                    @strFechEmis
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.codigo
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @item.nro_comprobante
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strDniRuc
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @strNombRazoSoci
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strNeto
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strISC
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strIgv
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strBrut
+                                </td>
+                                <td class="input-xs" style="text-align: right; border-right: 1px solid black;">
+                                    01
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>

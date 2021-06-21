@@ -1,0 +1,234 @@
+﻿@model IEnumerable<ERP.Admin.Models.ReporteContable>
+@{
+    string strDebe = "";
+    string strHaber = "";
+    string strDeud = "";
+    string strAcre = "";
+    string strBgDebe = "";
+    string strBgHaber = "";
+    string strErfDebe = "";
+    string strErfHaber = "";
+    string strErnDebe = "";
+    string strErnHaber = "";
+    decimal SumaDebe = 0;
+    decimal SumaHaber = 0;
+    decimal SumaDeud = 0;
+    decimal SumaAcre = 0;
+    decimal SumaBgDebe = 0;
+    decimal SumaBgHaber = 0;
+    decimal SumaErfDebe = 0;
+    decimal SumaErfHaber = 0;
+    decimal SumaErnDebe = 0;
+    decimal SumaErnHaber = 0;
+    decimal ResuBalaGeneHabe = 0;
+    decimal ResuErfDebe = 0;
+    decimal ResuErnDebe = 0;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="tableHojaTrabajo" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th colspan="12" style="font-size: 14px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                HOJA DE TRABAJO
+                            </th>
+                        </tr>
+                        <tr role="row" style="background: #0070C0; color: #FFFFFF;">
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">COD.</th>
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">DENOMINACIÓN</th>
+                            <th colspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">SUMA DEL MAYOR</th>
+                            <th colspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">SALDOS</th>
+                            <th colspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">BALANCE GENERAL</th>
+                            <th colspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">E.R.FUNCIÓN</th>
+                            <th colspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">E.R.NATURALEZA</th>
+                        </tr>
+                        <tr role="row" style="background: #0070C0; color: #FFFFFF;">
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">DEBE</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">HABER</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">DEUDOR</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">ACREEDOR</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">DEBE</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">HABER</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">DEBE</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">HABER</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">DEBE</th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">HABER</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            if (item.debe == 0)
+                            {
+                                strDebe = "-";
+                            }
+                            else
+                            {
+                                strDebe = item.debe.ToString("#,##0.00");
+                                SumaDebe = SumaDebe + item.debe;
+                            }
+                            if (item.haber == 0)
+                            {
+                                strHaber = "-";
+                            }
+                            else
+                            {
+                                strHaber = item.haber.ToString("#,##0.00");
+                                SumaHaber = SumaHaber + item.haber;
+                            }
+                            if (item.deudor == 0)
+                            {
+                                strDeud = "-";
+                            }
+                            else
+                            {
+                                strDeud = item.deudor.ToString("#,##0.00");
+                                SumaDeud = SumaDeud + item.deudor;
+                            }
+                            if (item.acreedor == 0)
+                            {
+                                strAcre = "-";
+                            }
+                            else
+                            {
+                                strAcre = item.acreedor.ToString("#,##0.00");
+                                SumaAcre = SumaAcre + item.acreedor;
+                            }
+                            if (item.bg_debe == 0)
+                            {
+                                strBgDebe = "-";
+                            }
+                            else
+                            {
+                                strBgDebe = item.bg_debe.ToString("#,##0.00");
+                                SumaBgDebe = SumaBgDebe + item.bg_debe;
+                            }
+                            if (item.bg_haber == 0)
+                            {
+                                strBgHaber = "-";
+                            }
+                            else
+                            {
+                                strBgHaber = item.bg_haber.ToString("#,##0.00");
+                                SumaBgHaber = SumaBgHaber + item.bg_haber;
+                            }
+                            if (item.erf_debe == 0)
+                            {
+                                strErfDebe = "-";
+                            }
+                            else
+                            {
+                                strErfDebe = item.erf_debe.ToString("#,##0.00");
+                                SumaErfDebe = SumaErfDebe + item.erf_debe;
+                            }
+                            if (item.erf_haber == 0)
+                            {
+                                strErfHaber = "-";
+                            }
+                            else
+                            {
+                                strErfHaber = item.erf_haber.ToString("#,##0.00");
+                                SumaErfHaber = SumaErfHaber + item.erf_haber;
+                            }
+                            if (item.ern_debe == 0)
+                            {
+                                strErnDebe = "-";
+                            }
+                            else
+                            {
+                                strErnDebe = item.ern_debe.ToString("#,##0.00");
+                                SumaErnDebe = SumaErnDebe + item.ern_debe;
+                            }
+                            if (item.ern_haber == 0)
+                            {
+                                strErnHaber = "-";
+                            }
+                            else
+                            {
+                                strErnHaber = item.ern_haber.ToString("#,##0.00");
+                                SumaErnHaber = SumaErnHaber + item.ern_haber;
+                            }
+                            <tr>
+                                <td class="input-xs" style="text-align: right;">
+                                    @item.num_subcuenta
+                                </td>
+                                <td class="input-xs" style="text-align: left; border-right: 1px solid black;">
+                                    @item.nombre
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strDebe
+                                </td>
+                                <td class="input-xs" style="text-align: right; border-right: 1px solid black;">
+                                    @strHaber
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strDeud
+                                </td>
+                                <td class="input-xs" style="text-align: right; border-right: 1px solid black;">
+                                    @strAcre
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strBgDebe
+                                </td>
+                                <td class="input-xs" style="text-align: right; border-right: 1px solid black;">
+                                    @strBgHaber
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strErfDebe
+                                </td>
+                                <td class="input-xs" style="text-align: right; border-right: 1px solid black;">
+                                    @strErfHaber
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strErnDebe
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strErnHaber
+                                </td>
+                            </tr>
+                        }
+                        @{ 
+                            ResuBalaGeneHabe = SumaBgDebe - SumaBgHaber;
+                            ResuErfDebe = SumaErfHaber - SumaErfDebe;
+                            ResuErnDebe = SumaErnHaber - SumaErnDebe;
+                        }
+                        <tr role="row">
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;"></th>
+                            <th style="font-size: 11px; text-align: left; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">T-O-T-A-L-E-S</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@SumaDebe.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">@SumaHaber.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@SumaDeud.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">@SumaAcre.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@SumaBgDebe.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">@SumaBgHaber.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@SumaErfDebe.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">@SumaErfHaber.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@SumaErnDebe.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@SumaErnHaber.ToString("#,##0.00")</th>
+                        </tr>
+                        <tr role="row">
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;"></th>
+                            <th style="font-size: 11px; text-align: left; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;"></th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;"></th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;"></th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;"></th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;"></th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">-</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">@ResuBalaGeneHabe.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@ResuErfDebe.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">-</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">@ResuErnDebe.ToString("#,##0.00")</th>
+                            <th style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black;">-</th>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>

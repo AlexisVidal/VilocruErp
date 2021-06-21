@@ -1,0 +1,653 @@
+﻿@model IEnumerable<ERP.Admin.Models.ComprobanteVentaCobro>
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        FnInitFormCompVentaVer();
+    });
+
+    function FnInitFormCompVentaVer() {
+        var CallBy = $("#HiddCierCaja_CallBy").val();
+        if (CallBy == "CajaVer") {
+            document.getElementById('btnSaveCierraCaja').style.display = 'none';
+        }
+    }
+
+    function FnPDFCierreCaja() {
+        var IdCaja = $("#HiddCierCaja_IdCaja").val();
+        var TotaVentEfec = document.getElementById('THTotaVentEfec').innerHTML.trim();
+        var TotaVentCheq = document.getElementById('THTotaVentCheq').innerHTML.trim();
+        var TotaVentDepo = document.getElementById('THTotaVentDepo').innerHTML.trim();
+        var TotaVentTarj = document.getElementById('THTotaVentTarj').innerHTML.trim();
+        var TotaVentNotaCred = document.getElementById('THTotaVentNotaCred').innerHTML.trim();
+        var TotaVentLineCred = document.getElementById('THTotaVentLineCred').innerHTML.trim();
+        var TotaVentDia = document.getElementById('THTotaVentDia').innerHTML.trim();
+        var TotaCobrLineCredEfect = document.getElementById('THTotaCobrLineCredEfec').innerHTML.trim();
+        var TotaOtroIngr = document.getElementById('THTotaOtroIngr').innerHTML.trim();
+        var TotaOtroEgre = document.getElementById('THTotaOtroEgre').innerHTML.trim();
+        var MontCier = document.getElementById('TDMontCier').innerHTML.trim();
+        var url = '@Url.Action("PrintCierreCaja", "Caja")?IdCaja=' + IdCaja + '&TotaVentEfec=' + TotaVentEfec +
+            '&TotaVentCheq=' + TotaVentCheq + '&TotaVentDepo=' + TotaVentDepo + '&TotaVentTarj=' + TotaVentTarj + 
+            '&TotaVentNotaCred=' + TotaVentNotaCred + '&TotaVentLineCred=' + TotaVentLineCred + 
+            '&TotaVentDia=' + TotaVentDia + '&TotaCobrLineCredEfect=' + TotaCobrLineCredEfect + 
+            '&TotaOtroIngr=' + TotaOtroIngr + '&TotaOtroEgre=' + TotaOtroEgre + '&MontCier=' + MontCier;
+        window.open(url, "_blank")
+    }
+</script>
+@{
+    string FechInic = Convert.ToDateTime(ViewBag.Caja.f_inicio).ToString("dd/MM/yyyy HH:mm:ss");
+    string FechCier = Convert.ToDateTime(ViewBag.Caja.f_fin).ToString("dd/MM/yyyy HH:mm:ss");
+    if (FechCier == "01/01/1900 00:00:00")
+    {
+        FechCier = "";
+    }
+    int IdCaja = ViewBag.Caja.id_caja;
+    string NombUsuario = ViewBag.Caja.usuario_nombre_completo;
+    decimal MontApert = ViewBag.Caja.monto_apertura;
+    decimal MontCier = ViewBag.Caja.monto_cierre;
+    string EstaCaja = ViewBag.Caja.estado;
+    string NEstaCaja = ViewBag.Caja.NEstado;
+
+    string strClie = "";
+    string FechEmis = "";
+    string strStyle = "";
+    string strMonto = "";
+    string strMoviCajaDocu = "";
+
+    decimal TotaVent = 0;
+    decimal TotaCobroLC = 0;
+    decimal TotaMoviCajaIngr = 0;
+    decimal TotaMoviCajaEgre = 0;
+
+    decimal TotaEfectVent = 0;
+    decimal TotaCheqVent = 0;
+    decimal TotaDepoVent = 0;
+    decimal TotaTarjVent = 0;
+    decimal TotaNotaCredVent = 0;
+    decimal TotaLineCredVent = 0;
+    decimal TotaCierEfec = 0;
+
+    //Totales de cobro de linea de credito
+    decimal TotaEfectLC = 0;
+    decimal TotaCheqLC = 0;
+    decimal TotaDepoLC = 0;
+    decimal TotaTarjLC = 0;
+    decimal TotaNotaCredLC = 0;
+
+    int FkMediPagoEfec = ViewBag.MedioPagoEfectivo;
+    int FkMediPagoCheq = ViewBag.MedioPagoCheque;
+    int FkMediPagoDepo = ViewBag.MedioPagoDeposito;
+    int FkMediPagoTarj = ViewBag.MedioPagoTarjeta;
+    int FkMediPagoNotaCred = ViewBag.MedioPagoNotaCredito;
+    int FkMediPagoLineCred = ViewBag.MedioPagoLineaCredito;
+
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("HiddCierCaja_IdCaja", IdCaja)
+@Html.Hidden("HiddCierCaja_CallBy", CallBy)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">DETALLE DE CAJA </span>
+                <button type="button" class="btn btn-default btn-xs" rel="tooltip" data-placement="bottom" data-original-title="Cerrar" style="float: right; line-height: 2.4;" data-dismiss="modal" aria-hidden="true">
+                    <i class="glyphicon glyphicon-remove"></i>
+                </button>
+                <a href="#" onclick="FnPDFCierreCaja()">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/PDF_32.ico" />
+                </a>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table" id="editabledataCierreCaja" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                    <tr style="text-align: center; border: none;">
+                                        <th colspan="4" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">H. APERTURA: @FechInic</th>
+                                        <th colspan="3" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">H. CIERRE: @FechCier</th>
+                                        <th colspan="1" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">ESTADO: @NEstaCaja</th>
+                                    </tr>
+                                    <tr style="text-align: center; border: none;">
+                                        <th colspan="8" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">RESPONSABLE: @NombUsuario</th>
+                                    </tr>
+                                    <tr style="text-align: center; border: none;">
+                                        <th colspan="8" style="text-align: left; height: 20px; border: none; font-size: 11px; padding-right: 20px">MONTO APERTURA: @MontApert</th>
+                                    </tr>
+                                    <tr role="row">
+                                        <td colspan="8" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; background: #090269; color: #ffffff;">
+                                            VENTAS
+                                        </td>
+                                    </tr>
+                                    <tr role="row">
+                                        <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            COMPROBANTE
+                                        </th>
+                                        <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            NUMERO
+                                        </th>
+                                        <th colspan="3" style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            CLIENTE
+                                        </th>
+                                        <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            ESTADO
+                                        </th>
+                                        <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            MEDIO PAGO
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                    </tr>
+                                    @foreach (var item in Model)
+                                    {
+                                        strStyle = "";
+                                        strMonto = item.monto.ToString("#,##0.00");
+                                        FechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                                        if (!item.id_cliente_natural.Equals(0))
+                                        {
+                                            strClie = item.dni_cliente_natural + " - " + item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                                        }
+                                        else if (!item.id_cliente_juridico.Equals(0))
+                                        {
+                                            strClie = item.ruc_empresa_cliente_juridico + " " + item.razon_social;
+                                        }
+                                        if (item.estado == "0")
+                                        {
+                                            strStyle = "color: #ff0000;";
+                                            strMonto = "-";
+                                        }
+                                        else
+                                        {
+                                            TotaVent = TotaVent + item.monto;
+                                            if (item.fk_medio_pago.Equals(FkMediPagoEfec))
+                                            {
+                                                TotaEfectVent = TotaEfectVent + item.monto;
+                                            }
+                                            else if (item.fk_medio_pago.Equals(FkMediPagoCheq))
+                                            {
+                                                TotaCheqVent = TotaCheqVent + item.monto;
+                                            }
+                                            else if (item.fk_medio_pago.Equals(FkMediPagoDepo))
+                                            {
+                                                TotaDepoVent = TotaDepoVent + item.monto;
+                                            }
+                                            else if (item.fk_medio_pago.Equals(FkMediPagoTarj))
+                                            {
+                                                TotaTarjVent = TotaTarjVent + item.monto;
+                                            }
+                                            else if (item.fk_medio_pago.Equals(FkMediPagoNotaCred))
+                                            {
+                                                TotaNotaCredVent = TotaNotaCredVent + item.monto;
+                                            }
+                                            else if (item.fk_medio_pago.Equals(FkMediPagoLineCred))
+                                            {
+                                                TotaLineCredVent = TotaLineCredVent + item.monto;
+                                            }
+                                        }
+
+                                        <tr>
+                                            <td class="input-xs">
+                                                @Html.DisplayFor(modelItem => item.descripcion_comprobante_tipo)
+                                            </td>
+                                            <td class="input-xs">
+                                                @Html.DisplayFor(modelItem => item.nro_comprobante)
+                                            </td>
+                                            <td colspan="3" class="input-xs" style="text-align: left;">
+                                                @strClie
+                                            </td>
+                                            <td class="input-xs" style="text-align: left; @strStyle">
+                                                @Html.DisplayFor(modelItem => item.NEstado)
+                                            </td>
+                                            <td class="input-xs" style="text-align: left;">
+                                                @Html.DisplayFor(modelItem => item.descripcion_medio_pago)
+                                            </td>
+                                            <td class="input-xs" style="text-align: right;">
+                                                @strMonto
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            @TotaVent
+                                        </th>
+                                    </tr>
+
+                                    <tr role="row">
+                                        <td colspan="8" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; background: #090269; color: #ffffff;">
+                                            COBRANZA - LINEA DE CREDITO
+                                        </td>
+                                    </tr>
+                                    <tr role="row">
+                                        <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            COMPROBANTE
+                                        </th>
+                                        <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            NUMERO
+                                        </th>
+                                        <th colspan="4" style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            CLIENTE
+                                        </th>
+                                        <th style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            MEDIO PAGO
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                    </tr>
+                                    @foreach (var item in ViewBag.PagoCuentasPorCobrar)
+                                    {
+                                        strMonto = item.monto.ToString("#,##0.00");
+                                        FechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                                        if (!item.id_cliente_natural.Equals(0))
+                                        {
+                                            strClie = item.dni_cliente_natural + " - " + item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                                        }
+                                        else if (!item.id_cliente_juridico.Equals(0))
+                                        {
+                                            strClie = item.ruc_empresa_cliente_juridico + " " + item.razon_social;
+                                        }
+
+                                        TotaCobroLC = TotaCobroLC + item.monto;
+                                        if (item.fk_medio_pago.Equals(FkMediPagoEfec))
+                                        {
+                                            TotaEfectLC = TotaEfectLC + item.monto;
+                                        }
+                                        else if (item.fk_medio_pago.Equals(FkMediPagoCheq))
+                                        {
+                                            TotaCheqLC = TotaCheqLC + item.monto;
+                                        }
+                                        else if (item.fk_medio_pago.Equals(FkMediPagoDepo))
+                                        {
+                                            TotaDepoLC = TotaDepoLC + item.monto;
+                                        }
+                                        else if (item.fk_medio_pago.Equals(FkMediPagoTarj))
+                                        {
+                                            TotaTarjLC = TotaTarjLC + item.monto;
+                                        }
+                                        else if (item.fk_medio_pago.Equals(FkMediPagoNotaCred))
+                                        {
+                                            TotaNotaCredLC = TotaNotaCredLC + item.monto;
+                                        }
+
+
+                                        <tr>
+                                            <td class="input-xs">
+                                                @item.descripcion_comprobante_tipo
+                                            </td>
+                                            <td class="input-xs">
+                                                @item.nro_comprobante
+                                            </td>
+                                            <td colspan="4" class="input-xs" style="text-align: left;">
+                                                @strClie
+                                            </td>
+                                            <td class="input-xs" style="text-align: left;">
+                                                @item.descripcion_medio_pago
+                                            </td>
+                                            <td class="input-xs" style="text-align: right;">
+                                                @strMonto
+                                            </td>
+                                        </tr>
+                                    }
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            @TotaCobroLC
+                                        </th>
+                                    </tr>
+
+                                    <tr role="row">
+                                        <td colspan="8" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; background: #090269; color: #ffffff;">
+                                            OTROS INGRESOS
+                                        </td>
+                                    </tr>
+                                    <tr role="row">
+                                        <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            FECHA
+                                        </th>
+                                        <th colspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            DOCUMENTO
+                                        </th>
+                                        <th colspan="4" style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            DESCRIPCION
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                    </tr>
+                                    @if (ViewBag.MovimientoCaja != null)
+                                    {
+                                        foreach (var item in ViewBag.MovimientoCaja)
+                                        {
+                                            if (item.ingreso_egreso == "1")
+                                            {
+                                                TotaMoviCajaIngr = TotaMoviCajaIngr + item.monto;
+                                                if (item.descripcion_comprobante_tipo != "")
+                                                {
+                                                    strMoviCajaDocu = item.descripcion_comprobante_tipo + ": " + item.nro_documento;
+                                                }
+                                                else
+                                                {
+                                                    strMoviCajaDocu = item.nro_documento;
+                                                }
+
+                                                FechEmis = Convert.ToDateTime(item.f_movimiento).ToString("dd/MM/yyyy HH:mm:ss");
+                                                <tr>
+                                                    <td class="input-xs">
+                                                        @FechEmis
+                                                    </td>
+                                                    <td colspan="2" class="input-xs">
+                                                        @strMoviCajaDocu
+                                                    </td>
+                                                    <td colspan="4" class="input-xs" style="text-align: left;">
+                                                        @item.descripcion
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: right;">
+                                                        @item.monto
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            @TotaMoviCajaIngr
+                                        </th>
+                                    </tr>
+
+                                    <tr role="row">
+                                        <td colspan="8" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; background: #090269; color: #ffffff;">
+                                            EGRESOS
+                                        </td>
+                                    </tr>
+                                    <tr role="row">
+                                        <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            FECHA
+                                        </th>
+                                        <th colspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            DOCUMENTO
+                                        </th>
+                                        <th colspan="4" style="font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            DESCRIPCION
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                    </tr>
+                                    @if (ViewBag.MovimientoCaja != null)
+                                    {
+                                        foreach (var item in ViewBag.MovimientoCaja)
+                                        {
+                                            if (item.ingreso_egreso == "2" || item.ingreso_egreso == "3")
+                                            {
+                                                TotaMoviCajaEgre = TotaMoviCajaEgre + item.monto;
+                                                if (item.descripcion_comprobante_tipo != "")
+                                                {
+                                                    strMoviCajaDocu = item.descripcion_comprobante_tipo + ": " + item.nro_documento;
+                                                }
+                                                else
+                                                {
+                                                    strMoviCajaDocu = item.nro_documento;
+                                                }
+
+                                                FechEmis = Convert.ToDateTime(item.f_movimiento).ToString("dd/MM/yyyy HH:mm:ss");
+                                                <tr>
+                                                    <td class="input-xs">
+                                                        @FechEmis
+                                                    </td>
+                                                    <td colspan="2" class="input-xs">
+                                                        @strMoviCajaDocu
+                                                    </td>
+                                                    <td colspan="4" class="input-xs" style="text-align: left;">
+                                                        @item.descripcion
+                                                    </td>
+                                                    <td class="input-xs" style="text-align: right;">
+                                                        @item.monto
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                    }
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            TOTAL
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                            @TotaMoviCajaEgre
+                                        </th>
+                                    </tr>
+                                    @{
+                                        if (EstaCaja == "2")
+                                        {
+                                            TotaCierEfec = MontCier;
+                                        }
+                                        else
+                                        {
+                                            TotaCierEfec = MontApert + TotaEfectVent + TotaEfectLC + TotaMoviCajaIngr - TotaMoviCajaEgre;
+                                        }
+                                    }
+                                    <tr role="row">
+                                        <td colspan="8" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; background: #090269; color: #ffffff;">
+                                            RESUMEN
+                                        </td>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL VENTAS EFECTIVO
+                                        </th>
+                                        <th id="THTotaVentEfec" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaEfectVent
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL VENTAS CHEQUE
+                                        </th>
+                                        <th id="THTotaVentCheq" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaCheqVent
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL VENTAS DEPOSITO
+                                        </th>
+                                        <th id="THTotaVentDepo" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaDepoVent
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL VENTAS TARJETA
+                                        </th>
+                                        <th id="THTotaVentTarj" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaTarjVent
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL VENTAS NOTA CREDITO
+                                        </th>
+                                        <th id="THTotaVentNotaCred" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaNotaCredVent
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL VENTAS LINEA DE CREDITO
+                                        </th>
+                                        <th id="THTotaVentLineCred" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaLineCredVent
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 1.2em; font-weight: bold;">
+                                            <i>TOTAL VENTAS DÍA</i>
+                                        </th>
+                                        <th id="THTotaVentDia" style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 1.2em; font-weight: bold;">
+                                            @TotaVent
+                                        </th>
+                                    </tr>
+                                    
+
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL COBRO LINEA CREDITO EFECTIVO
+                                        </th>
+                                        <th id="THTotaCobrLineCredEfec" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaEfectLC
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL COBRO LINEA CREDITO CHEQUE
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaCheqLC
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL COBRO LINEA CREDITO DEPOSITO
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaDepoLC
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL COBRO LINEA CREDITO TARJETA
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaTarjLC
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL COBRO LINEA CREDITO NOTA CREDITO
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaNotaCredLC
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 1.2em; font-weight: bold;">
+                                            <i>TOTAL COBRO LINEA CREDITO DÍA</i>
+                                        </th>
+                                        <th style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 1.2em; font-weight: bold;">
+                                            @TotaCobroLC
+                                        </th>
+                                    </tr>
+
+
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL OTROS INGRESO
+                                        </th>
+                                        <th id="THTotaOtroIngr" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none;">
+                                            @TotaMoviCajaIngr
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: none; border-bottom: none;">
+                                            TOTAL EGRESOS
+                                        </th>
+                                        <th id="THTotaOtroEgre" style="text-align: right; font-size: 11px; border-top: none; border-bottom: none; color: #ff0000;">
+                                            @TotaMoviCajaEgre
+                                        </th>
+                                    </tr>
+                                    <tr role="row">
+                                        <th colspan="7" style="font-size: 11px; text-align: right; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 1.2em; font-weight: bold;">
+                                            <i>EFECTIVO A ENTREGAR</i>
+                                        </th>
+                                        <th id="TDMontCier" style="text-align: right; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black; font-size: 1.2em; font-weight: bold;">
+                                            @TotaCierEfec
+                                        </th>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" style="float: right;" data-dismiss="modal">Salir</button>
+                                @Html.Bootstrap().Button().Text("Cerrar Caja").Id("btnSaveCierraCaja").Color(BootstrapColors.Danger).Shiny().HtmlAttributes(new { @onclick = "FnSaveCierreCaja()", style = "float: right;" })
+                            </div>
+                        </div>
+                                        }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div id="spinnerCierCaja" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#spinnerCierCaja").hide();
+        //Inicia();
+        $('#spinnerCierCaja').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+    });
+
+    function FnSaveCierreCaja() {
+        var IdCaja = $("#HiddCierCaja_IdCaja").val();
+        var MontCier = parseFloat(document.getElementById('TDMontCier').innerHTML);
+        $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveCierreCaja", "Caja")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdCaja: IdCaja, MontCier: MontCier
+                }),
+                dataType: 'json',
+                beforeSend: function () {
+                    $('#spinnerCierCaja').show();
+                },
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: false,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                },
+                complete: function () {
+                    //check that it does exist and remove
+                    if ($('#spinnerCierCaja').length > 0) {
+                        $('#spinnerCierCaja').hide();
+                    }
+                }
+        });
+    }
+</script>

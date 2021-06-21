@@ -1,0 +1,162 @@
+﻿
+@using ERP.Admin.Models
+@{
+    var _entidadp = (ProductoErp)ViewBag.Producto;
+    int id_producto = 0;
+
+    int fk_producto_marcas = 0;
+    int fk_producto_lineas = 0;
+    int fk_producto_tipos = 0;
+    int fk_unidad_medida = 0;
+
+    string cod_productos = "";
+    string nom_productos = "";
+    string codigo_skus = "";
+
+    string descripcion_producto_marcas = "";
+    string descripcion_producto_lineas = "";
+    string descripcion_producto_tipos = "";
+    string descripcion_unidad_medida = "";
+
+
+    if (_entidadp != null)
+    {
+        id_producto = _entidadp.id_producto;
+
+        fk_producto_marcas = _entidadp.fk_producto_marca;
+        fk_producto_lineas = _entidadp.fk_producto_linea;
+        fk_producto_tipos = _entidadp.fk_producto_tipo;
+        cod_productos = _entidadp.cod_producto;
+        nom_productos = _entidadp.nom_producto;
+        codigo_skus = _entidadp.codigo_sku;
+
+        descripcion_producto_marcas = _entidadp.marca;
+        descripcion_producto_lineas = _entidadp.producto_linea;
+        descripcion_producto_tipos = _entidadp.producto_tipo;
+
+        fk_unidad_medida = _entidadp.fk_unidad_medida;
+        descripcion_unidad_medida = _entidadp.unidad_medida;
+
+    }
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+
+@Html.Hidden("id_productox", @id_producto)
+
+@Html.Hidden("fk_producto_marcasx", @fk_producto_marcas)
+@Html.Hidden("fk_producto_lineasx", @fk_producto_lineas)
+@Html.Hidden("fk_producto_tiposx", @fk_producto_tipos)
+@Html.Hidden("fk_unidad_medidax", @fk_unidad_medida)
+
+@Html.Hidden("cod_productosx", @cod_productos)
+@Html.Hidden("nom_productosx", @nom_productos)
+@Html.Hidden("codigo_skusx", @codigo_skus)
+
+@Html.Hidden("descripcion_producto_marcasx", @descripcion_producto_marcas)
+@Html.Hidden("descripcion_producto_lineasx", @descripcion_producto_lineas)
+@Html.Hidden("descripcion_producto_tiposx", @descripcion_producto_tipos)
+@Html.Hidden("descripcion_unidad_medidax", @descripcion_unidad_medida)
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de producto</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">Tipo <sup>*</sup></label>
+                                <div class="col-md-6" style="width:400px">
+                                    @Html.DropDownList("txtValBus_Familia", new SelectList(ViewBag.ProductoTipo, "id_producto_tipo", "producto_tipo"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproducto_Familia")
+                                    @Html.Hidden("Familiax")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">Marca <sup>*</sup></label>
+                                <div class="col-md-6" style="width:400px">
+                                    @Html.DropDownList("txtValBus_Marca", new SelectList(ViewBag.ProductoMarca, "id_producto_marca", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("idproducto_marca")
+                                    @Html.Hidden("marcax")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">U. M. <sup>*</sup></label>
+                                <div class="col-md-6" style="width:400px">
+                                    @Html.DropDownList("txtValBus_Unidad", new SelectList(ViewBag.UnidadMedida, "id_unidad_medida", "descripcion"), new { @class = "form-control dropdown - menu" })
+                                    @Html.Hidden("id_unidad_medida")
+                                    @Html.Hidden("unidadmedidax")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">Nombre <sup>*</sup></label>
+                                <div class="col-md-6" style="width:400px">
+                                    @Html.Bootstrap().TextBox("nom_producto").HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)" }).Placeholder("Nombre de producto")
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-5 control-label" style="text-align:left;width:120px">Codigo SKU </label>
+                                <div class="col-sm-6" style="width:150px">
+                                    @Html.Bootstrap().TextBox("codigo_sku").HtmlAttributes(new { @onkeyup = "InputToUpper(this)" }).Placeholder("Codigo SKU")
+                                    <div class="horizontal-space"></div>
+                                </div>
+
+                            </div>
+                        </div>
+
+
+
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarEntidad").Color(BootstrapColors.Success).HtmlAttributes(new { @class = "btn btn-md" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-md bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+
+        });
+
+
+    </script>
+}
+
+
+
+

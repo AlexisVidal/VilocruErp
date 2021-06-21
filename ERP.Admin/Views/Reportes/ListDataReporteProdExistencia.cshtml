@@ -1,0 +1,70 @@
+﻿@{ 
+    int CantAlma = 0;
+    decimal Stock = 0;
+    if (ViewBag.Almacen != null)
+    {
+        CantAlma = ViewBag.Almacen.Count;
+    }
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="tableDataReportExist" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th style="text-align: center; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                PRODUCTO
+                            </th>
+                            <th style="text-align: center; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                MARCA
+                            </th>
+                            <th style="text-align: center; font-size: 11px; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                SUB-FAMILIA
+                            </th>
+                            @if (ViewBag.Almacen != null)
+                            {
+                                foreach (var oneAlma in ViewBag.Almacen)
+                                {
+                                    <th style="width: 100px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                        @oneAlma.nombre
+                                    </th>
+                                }
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="input-xs" style="text-align: left;">
+                                @ViewBag.Producto.nom_producto
+                            </td>
+                            <td class="input-xs" style="text-align: center;">
+                                @ViewBag.Producto.descripcion_producto_marca
+                            </td>
+                            <td class="input-xs" style="text-align: center;">
+                                @ViewBag.Producto.descripcion_producto_subfamilia
+                            </td>
+                            @if (ViewBag.Almacen != null)
+                            {
+                                foreach (var oneAlma in ViewBag.Almacen)
+                                {
+                                    Stock = 0;
+                                    foreach (var oneAlmaStoc in ViewBag.AlmacenStock)
+                                    {
+                                        if(oneAlma.id_almacen == oneAlmaStoc.fk_almacen)
+                                        {
+                                            Stock = oneAlmaStoc.existencia;
+                                        }
+                                    }
+                                    <th style="width: 100px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                        @Stock
+                                    </th>
+                                }
+                            }
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,883 @@
+﻿@{
+    ViewBag.Title = "Mantenimiento de asistencia";
+    ViewBag.Description = "asistencia";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    string idusuariotipo = (string)ViewBag.IDUSUARIOTIPO;
+}
+
+@using System
+@using System.Web.UI.WebControls
+@using BeyondThemes.Bootstrap.TypeExtensions
+
+
+@model ERP.Admin.Models.ControlIngresoErp
+@{
+    string IDCONTROLINGRESOs = "";
+    string FECHAs = "";
+    string PERIODOs = "";
+    string IDPLANILLAs = "";
+    string NOMBRESs = "";
+    string FECHACREACIONs = "";
+    string IDESTADOs = "";
+    string NEstados = "";
+    string generado_zktimes = "";
+    string Ngenerado_zktimes = "";
+    string procesados = "";
+    string Nprocesados = "";
+    int id_tablas = 0;
+    string fichatareo = "";
+
+    if (Model != null)
+    {
+        IDCONTROLINGRESOs = Model.IDCONTROLINGRESO;
+        FECHAs = Model.FECHA.ToString("dd/MM/yyyy");
+        PERIODOs = Model.PERIODO;
+        IDPLANILLAs = Model.IDPLANILLA;
+        NOMBRESs = Model.NOMBRES;
+        FECHACREACIONs = Model.FECHACREACION.ToString("dd/MM/yyyy");
+        IDESTADOs = Model.IDESTADO;
+        NEstados = Model.NEstado;
+        generado_zktimes = Model.generado_zktime;
+        Ngenerado_zktimes = Model.Ngenerado_zktime;
+        procesados = Model.procesado;
+        Nprocesados = Model.Nprocesado;
+        id_tablas = Model.id_tabla;
+        fichatareo = Model.ficha_tareo;
+    }
+
+}
+@Html.Hidden("id_tablass", @id_tablas)
+@Html.Hidden("sIDCONTROLINGRESOs", @IDCONTROLINGRESOs)
+@Html.Hidden("sfecha_asist", "")
+@Html.Hidden("sadjunto", @fichatareo)
+@Html.Hidden("idusuariotipo", @idusuariotipo)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12">
+                <div class="widget flat radius-bordered">
+                    <div class="widget-header bg-danger">
+                        <span class="widget-caption">Informacion del registro de asistencia</span>
+                    </div>
+                    <div class="widget-body">
+                        <div id="horizontal-form">
+                            <div class="row">
+                                <div class="form-group" style="margin:1px">
+                                    <label class="col-sm-1 control-label" style="text-align: left; padding-right: 0;margin-top: 8px">Id Registro  </label>
+                                    <div class="col-md-2" style="padding-left: 4px">
+                                        @*@HtmlHelperExtension.DevExpress(Html).TextBoxFor(model => model.IDCONTROLINGRESO, settings =>
+                                            {
+                                                settings.Name = "IDCONTROLINGRESO";
+                                                settings.Enabled = false;
+                                            }).GetHtml()*@
+                                        @Html.TextBoxFor(model => model.IDCONTROLINGRESO, new { @type = "text", @class = "form-control", @disabled = "disabled", @style = "background:lightyellow" })
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <label class="col-sm-1 control-label" style="width: 50px;text-align: left; padding-right: 0;margin-top: 8px">Fecha  </label>
+                                    <div class="col-md-2" style="">
+                                        <div class='input-group'>
+                                            <input class='form-control date-picker' id='txt_FechMarca' type='text' data-date-format='dd/mm/yyyy' value="@FECHAs" disabled="disabled">
+                                            <span class='input-group-addon'>
+                                                <i class='fa fa-calendar'></i>
+                                            </span>
+                                        </div>
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <label class="col-sm-1 control-label" style="text-align: left; padding-right: 0;margin-top: 8px">Periodo  </label>
+                                    <div class="col-md-1" style="padding-left: 4px">
+                                        @Html.TextBoxFor(model => model.PERIODO, new { @type = "text", @class = "form-control", @disabled = "disabled", @style = "background:lightyellow" })
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <label class="col-sm-1 control-label" style="text-align: left; padding-right: 0;margin-top: 8px">F. Creacion  </label>
+                                    <div class="col-md-2" style="padding-left: 4px">
+                                        @Html.Bootstrap().TextBox("FECHACREACIONs").HtmlAttributes(new { @type = "text", @class = "form-control", @disabled = "disabled", @style = "background:lightyellow" }).Value(@FECHACREACIONs)
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group" style="margin:1px">
+                                    <label class="col-sm-1 control-label" style="text-align: left; padding-right: 0;margin-top: 8px">Responsable </label>
+                                    <div class="col-md-4" style="padding-left: 4px">
+                                        @Html.TextBoxFor(model => model.NOMBRES, new { @type = "text", @class = "form-control", @disabled = "disabled", @style = "background:lightyellow" })
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <label class="col-sm-1 control-label" style="text-align: left; padding-right: 0;margin-top: 8px">Estado </label>
+                                    <div class="col-md-2" style="padding-left: 4px">
+                                        @Html.TextBoxFor(model => model.NEstado, new { @type = "text", @class = "form-control", @disabled = "disabled", @style = "background:lightyellow" })
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 4px" id="divbutton">
+                                        <a class="btn btn-sm btn-warning" onclick="fnAgregaCabecera()" style="margin-top:4px">Comenzar Registro</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="margin-top: 2px;margin-bottom: 2px" />
+                            <div class="row" style="display: none;text-align: center" id="divregistro">
+                                <div class="form-group" style="margin: 1px;">
+                                    <div class="col-md-3" style="width: 120px;margin-top: -4px">
+                                        @Html.Bootstrap().CheckBox("form-field-checkbox").Text("Auto").IsChecked(false).HtmlAttributes(new { @id = "chkAuto", @class = "colored-danger", @style = "font-weight: bolder !important", @onchange = "FnAvoidHora()" })
+                                    </div>
+                                    <label class="col-sm-1 control-label" style="text-align: left; padding-top: 8px; padding-right: 0; width: 40px">Tipo </label>
+                                    <div class="col-md-3" style="width: 160px">
+                                        @Html.Bootstrap().DropDownList("cmbtipo", new SelectList(ViewBag.TiposAsistencia, "tipo", "descripcion")).HtmlAttributes(new { @style = "width:140px !important" }).Size(InputSize.Small)
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <label class="col-sm-2 control-label" style="text-align: left; padding-right: 0; margin-top: 8px; width: 100px;margin-left: 40px">Documento </label>
+                                    <div class="col-md-3" style="padding-left: 4px; width: 160px">
+                                        <input type="text" name="txtDni" id="txtDni" class="form-control" style="background: lightyellow;-moz-user-focus:normal" tabindex="-1">
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <label class="col-sm-2 control-label" style="margin-left: 10px; text-align: left; padding-right: 0; margin-top: 8px; width: 60px">Hora </label>
+                                    <div class="col-md-3" style="padding-left: 4px; width: 120px">
+                                        <input type="text" id="txtHora" name="txtHora" data-mask="99:99" class="form-control" placeholder="00:00:00">
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                    <div class="col-md-2" style="padding-left: 4px">
+                                        <a class="btn btn-sm btn-success" id="txtDnibtn" onclick="fnAgregaDetalle()" style="margin-top: 4px">Agregar</a>
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin: 1px;text-align: center">
+                                    <br /><br /><br />
+                                    <label class="col-sm-2 control-label" style="text-align: left; padding-right: 0; margin-top: -8px">Resultado </label>
+                                    <div class="col-md-8" style="padding-left: 4px;margin-top: -15px">
+                                        @Html.Bootstrap().TextBox("txtResultado").HtmlAttributes(new { @type = "text", @class = "form-control", @disabled = "disabled", @style = "background:lightyellow;color:red;font-weight:bolder" })
+                                        <div class="horizontal-space"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr style="margin-top: 2px;margin-bottom: 4px" />
+                            <div class="row">
+                                <div class="form-group" style="margin: 1px">
+                                    <div class="col-md-12" id="divTblDetalle">
+                                    </div>
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <hr />
+                        <form style="text-align: center">
+                            <div class="form-group row">
+                                <div class="col-sm-2"></div>
+                                <label for="EstadoCierre" class="col-sm-2 col-form-label" style="color: red;text-align: left; width: auto; margin-top: 8px">Cerrar <sup>*</sup></label>
+                                <div class="col-sm-1" style="width: 85px; padding-left: 0;margin-right: 0">
+                                    @Html.DropDownList("EstadoCierre", new SelectListItem[]
+                                    {
+                                        new SelectListItem() {Text = "NO", Value = "NO"},
+                                        new SelectListItem() {Text = "SI", Value = "SI"}
+                                    }, new { @class = "form-control select2ddl", @style = "border-color: red; color: red", @disabled = "" })
+                                </div>
+
+                                <div class="col-sm-4">
+                                    <input type="text" id="lblNombArcho" style="margin-top: 15px; background-color: transparent; border: none; display: none" readonly="readonly" />
+                                    <input type="file" name="FileUpload3" id="FileUpload3" onChange="Handlechange3();" style="margin-top: 5px;" accept=".png , .jpg, .pdf, .doc, .doc" />
+                                </div>
+
+                                <div class="col-sm-2" style="text-align: left"><button type="button" class="btn btn-success" onclick="saveAdjunto()">Guardar</button></div>
+                                <br />
+                                <div class="col-lg-12" style="text-align: center; color: red; font-style: italic;font-size: 13px"><label id="lblrpta">carga de archivos:</label> </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id='myModal' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:400px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContent'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script>
+
+        function keypresshandler(e) {
+
+            var node = (e.target);
+            if (e.wich == 13) {
+                if (node.type != "submit") {
+                    e.preventDefault();
+                }
+            }
+        }
+
+        function keypresshandler2(e) {
+
+            var node = (e.target);
+            if (e.wich == 13) {
+                if (node.type != "submit") {
+                    e.preventDefault();
+                }
+            }
+        }
+
+        $('#txtDni').keypress(keypresshandler);
+        $('#txtHora').keypress(keypresshandler);
+
+        $(document).ready(function() {
+            //$('#txtHora').keypress(keypresshandler2);
+            var monthy = new Date().getMonth() + 1;
+            var monthybefore = new Date().getMonth() ;
+            var yeary = new Date().getFullYear();
+            var datey = new Date().getDate();
+
+            var datestart = '';
+            if (datey <= 15) {
+                //datestart = yeary + ',' + monthy + ',1';
+                datestart = yeary + ',' + monthybefore  + ',29';
+            } else {
+                //datestart = yeary + ',' + monthy + ',16';  // habilitar fechas anteriores
+                datestart = yeary + ',' + monthy + ',13';  // habilitar fechas anteriores
+            }
+            //console.log("datestart: ", datestart);
+
+            $('.date-picker').datepicker(
+                {
+                    format: 'dd/mm/yyyy',
+                    dateFormat: 'dd/mm/yyyy',
+                    autoclose: true,
+                    todayHighlight: true,
+                    weekStart: 1,
+                    onRender: function(date) {
+                        return date.valueOf() < new Date(datestart).valueOf()  ? 'disabled' : '';
+                    }
+                }).on('changeDate',
+                function(ev) {
+
+                    var periodo = $("#PERIODO").val();
+                    periodo = periodo.trim();
+                    var fechaselected = $(this).val();
+                    fechaselected = fechaselected.trim();
+                    var indexslash = fechaselected.indexOf('/');
+                    fechaselected = fechaselected.substring(indexslash + 1);
+                    var indexslash2 = fechaselected.indexOf('/');
+                    fechaselected2 = fechaselected.substring(0, indexslash2);
+                    fechaselected3 = fechaselected.substring(indexslash2 + 1);
+                    periodoselected = fechaselected3 + fechaselected2;
+
+                    //console.log("periodoselected: ", periodoselected);
+                    //console.log("periodo: ", periodo);
+                    if (periodoselected === periodo) {
+
+                        $('#sfecha_asist').val($(this).val());
+                        $(this).datepicker('hide');
+                    } else {
+                        $(this).datepicker('hide');
+
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        swal("", "La fecha seleccionada no pertenece al periodo!", "error");
+                        $('#sfecha_asist').val('');
+                        return false;
+                    }
+
+                }).on('hide',
+                function(event) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                });
+
+
+            loaddivTblDetalle();
+
+
+            var idtabla = $("#id_tablass").val();
+            debugger;
+            var sadjuntox = $("#sadjunto").val();
+            if (sadjuntox !== "") {
+                document.getElementById('lblrpta').innerHTML = 'carga de archivos: EXISTE UN ARCHIVO ADJUNTO!';
+            }
+            idtabla = parseInt(idtabla, 10);
+            if (idtabla === 0) {
+                $("#txt_FechMarca").prop('disabled', false);
+            } else {
+                $("#txt_FechMarca").prop('disabled', true);
+                document.getElementById("divregistro").style.display = 'block';
+                document.getElementById("divbutton").style.display = 'none';
+                setTimeout(() => {
+                        $("#txtDni").focus()
+                    },
+                    500);
+                $("#txtDni").focus();
+            }
+
+            $('#sfecha_asist').val($("#txt_FechMarca").val());
+
+            $('#txtDni').keypress(function(event) {
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                var node = (event.target)
+                if (keycode == '13') {
+                    if (node.type != "submit") {
+                        var dni = $('#txtDni').val();
+                        var tamanio = dni.length;
+                        //console.log('tamanio: ', tamanio);
+                        if (parseInt(tamanio, 10) >= 8) {
+                            event.preventDefault();
+                            $("#txtResultado").val('');
+                            if (document.querySelector('#chkAuto').checked) {
+                                $("#txtDnibtn").click();
+                            } else {
+                                setTimeout(() => {
+                                        $("#txtHora").focus()
+                                    },
+                                    500);
+                                $("#txtHora").focus();
+                            }
+                        } else {
+                            event.preventDefault();
+                            $("#txtResultado").val('');
+                            $("#txtResultado").val('DOCUMENTO ERRADO!');
+                        }
+
+                    }
+                }
+            });
+            $('#txtHora').keypress(function (event) {
+                debugger;
+                var keycode = (event.keyCode ? event.keyCode : event.which);
+                var node = (event.target);
+                if (keycode === '13') {
+                    if (node.type !== "submit") {
+                        var tHora = $('#txtHora').val();
+                        var documento = $('#txtDni').val();
+                        documento = documento.trim();
+                        if (documento !== '' && documento.length >= 8) {
+                            event.preventDefault();
+                            $("#txtResultado").val('');
+                            $("#txtDnibtn").click();
+                        } else {
+                            event.preventDefault();
+                            $("#txtResultado").val('');
+                            setTimeout(() => {
+                                    $("#txtDni").focus();
+                                },
+                                500);
+                            $("#txtDni").focus();
+                        }
+                    }
+                }
+            });
+
+
+            var tipousuario = $("#idusuariotipo").val();
+            if (tipousuario != 'ADM') {
+                $("#EstadoCierre").prop('disabled', true);
+            } else {
+                $("#EstadoCierre").prop('disabled', false);
+            }
+
+        });
+
+    function fnAgregaDetalle() {
+        debugger;
+            var auto = '0';
+            if (document.querySelector('#chkAuto').checked) {
+                auto = '1';
+            }
+            var IDCONTROLINGRESO = $("#sIDCONTROLINGRESOs").val();
+            var IDPERSONAL = $('#txtDni').val();
+            var MARCACION = $('#txtHora').val();
+            var FECHA = $("#sfecha_asist").val();
+        var TIPO = $("#cmbtipo").val();
+        if (IDPERSONAL.length<7) {
+            swal("", "DNI INCORRECTO!", "error");
+            $('#txtDni').val('');
+            $("#txtResultado").val('');
+            return false;
+        }
+            $.ajax({
+                type: "POST",
+                url: "InsertaDetalle",
+                contentType: 'application/json; charset=utf-8',
+                data: JSON.stringify({
+                    IDCONTROLINGRESO: IDCONTROLINGRESO,
+                    IDPERSONAL: IDPERSONAL,
+                    IDPLANILLA: '',
+                    MARCACION: MARCACION,
+                    auto: auto,
+                    FECHA: FECHA,
+                    TIPO: TIPO
+
+                }),
+                dataType: "json",
+                success: function(response) {
+                    var idTabla = "";
+                    var cont = 0;
+                    var dataLen = response;
+                    //console.log("dataLen: ", dataLen);
+                    if (dataLen > 0) {
+                        loaddivTblDetalle();
+                        $('#txtDni').val('');
+                        $("#txtResultado").val('');
+                        $("#txtResultado").val('EL DOCUMENTO ' + IDPERSONAL + ' SE REGISTRÓ CORRECTAMENTE!');
+                        setTimeout(() => {
+                                $("#txtDni").focus()
+                            },
+                            500);
+                        $("#txtDni").focus();
+                        $("#Codigo").focus();
+                    } else {
+                        $('#txtDni').val('');
+                        $("#txtResultado").val('');
+                        $("#txtResultado").val('EL DOCUMENTO ' + IDPERSONAL + ' YA FUE REGISTRADO ANTERIORMENTE!');
+                        setTimeout(() => {
+                                $("#txtDni").focus()
+                            },
+                            500);
+                        $("#txtDni").focus();
+                    }
+                },
+                error: function(data) {
+                    $('#txtDni').val('');
+                    $("#txtResultado").val('');
+                    $("#txtResultado").val('ERROR DE SISTEMA');
+                    setTimeout(() => {
+                            $("#txtDni").focus()
+                        },
+                        500);
+                    $("#txtDni").focus();
+                }
+            });
+        }
+
+        function FnAvoidHora() {
+            if (document.querySelector('#chkAuto').checked) {
+                //swal('', 'El valor de la hora de marcacion se tomará de la hora del servidor!', 'info');
+                $("#txtHora").prop('disabled', true);
+                //console.log('document.getElementById("txtDni"): ', document.getElementById('txtDni'));
+                setTimeout(() => {
+                        $("#cmbtipo").focus()
+                    },
+                    500);
+                $("#txtDni").focus();
+
+            } else {
+                // swal('', 'Deberá ingresar el valor de la hora de marcacion!', 'info');
+                $("#txtHora").prop('disabled', false);
+                setTimeout(() => {
+                        $("#cmbtipo").focus()
+                    },
+                    500);
+                $("#txtDni").focus();
+            }
+
+        }
+
+        $(document).on('click',
+            '.eliminamarca',
+            function() {
+                debugger;
+                var tableRow = $(this).closest("tr");
+                var id_tabla = tableRow.find("td:eq(0)").text();
+                id_tabla = id_tabla;
+                swal({
+                    title: '¿Está seguro?',
+                    text: "Se va a eliminar una marcacion de asistencia!",
+                    type: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Si!'
+                }).then((result) => {
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("EliminaControlIngresodetalle", "Tareo")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_tabla: id_tabla
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            iddeleted = data;
+                            if (parseInt(iddeleted, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se eliminó correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    loaddivTblDetalle();
+                                });
+
+
+                            } else {
+                                swal("", "No se pudo eliminar!", "error");
+                                iddeleted = 0;
+                            }
+                        }
+                    });
+                });
+            });
+
+        $(document).on('click',
+            '.modificamarca',
+            function() {
+                //debugger;
+                var IDCONTROLINGRESO = $("#IDCONTROLINGRESO").val().trim();
+                IDCONTROLINGRESO = IDCONTROLINGRESO.trim();
+                console.log("IDCONTROLINGRESO: " + IDCONTROLINGRESO);
+                if (IDCONTROLINGRESO === '') {
+                    swal("", "Se debe registrar primero la cabecera!", "error");
+                    return;
+                }
+                var tableRow = $(this).closest("tr");
+                console.log("thiscloses: " + JSON.stringify(tableRow));
+                var IDTABLA = tableRow.find("td:eq(0)").text();
+                console.log("IDTABLA: " + IDTABLA);
+                IDTABLA = parseInt(IDTABLA, 10);
+
+                var ITEM = tableRow.find("td:eq(2)").text();
+                console.log("ITEM: " + ITEM);
+                ITEM = parseInt(ITEM, 10);
+
+                var options = { "backdrop": "static", keyboard: false };
+                $.ajax({
+                    type: 'GET',
+                    url: '@Url.Action("EditMarcacion", "Tareo")',
+                    contentType: "application/json; charset=utf-8",
+                    data: { IDCONTROLINGRESO: IDCONTROLINGRESO, IDTABLA: IDTABLA, ITEM: ITEM },
+                    dataType: 'html',
+                    success: function(response) {
+                        $('#myModalContent').html(response);
+                        $('#myModal').modal(options);
+                        $('#myModal').modal('show');
+                    },
+                    error: function(request, status, error) {
+                        swal('', request.responseText, 'error');
+                    }
+                });
+                return false;
+            });
+        $('#myModal').on('shown.bs.hidden.bs.modal',
+            function(e) {
+                $("#GuardarMod").click(function() {
+                    debugger;
+                    var id_save = 0;
+                    var IDCONTROLINGRESOx = $("#IDCONTROLINGRESOx").val();
+                    var IDTABLAx = $("#IDTABLAx").val();
+                    var txtHoramod = $("#txtHoramod").val();
+                    txtHoramod = txtHoramod.trim();
+                    if (txtHoramod === '__:__:__') {
+                        swal("", "NO HA INGRESADO NUEVA HORA", "error");
+                        $("#txtHoramod").focus();
+                        return false;
+                    }
+
+                    try {
+                        id_save = parseInt(IDTABLAx, 10);
+                    } catch (e) {
+                        id_save = 0;
+                    }
+
+                    $.when(
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("GuardaMarcacion", "Tareo")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({
+                                id_tabla: id_save,
+                                MARCACION: txtHoramod
+                            }),
+                            dataType: 'json',
+                            beforeSend: function() {
+                                //$('#spinnerTrabajador').show();
+                            },
+                            traditional: true,
+                            success: function(data) {
+                                console.log(data);
+                                idregistro = data;
+                                if (parseInt(idregistro, 10) > 0) {
+                                    swal({
+                                        title: 'Exito!',
+                                        text: 'Se actualizó correctamente!',
+                                        type: 'success',
+                                        showCancelButton: false,
+                                        confirmButtonColor: '#3085d6',
+                                        cancelButtonColor: '#d33',
+                                        confirmButtonText: 'Ok'
+                                    }).then(function() {
+                                        loaddivTblDetalle();
+                                        $("#btnCancelmod").click();
+                                    });
+                                } else {
+                                    swal("", "No se pudo registrar!", "error");
+                                    idregistro = 0;
+                                }
+                            }
+                        })).then(function(response) {
+                        //if ($('#spinnerTrabajador').length > 0) {
+                        //    $('#spinnerTrabajador').hide();
+                        //}
+                    });
+                });
+
+            });
+        $('#myModal').on('hide.bs.modal', function (e) {
+            loaddivTblDetalle();
+        });
+        function loaddivTblDetalle() {
+            var IDCONTROLINGRESO = $("#sIDCONTROLINGRESOs").val();
+            var url = "../Tareo/ListDataDetalleAsistencia?IDCONTROLINGRESO=" + IDCONTROLINGRESO;
+            $('#divTblDetalle').html('');
+            $('#divTblDetalle').load(url);
+            //
+        };
+
+        function fnAgregaCabecera() {
+            var sIDCONTROLINGRESO = $("#sIDCONTROLINGRESOs").val().trim();
+            sIDCONTROLINGRESO = sIDCONTROLINGRESO.trim();
+            //console.log("sIDCONTROLINGRESO: " + sIDCONTROLINGRESO);
+
+            var fechaseleccionada = $('#sfecha_asist').val();
+            if (fechaseleccionada.trim() === '') {
+                swal("", "Seleccione una fecha valida!", "error");
+                return false;
+            }
+
+            swal({
+                title: '¿Está seguro?',
+                text: "Se va a registrar una cabecera de asistencia!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Si!'
+            }).then((result) => {
+                    var IDCONTROLINGRESO = $("#sIDCONTROLINGRESOs").val();
+                    IDCONTROLINGRESO = IDCONTROLINGRESO.trim();
+                    var FECHA = $("#sfecha_asist").val();
+                    var PERIODO = $("#PERIODO").val();
+
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("InsertaCabecera", "Tareo")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_tabla: 0,
+                            IDCONTROLINGRESO: IDCONTROLINGRESO,
+                            FECHA: FECHA,
+                            PERIODO: PERIODO
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            //console.log(data);
+                            idregistro = data;
+                            if (parseInt(idregistro, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registro puede empezar la lectura',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    document.getElementById("divregistro").style.display = 'block';
+                                    document.getElementById("divbutton").style.display = 'none';
+                                    setTimeout(() => {
+                                            $("#txtDni").focus()
+                                        },
+                                        500);
+                                    $("#txtDni").focus();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                idregistro = 0;
+                            }
+                        }
+                    });
+                },
+                function(dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+
+
+            return false;
+        };
+
+        function Handlechange3() {
+            var txtnombre = "";
+            functEnviaAdjunto().then(function(data) {
+                console.log('functEnviaAdjunto: ', data);
+                $("#sadjunto").val(data);
+                document.getElementById('lblrpta').innerHTML = 'carga de archivos: exitosa!';
+            }).catch(function(err) {
+                console.log('err: ', err);
+                $("#sadjunto").val('');
+                document.getElementById('lblrpta').innerHTML = 'carga de archivos: ' + err;
+            });
+        };
+
+        function functEnviaAdjunto() {
+
+            return new Promise(function(resolve, reject) {
+                debugger;
+                var IDCONTROLINGRESO = $("#IDCONTROLINGRESO").val().trim();
+                var fileinput = document.getElementById("FileUpload3");
+                var textinput = document.getElementById("lblNombArcho");
+                fullPath = fileinput.value;
+                var startIndex = (fullPath.indexOf('\\') >= 0 ? fullPath.lastIndexOf('\\') : fullPath.lastIndexOf('/'));
+                var filename = fullPath.substring(startIndex);
+                if (filename.indexOf('\\') === 0 || filename.indexOf('/') === 0) {
+                    filename = filename.substring(1);
+                }
+                textinput.value = filename;
+                var indexformat = filename.lastIndexOf('.');
+                var tamanio = filename.length;
+                var formato = filename.substring(indexformat, tamanio);
+
+                var fileUpload = $("#FileUpload3").get(0);
+                var files = fileUpload.files;
+                var fileData = new FormData();
+                var flgSaveOk = 0;
+                if (files.length > 0) { //Guardamos la Imagen
+                    for (var i = 0; i < files.length; i++) {
+                        txtnombre = files[i].name;
+                        fileData.append(files[i].name, files[i]);
+                        fileData.append(IDCONTROLINGRESO, files[i]);
+                    }
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("GuardarAdjuntoTareo", "Tareo")',
+                    contentType: false,
+                    processData: false,
+                    data: fileData,
+                    dataType: 'json',
+                    traditional: true,
+                    success: function(data) {
+                        resolve(data);
+                    },
+                    error: function(data) {
+                        reject(err);
+                    }
+                });
+            });
+        }
+
+        function saveAdjunto() {
+            var IdEstado = "";
+            var sIDCONTROLINGRESO = $("#sIDCONTROLINGRESOs").val().trim();
+            sIDCONTROLINGRESO = sIDCONTROLINGRESO.trim();
+            var cierre = $("#EstadoCierre").val().trim();
+            if (cierre === "NO") {
+                IdEstado = "PE";
+            } else {
+                IdEstado = "CE";
+            }
+            var adjunto = $("#sadjunto").val().trim();
+            swal({
+                title: '¿Está seguro?',
+                text: "Se va a cerrar la asistencia, ya no se podrá modificar!",
+                type: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Si!'
+            }).then((result) => {
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("UpdateEstadoControlIngreso", "Tareo")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            IDCONTROLINGRESO: sIDCONTROLINGRESO,
+                            IDESTADO: IdEstado,
+                            ficha_tareo: adjunto
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            idregistro = data;
+                            if (idregistro != '') {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se actualizó correctamente!',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+
+                                    setTimeout(() => {
+                                        var url = '@Url.Action("Index", "Tareo")';
+                                        window.open(url, "_self")
+                                        },
+                                        500);
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                idregistro = "";
+                            }
+                        }
+                    });
+                },
+                function(dismiss) {
+                    if (dismiss === 'cancel' || dismiss === 'close') {
+                        // ignore
+                    }
+                });
+
+
+            return false;
+        };
+    </script>
+}

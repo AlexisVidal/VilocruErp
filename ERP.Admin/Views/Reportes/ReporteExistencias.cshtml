@@ -1,0 +1,146 @@
+﻿<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+@{
+    string FechNow = DateTime.Now.ToString("dd/MM/yyyy");
+}
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">REPORTE DE EXISTENCIAS </span>
+                <a href="#" onclick="return Exporter.export(tableDataReportExist, 'REPORTEDEEXISTENCIAS.xls', 'REPORTEDEEXISTENCIAS')">
+                    <img style="text-align: center; vertical-align:central; border: none !important;" src="~/img/Excel_32.ico" />
+                </a>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    <div class="horizontal-space"></div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <table border="1" class="table" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                                <thead>
+                                    <tr style="text-align: center;">
+                                        <th style="text-align: left; height: 20px; font-size: 11px; padding-right: 20px">
+                                            <div class="row">
+                                                <div class="form-group" style="margin:0">
+                                                    <label class="col-sm-2 control-label" style="text-align: right; ">ALMACEN</label>
+                                                    <div class="col-md-4">
+                                                        @Html.Bootstrap().DropDownList("cmbRepoExist_IdAlma", new SelectList(ViewBag.Almacen, "id_almacen", "nombre")).HtmlAttributes(new { @id= "cmbRepoExist_IdAlma", @autocomplete = "of" }).Size(InputSize.XSmall)
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div id="DivTblDataRepoExist"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+<div id='myModalProveedor' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:60%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentProveedor'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalMarca' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:50%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentMarca'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalFamilia' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:60%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentFamilia'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+
+    <link href="~/Scripts/sweetalert.css" rel="stylesheet" />
+    <script src="~/Scripts/sweetalert-dev.js"></script>
+    <script src="~/Scripts/sweetalert.min.js"></script>
+
+    <script src="~/assets/js/toastr/toastr.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $("#spinner").hide();
+            $('#spinner').bind("ajaxSend", function () {
+                $(this).show();
+            }).bind("ajaxComplete", function () {
+                $(this).hide();
+            });
+            $('#loading').hide().ajaxStart(function () {
+                $(this).show();
+            }).ajaxStop(function () {
+                $(this).hide();
+            });
+
+            $("#cmbRepoExist_IdAlma").change(function () {
+                loadDivTblReporteExistencia();
+            });
+        });
+
+        function loadDivTblReporteExistencia() {
+            var IdAlma = $("#cmbRepoExist_IdAlma").val();
+            if (parseInt(IdAlma) > 0) {
+                var url = "../Reportes/ListDataReporteExistencia?IdAlma=" + IdAlma;
+                $('#DivTblDataRepoExist').html('');
+                $('#DivTblDataRepoExist').load(url);
+            }
+            else {
+                $('#DivTblDataRepoExist').html('');
+            }
+        }
+    </script>
+}

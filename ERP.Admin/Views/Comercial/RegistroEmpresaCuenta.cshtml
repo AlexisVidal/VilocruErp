@@ -1,0 +1,114 @@
+﻿@using ERP.Admin.Models
+@{
+    var _fkempresa = (int)ViewBag.FkEmpresa;
+}
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@Html.Hidden("_fkempresax", @_fkempresa)
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de cuenta</span>
+            </div>
+            <div class="widget-header ">
+                <div class="widget-buttons">
+                    <a id="NewRegistro" onclick="FnAddNewCuenta()" class="btn btn-primary" style="width:60px">
+                        Nuevo
+                    </a>
+                </div>
+            </div>
+            <div id="DivNewCuenta" class="col-sm-10" style="display: none;">
+                <div class="row">
+                    @*<div class="col-sm-10" id="DivNewCuenta" style="display: none;">*@
+                    <div class="form-group" style="margin-top:5px">
+                        <label class="col-sm-2 control-label" style="text-align: right; padding-top:8px">Banco <sup>*</sup></label>
+                        <div class="col-md-4">
+                            @Html.Bootstrap().DropDownList("cmbfk_banco", new SelectList(ViewBag.Bancos, "id_banco", "descripcion", selectedValue: ViewBag.FkCompTipoNotaCredito)).Size(InputSize.Small)
+                        </div>
+                        <label class="col-sm-2 control-label" style="text-align: right; padding-top:8px; ">Moneda <sup>*</sup></label>
+                        <div class="col-md-4">
+                            @Html.Bootstrap().DropDownList("cmbidmoneda", new SelectList(ViewBag.Monedas, "IDMONEDA", "descripcion", selectedValue: ViewBag.FkCompTipoNotaCredito)).HtmlAttributes(new { @style = "width:216px" }).Size(InputSize.Small)
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top:5px">
+                        <label class="col-sm-2 control-label" style="text-align: right; padding-top:8px; ">Nro Cuenta <sup>*</sup></label>
+                        <div class="col-md-4">
+                            @Html.Bootstrap().TextBox("txtNroCuenta").HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @style = "width:216px" }).Placeholder("Nro Cuenta")
+                        </div>
+                        <label class="col-sm-2 control-label" style="text-align: right; padding-top:8px; ">Nro CCI <sup>*</sup></label>
+                        <div class="col-md-4">
+                            @Html.Bootstrap().TextBox("txtNroCci").HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @style = "width:216px" }).Placeholder("Nro CCI")
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group" style="margin-top:5px">
+                        <div class="col-md-12">
+                            @Html.Bootstrap().Button().Text("Grabar").Id("btnSaveNewCuenta").Color(BootstrapColors.Success).IconPrepend(FontAwesome.Save).Size(ButtonSize.Default).HtmlAttributes(new { @title = "Grabar Nueva Cuenta", @onclick = "FnSaveNewCuenta()", @style = "margin-top: 5px; float: right;" })
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="widget-body">
+                <div class="row">
+                    <div id="DivTblCuentas" class="col-sm-12" style="font-size: 11px;padding-top: 20px"></div>
+                </div>
+            </div>
+            <div class="horizontal-space"></div>
+            <div class="row" style="text-align: right; margin-right: 90px;margin-bottom: -15px">
+                <div class="col-md-12">
+                    <button class="btn btn-danger" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        //FnInitFormListClientes();
+    });
+
+    function FnAddNewCuenta() {
+        document.getElementById('DivNewCuenta').style.display = '';
+    }
+
+function FnSaveNewCuenta() {
+        var cmbfk_banco = $("#cmbfk_banco").val();
+        var cmbidmoneda = $("#cmbidmoneda").val();
+        var txtNroCuenta = $("#txtNroCuenta").val();
+        var txtNroCci = $("#txtNroCci").val();
+        var fkempresax = fkempresatemp;
+        
+        var flgError = 0;
+        if (cmbfk_banco.trim() === "" || cmbidmoneda.trim() === "" || txtNroCuenta.trim() === "") {
+            flgError = 1;
+            swal("", "Complete los 3 primeros campos!", "error");
+            return false;
+        } 
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GuardaCuentaEmpresa", "Comercial")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    idempresacuenta: 0, fkempresax: fkempresax, cmbfk_banco: cmbfk_banco, cmbidmoneda: cmbidmoneda, txtNroCuenta: txtNroCuenta,
+                    txtNroCci: txtNroCci
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    loadDivTblCuentas();
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            });
+        }
+    }
+</script>

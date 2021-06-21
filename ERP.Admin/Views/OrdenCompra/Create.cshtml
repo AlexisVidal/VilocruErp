@@ -1,0 +1,450 @@
+﻿<script type="text/javascript">
+    var NroTr = 1;
+    $(document).ready(function () {
+        FnInitControles();
+    });
+    function FnInitControles() {
+        var FkProd = $("#HiddOrdeCompNew_FkProd").val();
+        if (FkProd > 0) {
+            if ('@ViewBag.Producto' != null) {
+                document.getElementById('BtnAddProveedors').style.display = "none";
+                $("#txtOrdeCompNew_ProvCodi").val($("#HiddOrdeCompNew_CodiProv").val());
+                $("#txtOrdeCompNew_FkProveedor").val($("#HiddOrdeCompNew_FkProv").val());
+                $("#txtOrdeCompNew_ProvRuc").val($("#HiddOrdeCompNew_RucProv").val());
+                $("#txtOrdeCompNew_ProvRazoSoci").val($("#HiddOrdeCompNew_RazoSoci").val());
+                var IdProd = FkProd;
+                var CodiProd = $("#HiddOrdeCompNew_CodiProd").val();
+                var CodiSkuProd = $("#HiddOrdeCompNew_CodiSkuProd").val();
+                var NombProd = $("#HiddOrdeCompNew_NombProd").val();
+                var DescMarc = $("#HiddOrdeCompNew_DescMarc").val();
+                var DescSubFami = $("#HiddOrdeCompNew_DescSubFami").val();
+                var EmbaProd = "";
+                var PrecProdProv = $("#HiddOrdeCompNew_PrecProdProv").val();
+                AddTDTableOrdenCompraDetalle(IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescSubFami, EmbaProd, PrecProdProv);
+            }
+        }
+    }
+
+    function AddTDTableOrdenCompraDetalle(IdProd, CodiProd, CodiSkuProd, NombProd, DescMarc, DescSubFami, EmbaProd, PrecProdProv) {
+        var IdTrOCDeta = "TrOCDeta" + NroTr;
+        var TDIdProd = "TDIdProd" + IdTrOCDeta;
+        var TDTotaExis = "TDTotaExis" + IdTrOCDeta;
+        var TDTxtCantOCDeta = "TDTxtCantOCDeta" + IdTrOCDeta;
+        var TDTxtPrecOCDeta = "TDTxtPrecOCDeta" + IdTrOCDeta;
+        var TDSubTotaOCDeta = "TDSubTotaOCDeta" + IdTrOCDeta;
+        var TDBtnDeleOCDeta = "TDBtnDeleOCDeta" + IdTrOCDeta;
+
+        var strTxtCantOCDeta = '@Html.Bootstrap().TextBox("txtCantOCDeta").Value(1).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangeCantOCDetalle(this)", @type = "number", @min = "1", @style = "text-align: right;" })';
+        var strTxtPrecOCDeta = '@Html.Bootstrap().TextBox("txtPrecOCDeta").Value(0).Size(InputSize.XSmall).HtmlAttributes(new { @onchange = "FnChangePrecOCDetalle(this)", @type = "number", @min = "0.1", @style = "text-align: right;" })';
+        var strBtnDeleOCDeta = '@Html.Bootstrap().Button().Text("").Color(BootstrapColors.Default).HtmlAttributes(new { @class = "danger", @title="Eliminar detalle", @onclick = "FnDeleteOCDetalle(this)" }).Shiny().Size(ButtonSize.Mini).IconOnly().IconPrepend(FontAwesome.Times)';
+        var row = $("<tr id='" + IdTrOCDeta + "'>" +
+            "<td id='" + TDIdProd + "' class='input-xs' style='display: none;'>" + IdProd + "</td>" +
+            "<td class='input-xs' style='text-align: center;'>" + CodiProd + "</td>" +
+            "<td class='input-xs' style='text-align: center; display: none;'>" + CodiSkuProd + "</td>" +
+            "<td class='input-xs'>" + NombProd + "</td>" +
+            "<td class='input-xs'>" + DescMarc + "</td>" +
+            "<td class='input-xs'>" + DescSubFami + "</td>" +
+            "<td class='input-xs'>" + EmbaProd + "</td>" +
+            "<td id='" + TDTotaExis + "' class='input-xs' style='text-align: right;'>0</td>" +
+            "<td id='" + TDTxtCantOCDeta + "' style='text-align: right;'>" + strTxtCantOCDeta + "</td>" +
+            "<td id='" + TDTxtPrecOCDeta + "' style='text-align: right;'>" + strTxtPrecOCDeta + "</td>" +
+            "<td id='" + TDSubTotaOCDeta + "' class='input-xs' style='text-align: right;'>" + PrecProdProv + "</td>" +
+            "<td id='" + TDBtnDeleOCDeta + "' style='width: 10%; text-align: center;'>" + strBtnDeleOCDeta + "</td>" +
+            "</tr>");
+        $("#tBodyOrdeCompDeta").append(row);
+        var objTxtPrec = document.getElementById(TDTxtPrecOCDeta).children;
+        objTxtPrec[0].value = PrecProdProv;
+        FnCalculaTotalOC();
+        NroTr++;
+        FnGetTotalExistenciaNow(IdProd, IdTrOCDeta);
+    }
+
+    function FnGetTotalExistenciaNow(IdProd, IdTrOCDeta) {
+        var TotaExis = 0;
+        $.ajax({
+            type: 'POST',
+            url: '@Url.Action("GetJson_TotalExistenciaProducto", "AlmacenStock")',
+            data: JSON.stringify({
+                FkProd: IdProd
+            }),
+			contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            success: function (response) {
+                if (response != 0) {
+                    TotaExis = response[0].ProdTotaExis
+                }
+                document.getElementById('TDTotaExis' + IdTrOCDeta).innerHTML = TotaExis;
+            },
+            error: function (data) {
+                sweetAlert("", data.responseText, "error");
+            }
+        });
+        return TotaExis; 
+    }
+
+    function FnDeleteOCDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var tr = $("#" + IdTRsele);
+        tr.remove();
+        FnCalculaTotalOC();
+    }
+
+    function FnCalculaSubTotal(IdTRsele) {
+        var objTxtCant = document.getElementById("TDTxtCantOCDeta" + IdTRsele).children;
+        var newCant = objTxtCant[0].value;
+        var objTxtPrec = document.getElementById("TDTxtPrecOCDeta" + IdTRsele).children;
+        var newPrec = objTxtPrec[0].value;
+        var newSubTota = 0;
+        newSubTota = newCant * newPrec;
+        document.getElementById("TDSubTotaOCDeta" + IdTRsele).innerHTML = newSubTota.toFixed(2);;
+
+        FnCalculaTotalOC();
+    }
+
+    function FnCalculaTotalOC() {
+        var tblOCDeta = document.getElementById('tBodyOrdeCompDeta');
+        var cantRowsTblOCDeta = tblOCDeta.rows.length;
+        var newTrTblOCDeta = "";
+        var SumSubTota = 0;
+        var FkMuesPale = "";
+        var FkInstLote = "";
+        if (cantRowsTblOCDeta > 0) {
+            for (var i = 0; i < cantRowsTblOCDeta; i++) {
+                newTrTblOCDeta = tblOCDeta.rows[i].id;
+                if (newTrTblOCDeta.trim() != "") {
+                    SumSubTota = SumSubTota + parseFloat(document.getElementById("TDSubTotaOCDeta" + newTrTblOCDeta).innerHTML);
+                }
+            }
+        }
+        document.getElementById("TDTotalOrdeComp").innerHTML = SumSubTota.toFixed(2);
+    }
+</script>
+@using (Html.BeginForm(null, null, FormMethod.Post, new { id = "MyForm" }))
+{
+}
+@{
+    string FechOrdeComp = DateTime.Now.ToString("dd/MM/yyyy");
+    int FkProd = 0;
+    int FkProv = 0;
+    string CodiProv = "";
+    string RucProv = "";
+    string RazoSoci = "";
+
+    string CodiProd = "";
+    string CodiSkuProd = "";
+    string NombProd = "";
+    string DescMarc = "";
+    string DescSubFami = "";
+    decimal PrecProdProv = 0;
+    if (ViewBag.Producto != null)
+    {
+        FkProd = ViewBag.Producto.id_producto;
+        //CodiProv = ViewBag.Producto.cod_proveedor;
+        //FkProv = @ViewBag.Producto.fk_proveedor;
+        //RucProv = ViewBag.Producto.ruc;
+        //RazoSoci = ViewBag.Producto.razon_social;
+
+        CodiProd = @ViewBag.Producto.cod_producto;
+        CodiSkuProd = @ViewBag.Producto.codigo_sku;
+        NombProd = @ViewBag.Producto.nom_producto;
+        DescMarc = @ViewBag.Producto.marca;
+        DescSubFami = @ViewBag.Producto.familia;
+        //PrecProdProv = @ViewBag.Producto.preciocomprafinal;
+    }
+}
+@Html.Hidden("HiddOrdeCompNew_FkProd", FkProd)
+@*@Html.Hidden("HiddOrdeCompNew_CodiProv", CodiProv)*@
+@*@Html.Hidden("HiddOrdeCompNew_FkProv", FkProv)*@
+@*@Html.Hidden("HiddOrdeCompNew_RucProv", RucProv)
+@Html.Hidden("HiddOrdeCompNew_RazoSoci", RazoSoci)*@
+
+@Html.Hidden("HiddOrdeCompNew_CodiProd", CodiProd)
+@Html.Hidden("HiddOrdeCompNew_CodiSkuProd", CodiSkuProd)
+@Html.Hidden("HiddOrdeCompNew_NombProd", NombProd)
+@Html.Hidden("HiddOrdeCompNew_DescMarc", DescMarc)
+@Html.Hidden("HiddOrdeCompNew_DescSubFami", DescSubFami)
+@*@Html.Hidden("HiddOrdeCompNew_PrecProdProv", PrecProdProv)*@
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo Requerimiento</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right;">Fecha <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @*<input data-mask="99/99/9999" class="form-control" placeholder="DD/MM/YYYY" id="txtOrdeCompNew_Fech" value="@FechOrdeComp" type="text">*@
+                                    <div class='input-group'>
+                                        <input class='form-control date-picker' id='txtOrdeCompNew_Fech' type='text' data-date-format='dd/mm/yyyy' value="@FechOrdeComp">
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+                                    </div>
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                <label class="col-sm-1 control-label" style="text-align: right; ">Proveedor <sup>*</sup></label>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtOrdeCompNew_ProvCodi").Placeholder("Código").Disable().Append(new BootstrapButton("button").Text("").Id("BtnAddProveedors").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaProveedor('OrdeCompCreate')" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                    @Html.Hidden("txtOrdeCompNew_FkProveedor", 0)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-2">
+                                    @Html.Bootstrap().TextBox("txtOrdeCompNew_ProvRuc").HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Placeholder("RUC").Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    @Html.Bootstrap().TextBox("txtOrdeCompNew_ProvRazoSoci").HtmlAttributes(new { @class = "form-control", @onkeyup = "InputToUpper(this)", @disabled = "disabled" }).Placeholder("Razón Social").Size(InputSize.Small)
+                                    <div class="horizontal-space"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="widget-header bordered-bottom bordered-blue">
+                            <span class="widget-caption">Detalles</span>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="form-group" style="margin:0">
+                                @*<label class="col-sm-1 control-label" style="text-align:right;">Producto: </label>
+                                    <div class="col-md-4">
+                                        @Html.Bootstrap().TextBox("txtOrdeCompDetaNew_Prod").Placeholder("Producto").Size(InputSize.Small).Append(new BootstrapButton("button").Text("").HtmlAttributes(new { @title = "Listado", @onclick = "FnListaProductoProveedor('OrdeCompCreate')" }).IconOnly().IconPrepend(FontAwesome.ListAlt)).Size(InputSize.Small)
+                                        @Html.Hidden("txtOrdeCompDetaNew_FkProd", 0)
+                                    </div>*@
+                                <div class="col-md-1">
+                                    @Html.Bootstrap().Button().Text("Agregar").Color(BootstrapColors.Primary).IconPrepend(FontAwesome.ShoppingCart).Size(ButtonSize.Mini).HtmlAttributes(new { @title = "Listado", @onclick = "FnListaProducto('OrdeCompCreate')" })
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                                <table class="table table-striped table-hover table-bordered" id="tblOrdeCompDeta">
+                                    <thead>
+                                        <tr role="row">
+                                            <th style="width: 0%; display:none">
+                                                ID_PRODUCTO
+                                            </th>
+                                            <th style="width: 5%; text-align: center;">
+                                                Código
+                                            </th>
+                                            <th style="text-align: center; display: none;">
+                                                SKU
+                                            </th>
+                                            <th style="width: 25%;">
+                                                Producto
+                                            </th>
+                                            <th style="width: 10%;">
+                                                Marca
+                                            </th>
+                                            <th style="width: 15%;">
+                                                SubFamilia
+                                            </th>
+                                            <th style="width: 5%;">
+                                                Empaque
+                                            </th>
+                                            <th style="width: 8%; text-align: right;">
+                                                Stock
+                                            </th>
+                                            <th style="width: 7%; text-align: right;">
+                                                Cantidad
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Precio
+                                            </th>
+                                            <th style="width: 10%; text-align: right;">
+                                                Total
+                                            </th>
+                                            <th style="width: 5%;">
+                                                ...
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tBodyOrdeCompDeta"></tbody>
+                                </table>
+                                <table class="table table-striped table-hover table-bordered" id="tblTotalOrdeComp">
+                                    <thead>
+                                        <tr role="row">
+                                            <td style="width: 85%; text-align: right;">
+                                                TOTAL
+                                            </td>
+                                            <td id="TDTotalOrdeComp" style="width: 10%; text-align: right;">0.00</td>
+                                            <td style="width: 5%;"></td>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="horizontal-space"></div>
+                        <div class="row">
+                            <div class="col-md-4" style="text-align:right;vertical-align:middle;width:50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("btnSaveNewOrdeCompra").Color(BootstrapColors.Blue).Shiny().HtmlAttributes(new { @onclick = "FnGuardarOrdeCompra()" })
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal">Cancelar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var arrOCDeta = new Array();
+    
+    $(document).ready(function () {
+        $('.date-picker').datepicker();
+    });
+
+    function FnGuardarOrdeCompra() {
+        var FkProv = $("#txtOrdeCompNew_FkProveedor").val();
+        var FechOrdeComp = $("#txtOrdeCompNew_Fech").val();
+        FnLlenaArrayOCDetalle()
+        var flgError = 0;
+        if (parseInt(FkProv) == 0) {
+            sweetAlert("", "Seleccione un Proveedor", "error");
+            flgError = 1;
+        } else if (FechOrdeComp.trim() == "") {
+            sweetAlert("", "Ingrese una fecha", "error");
+            flgError = 1;
+        } else if (arrOCDeta.length == 0) {
+            sweetAlert("", "Ingrese Detalle de la OC", "error");
+            flgError = 1;
+        }
+        if (flgError == 0) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveNewOrdenCompra", "OrdenCompra")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    FkProv: FkProv, FechOrdeComp: FechOrdeComp, arrOCDeta: arrOCDeta
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: "Exito!",
+                        text: data.msgRpta + ", Con Código: " + data.NroOCReturn,
+                        type: "success",
+                        confirmButtonText: "Ok",
+                        closeOnConfirm: true,
+                        closeOnCancel: false
+                    },
+                        function (isConfirm) {
+                            if (isConfirm) {
+                                location.reload();
+                            }
+                        });
+                    //swal({
+                    //    title: 'Exito!',
+                    //    text: data.msgRpta + ", Con Código: " + data.NroOCReturn,
+                    //    type: 'success',
+                    //    showCancelButton: false,
+                    //    confirmButtonColor: '#3085d6',
+                    //    cancelButtonColor: '#d33',
+                    //    confirmButtonText: 'Ok'
+                    //}).then(function () {
+                    //    window.location.reload();
+                    //});
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            });
+        }
+    }
+
+    function FnLlenaArrayOCDetalle() {
+        arrOCDeta = [];
+        var IndArr = 0;
+        var table = document.getElementById('tBodyOrdeCompDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var FkIdProd = "";
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    FkIdProd = document.getElementById("TDIdProd" + newTr).innerHTML;
+                    var objTxtCant = document.getElementById("TDTxtCantOCDeta" + newTr).children;
+                    var newCant = objTxtCant[0].value;
+                    var objTxtPrec = document.getElementById("TDTxtPrecOCDeta" + newTr).children;
+                    var newPrec = objTxtPrec[0].value;
+                    arrOCDeta[IndArr] = new Array(3);
+                    arrOCDeta[IndArr][0] = FkIdProd;
+                    arrOCDeta[IndArr][1] = newCant;
+                    arrOCDeta[IndArr][2] = newPrec;
+                    IndArr++;
+                }
+            }
+        }
+    }
+
+    function FnAddDataProvedor(IdProv, CodiProv, RucProv, RazoSociProv) {
+        $("#txtOrdeCompNew_FkProveedor").val(IdProv);
+        $("#txtOrdeCompNew_ProvCodi").val(CodiProv);
+        $("#txtOrdeCompNew_ProvRuc").val(RucProv);
+        $("#txtOrdeCompNew_ProvRazoSoci").val(RazoSociProv);
+    }
+
+    function FnValidaExisteAgregado(IdProdBusq) {
+        var table = document.getElementById('tBodyOrdeCompDeta');
+        var cantRows = table.rows.length;
+        var newTr = "";
+        var NewFkIdProd = "";
+        var flgExisteReturn = 0;
+        if (cantRows > 0) {
+            for (var i = 0; i < cantRows; i++) {
+                newTr = table.rows[i].id;
+                if (newTr.trim() != "") {
+                    NewFkIdProd = document.getElementById("TDIdProd" + newTr).innerHTML;
+                    if (IdProdBusq.trim() == NewFkIdProd.trim()) {
+                        flgExisteReturn = 1;
+                        break;
+                    }
+                }
+            }
+        }
+        return flgExisteReturn;
+    }
+
+    
+
+    function FnChangeCantOCDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newCant = parseInt(obj.value);
+        if (newCant <= 0) {
+            sweetAlert("", "Cantidad No Válida", "error");
+            obj.value = 1;
+            obj.focus();
+        } else {
+            FnCalculaSubTotal(IdTRsele);
+        }
+    }
+
+    function FnChangePrecOCDetalle(obj) {
+        var IdTRsele = obj.parentElement.parentElement.id;
+        var newCant = parseInt(obj.value);
+        if (newCant <= 0) {
+            sweetAlert("", "Precio No Válido", "error");
+            obj.value = 0;
+            document.getElementById("TDSubTotaOCDeta" + IdTRsele).innerHTML = 0;
+            obj.focus();
+        } else {
+            FnCalculaSubTotal(IdTRsele);
+        }
+    }
+
+    
+</script>

@@ -1,0 +1,130 @@
+﻿@using ERP.Admin.Models
+@{
+    string nuevocodigo = (string)ViewBag.NuevoCodigo;
+    var _cuenta = (List<GastoPersonalErp>)ViewBag.Cuenta;
+    int id_gasto_personal = 0;
+    string codigo = "";
+    string IDUSUARIO = "";
+    string IDCODIGOGENERAL = "";
+    string NOMBRES = "";
+    string sf_apertura = "";
+    decimal MONTO = 0;
+    string sestado = "";
+
+    //List<GastoPersonalErp> listagasto = new List<GastoPersonalErp>();
+
+    if (_cuenta.Any())
+    {
+        id_gasto_personal = _cuenta[0].id_gasto_personal;
+        codigo = _cuenta[0].codigo;
+        IDUSUARIO = _cuenta[0].IDUSUARIO;
+        IDCODIGOGENERAL = _cuenta[0].IDCODIGOGENERAL;
+        NOMBRES = _cuenta[0].NOMBRES;
+        sf_apertura = _cuenta[0].sf_apertura;
+        MONTO = _cuenta[0].MONTO;
+        //listagasto = _cuenta;
+    }
+}
+
+@Html.Hidden("id_gasto_personalx", @id_gasto_personal)
+@Html.Hidden("codigox", @codigo)
+@Html.Hidden("IDUSUARIOx", @IDUSUARIO)
+@Html.Hidden("IDCODIGOGENERALx", @IDCODIGOGENERAL)
+@Html.Hidden("NOMBRESx", @NOMBRES)
+@Html.Hidden("sf_aperturax", @sf_apertura)
+@Html.Hidden("MONTOx", @MONTO)
+
+@Html.Hidden("sfecha_apertura", "")
+@Html.Hidden("sfecha_operacion", "")
+
+
+@Html.Hidden("nuevocodigox", @nuevocodigo)
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="widget" style="margin-bottom:0">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Nuevo registro de cuenta para gastos</span>
+            </div>
+            <div class="widget-body">
+                <div id="horizontal-form">
+                    @using (var f = Html.Bootstrap().Begin(new Form().Type(FormType.Horizontal)))
+                    {
+                        <div class="row" style="margin-bottom:5px">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:120px">Codigo </label>
+                                <div class="col-md-3">
+                                    @Html.Bootstrap().TextBox("txtCodigo").HtmlAttributes(new { @onkeyup = "InputToUpper(this)", @class = "form-control input-sm", @style = "width:147px;text-align:right" })
+
+                                </div>
+                                <label class="col-sm-2 control-label" style="text-align: right; padding-top: 8px; padding-right: 0;">Fecha </label>
+                                <div class="col-md-4" style="">
+                                    <div class='input-group'>
+                                        <input class='form-control date-pickerIni' id='txtApertura' type='text' data-date-format='dd/mm/yyyy'>
+                                        <span class='input-group-addon'>
+                                            <i class='fa fa-calendar'></i>
+                                        </span>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-bottom:5px">
+                            <div class="form-group" style="margin: 1px">
+                                <label class="col-sm-2 control-label" style="text-align:left;width:120px">Responsable <sup>*</sup> </label>
+                                <div class="col-sm-10" style="width:460px">
+                                    @Html.DropDownList("txtValBus_Personal", new SelectList(ViewBag.Personal, "IDCODIGOGENERAL", "NOMBRES_FULL"), new { @class = "form-control dropdown-menu", @style = "width:460px", @onkeyup = "InputToUpper(this)" })
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-bottom:5px">
+                            <div class="col-md-12" style="text-align: center; font-weight: bold">
+                                <label style="margin-bottom: 2px; font-weight: bolder !important">DETALLES</label>
+                                <button type="button" class="btn btn-default btn-sm" onclick="AddDetalle()">
+                                    <span class="glyphicon glyphicon-plus"></span> Agregar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="row" style="margin-bottom:20px" id="DivTbl">
+                            
+                        </div>
+                        <div class="row" style="margin-bottom:5px">
+                            @*<div class="col-md-6" style="text-align: right; vertical-align: middle; width: 50%">
+                                @Html.Bootstrap().Button().Text("Guardar").Id("GuardarEntidad").Color(BootstrapColors.Success)
+                            </div>*@
+                            <div class="col-md-12" style="text-align: center">
+                                <button class="btn btn-md bg-danger" type="button" id="btnCancel" data-dismiss="modal" style="color:white">Cerrar</button>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section PageScripts{
+    <!--Jquery Select2-->
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            
+        });
+
+        
+
+    </script>
+}
+
+

@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "Registro de nuevos contratos";
+    ViewBag.Description = "contratos";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+
+@using System
+
+<div class="row">
+    <div class="col-lg-12 col-sm-12 col-xs-12">
+        <div class="row">
+            <div class="col-lg-12 col-sm-12 col-xs-12">
+                <div class="widget flat radius-bordered">
+                    <div class="widget-header bg-danger">
+                        <span class="widget-caption">Informacion del trabajador</span>
+                    </div>
+                    <div class="widget-body">
+                        <div id="registration-form">
+                            <form role="form">
+                                <div class="form-title">
+                                    Datos personales 
+                                    <a class="btn btn-sm btn-warning" onclick="fnAgregaFoto()" style="margin-left:20px">Fotografia</a>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-3">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail2">Tipo Documento <sup>*</sup></label>
+                                            @*<span class="input-icon icon-right">
+                                                @Html.DropDownListFor(model => model.IDDOCIDENTIDAD, new SelectList(ViewBag.DocIdentidad, "IDDOCIDENTIDAD", "DESCRIPCION"), new { @class = "form-control select2ddl" })
+                                                @Html.Hidden("IDDOCIDENTIDADx")
+                                                @Html.Hidden("docidentidadx")
+                                                <i class="glyphicon glyphicon-pencil palegreen"></i>
+                                            </span>*@
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

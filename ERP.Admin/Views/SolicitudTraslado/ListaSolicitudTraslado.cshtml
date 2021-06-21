@@ -1,0 +1,162 @@
+﻿@model IEnumerable<ERP.Admin.Models.SolicitudTraslado>
+<script type="text/javascript">
+</script>
+@{
+    string FechSoliTras = "";
+
+    string TDIdSoliTras = "";
+    string IdTrSoliTraList = "";
+    string TDFkAlmaSoli = "";
+    string TDUbicAlmaSoli = "";
+    string CallBy = ViewBag.CallBy;
+}
+@Html.Hidden("txtSoliTrasList_CallBy", CallBy)
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header bordered-bottom bordered-red">
+                <span class="widget-caption">Solicitud de traslado > Listado </span>
+                <div class="widget-buttons">
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editableListSoliTraslado">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                ID_SOLICITUD_TRASLADO
+                            </th>
+                            <th>
+                                FECHA
+                            </th>
+                            <th>
+                                NRO
+                            </th>
+                            <th>
+                                ALM. SOLICITA
+                            </th>
+                            <th>
+                                REGISTRADA POR
+                            </th>
+                            <th>
+                                ESTADO
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                            <th style="display:none">
+                                FK_ALMACEN_SOLICITA
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            FechSoliTras = Convert.ToDateTime(item.f_solicitud_traslado).ToString("dd/MM/yyyy");
+                            IdTrSoliTraList = "IdTrSoliTraList" + item.id_solicitud_traslado;
+                            TDIdSoliTras = "TDIdSoliTras" + IdTrSoliTraList;
+                            TDFkAlmaSoli = "TDFkAlmaSoli" + IdTrSoliTraList;
+                            TDUbicAlmaSoli = "TDUbicAlmaSoli" + IdTrSoliTraList;
+
+                            <tr id="@IdTrSoliTraList">
+                                <td id="@TDIdSoliTras" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_solicitud_traslado)
+                                </td>
+                                <td class="input-xs">
+                                    @FechSoliTras
+                                </td>
+                                <td class="input-xs">
+                                    @item.n_solicitud_traslado
+                                </td>
+                                <td class="input-xs">
+                                    @item.nombre_almacen_destino
+                                </td>
+                                <td class="input-xs">
+                                    @item.usuario_registro
+                                </td>
+                                <td class="input-xs">
+                                    @item.NEstado
+                                </td>
+                                <td style="text-align: center;">
+                                    <button class="btn btn-success" onclick="FnAceptarSoliTraslado('@IdTrSoliTraList')" style="padding:0; font-size:small; margin-top:-5px"> Seleccionar</button>
+                                </td>
+                                <td id="@TDFkAlmaSoli" style="display: none;">
+                                    @item.fk_almacen_solicita
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="horizontal-space"></div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn bg-blue shiny" type="button" id="btnCancel" data-dismiss="modal" style="float: right; margin-left: 10px;">Cerrar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+
+    function FnAceptarSoliTraslado(newTr) {
+        var CallBy = $("#txtSoliTrasList_CallBy").val();
+
+        var IdSoliTras = document.getElementById("TDIdSoliTras" + newTr).innerHTML;
+        var FkAlmaSoli = document.getElementById("TDFkAlmaSoli" + newTr).innerHTML.trim();
+        if (CallBy == "ComprobanteTrasladoCreate") {
+            FnGet_SolicitudTrasladoDetalle(IdSoliTras, FkAlmaSoli);
+        }
+        $('#myModalSoliTraslado').modal('hide');
+    }
+
+    function Inicia() {
+        oTable = $('#editableListSoliTraslado').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ]
+        });
+        var isEditing = null;
+    }
+</script>

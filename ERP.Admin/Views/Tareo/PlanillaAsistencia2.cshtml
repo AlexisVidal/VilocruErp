@@ -1,0 +1,1829 @@
+﻿@{
+    ViewBag.Title = "Planillones de asistencia por periodo";
+    ViewBag.Description = "Planillones de asistencia";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+    Layout = "~/Views/Shared/_Default.cshtml";
+    string periodoactual = (string)ViewBag.Periodo;
+    string cmbCompVent_FilterPeriodo = (string)ViewBag.cmbCompVent_FilterPeriodo;
+    string quincena = (string)ViewBag.QUINCEX;
+}
+@using System
+@using System.Web.UI.WebControls
+@using BeyondThemes.Bootstrap.TypeExtensions
+@Html.Hidden("periodoactualx", @periodoactual)
+
+@using X.PagedList.Mvc;
+@using X.PagedList;
+@Html.Hidden("cmbCompVent_FilterPeriodo", @cmbCompVent_FilterPeriodo)
+@model IEnumerable<ERP.Admin.Models.AsistenciaTempErp>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            @using (Html.BeginForm("PlanillaAsistencia2", "Tareo", FormMethod.Get))
+            {
+                <div class="widget-header ">
+                    <span class="widget-caption">Listado </span>
+                    PERIODO:
+                    @Html.DropDownList("cmbCompVent_FilterPeriodo", new SelectList(ViewBag.Periodos, "IDPERIODO", "PERIODO",selectedValue: @ViewBag.Descripcion), new { id = "cmbCompVent_FilterPeriodo", @style = "margin-top:2px" })
+                    <button type="submit" class="btn btn-primary" style="margin-left: 3px; margin-top: -4px"> Mostrar</button>
+
+                    <div class="widget-buttons">
+                        @if (Request.UrlReferrer != null)
+                        {
+                            <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                        }
+                        <a href="#" data - toggle="maximize">
+                            <i class="fa fa-expand"></i>
+                        </a>
+                        <a href="#"
+                           data - toggle="collapse">
+                            <i class="fa fa-minus"></i>
+                        </a>
+                        <a href="#"
+                           data - toggle="dispose">
+                            <i class="fa fa-times"></i>
+                        </a>
+                    </div>
+                </div>
+            }
+            <div class="widget-body">
+                <div id="DivTblPlanillon">
+                    @Html.Hidden("xquincena", @quincena)
+                    @if (quincena != "")
+                    {
+                        <table class="table table-striped table-hover table-bordered" @*id="editabledatatableplanilla"*@ style="overflow-x: auto;display:block">
+                            <thead>
+                                <tr>
+                                    <td colspan="4" style="text-align: center">DATOS TRABAJADOR</td>
+                                    @if (quincena == "I")
+                                    {
+                                        <td colspan="10" style="text-align: center">DIA 01</td>
+                                        <td colspan="10" style="text-align: center">DIA 02</td>
+                                        <td colspan="10" style="text-align: center">DIA 03</td>
+                                        <td colspan="10" style="text-align: center">DIA 04</td>
+                                        <td colspan="10" style="text-align: center">DIA 05</td>
+                                        <td colspan="10" style="text-align: center">DIA 06</td>
+                                        <td colspan="10" style="text-align: center">DIA 07</td>
+                                        <td colspan="10" style="text-align: center">DIA 08</td>
+                                        <td colspan="10" style="text-align: center">DIA 09</td>
+                                        <td colspan="10" style="text-align: center">DIA 10</td>
+                                        <td colspan="10" style="text-align: center">DIA 11</td>
+                                        <td colspan="10" style="text-align: center">DIA 12</td>
+                                        <td colspan="10" style="text-align: center">DIA 13</td>
+                                        <td colspan="10" style="text-align: center">DIA 14</td>
+                                        <td colspan="10" style="text-align: center">DIA 15</td>
+                                    }
+                                    else
+                                    {
+                                        <td colspan="10" style="text-align: center">DIA 16</td>
+                                        <td colspan="10" style="text-align: center">DIA 17</td>
+                                        <td colspan="10" style="text-align: center">DIA 18</td>
+                                        <td colspan="10" style="text-align: center">DIA 19</td>
+                                        <td colspan="10" style="text-align: center">DIA 20</td>
+                                        <td colspan="10" style="text-align: center">DIA 21</td>
+                                        <td colspan="10" style="text-align: center">DIA 22</td>
+                                        <td colspan="10" style="text-align: center">DIA 23</td>
+                                        <td colspan="10" style="text-align: center">DIA 24</td>
+                                        <td colspan="10" style="text-align: center">DIA 25</td>
+                                        <td colspan="10" style="text-align: center">DIA 26</td>
+                                        <td colspan="10" style="text-align: center">DIA 27</td>
+                                        <td colspan="10" style="text-align: center">DIA 28</td>
+                                        <td colspan="10" style="text-align: center">DIA 29</td>
+                                        <td colspan="10" style="text-align: center">DIA 30</td>
+                                        <td colspan="10" style="text-align: center">DIA 31</td>
+                                    }
+                                    <td style="text-align: center" colspan="2">TOTALES QUINCENA</td>
+                                    <td style="text-align: center"></td>
+                                </tr>
+                                <tr role="row">
+                                    <th style="font-size: 10px;text-align: center">
+                                        NRO
+                                    </th>
+                                    <th style="display: none">
+                                        ID
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        PERIODO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        DOCUMENTO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center; width: 260px">
+                                        NOMBRES
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-INGRESO
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        RE-SALIDA
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        INICIO REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        FIN REFR
+                                    </th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS REFR
+                                    </th>
+
+                                    <th style="font-size: 10px; text-align: center">
+                                        HORAS TOTAL
+                                    </th>
+                                    @if (quincena == "II")
+                                    {
+                                        <th style="font-size: 10px; text-align: center">
+                                            INGRESO
+                                        </th>
+                                        <th style="font-size: 10px; text-align: center">
+                                            SALIDA
+                                        </th>
+                                        <th style="font-size: 10px; text-align: center">
+                                            HORAS
+                                        </th>
+                                        <th style="font-size: 10px; text-align: center">
+                                            RE-INGRESO
+                                        </th>
+                                        <th style="font-size: 10px; text-align: center">
+                                            RE-SALIDA
+                                        </th>
+                                        <th style="font-size: 10px; text-align: center">
+                                            HORAS
+                                        </th>
+
+                                        <th style="font-size: 10px; text-align: center">
+                                            INICIO REFR
+                                        </th>
+                                        <th style="font-size: 10px; text-align: center">
+                                            FIN REFR
+                                        </th>
+                                        <th style="font-size: 10px; text-align: center">
+                                            HORAS REFR
+                                        </th>
+
+                                        <th style="font-size: 10px; text-align: center">
+                                            HORAS TOTAL
+                                        </th>
+                                    }
+                                    <th style="font-size: 10px; text-align: center">HORAS QUINCENA</th>
+                                    <th style="font-size: 10px; text-align: center">JORNALES</th>
+                                    <th style="font-size: 10px; text-align: center">
+                                        ...
+                                    </th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var item in ViewBag.Listado)
+                                {
+                                    <tr>
+                                        <td class="input-xs" style="font-size: 10px;text-align: center">
+                                            @item.itemrecord
+                                        </td>
+                                        <td style="display: none">
+                                            @item.id_asistencia
+                                        </td>
+                                        <td class="input-xs" style="font-size: 10px; text-align: center">
+                                            @item.PERIODO
+                                        </td>
+                                        <td class="input-xs" style="font-size: 10px; text-align: center">
+                                            @item.IDCODIGOGENERAL
+                                        </td>
+                                        <td class="input-xs" style="font-size: 10px; text-align: center; width: 260px">
+                                            @item.NOMBRES
+                                        </td>
+                                        @if (quincena == "I")
+                                        {
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_ht
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_ht
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s03_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s04_ht
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s05_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s06_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s07_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s08_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s09_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s10_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s11_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s12_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s13_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s14_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s15_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_dia_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s01_jornales
+                                            </td>
+                                        }
+                                        else
+                                        {
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s16_ht
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s17_ht
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_horasr
+                                            </td>
+
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s18_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s19_ht
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s20_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s21_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s22_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s23_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s24_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s25_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s26_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s27_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s28_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s29_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s30_ht
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_ingreso
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_salida
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_ingresor
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_salidar
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_horasr
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_irefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_frefrigerio
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_refh
+                                            </td>
+
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s31_ht
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_dia_horas
+                                            </td>
+                                            <td class="input-xs" style="font-size: 10px; text-align: center">
+                                                @item.s02_jornales
+                                            </td>
+                                        }
+
+                                        <td></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        @Html.PagedListPager((IPagedList)ViewBag.Listado, page => Url.Action("PlanillaAsistencia2", new { page, @ViewBag.cmbCompVent_FilterPeriodo }))
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script>
+
+        function DownloadExcel() {
+            var Periodo = $("#periodoactualx").val();
+            $.ajax({
+                type: "POST",
+                url: "ExcelExport",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                data: JSON.stringify({
+                    Periodo: Periodo
+                }),
+                cache: false,
+                success: function (data) {
+                    var urlx= '@Url.Action("Download", "Tareo")'
+                    window.location = urlx;
+                },
+                error: function(data) {
+                    Materialize.toast("Something went wrong. ", 3000, 'rounded');
+                }
+            });
+        }
+
+
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).ready(function () {
+
+            //$('#DivTblPlanillon').on('load',
+            //    function() {
+            //        $("#spinner").hide();
+            //    });
+
+            //loadDivTblPlanillon();
+
+            $("#spinner").hide();
+            ////Inicia();
+            //$('#spinner').bind("ajaxSend",
+            //    function() {
+            //        $(this).show();
+            //    }).bind("ajaxComplete",
+            //    function() {
+            //        $(this).hide();
+            //    });
+            //$('#loading').hide().ajaxStart(function() {
+            //    $(this).show();
+            //}).ajaxStop(function() {
+            //    $(this).hide();
+            //});
+            //$("#cmbCompVent_FilterPeriodo").change(function () {
+            //    debugger;
+
+            //    //$("#spinner").show();
+            //    loadDivTblPlanillon();
+            //   // $("#spinner").hide();
+            //});
+        });
+    //function hidespinner() {
+    //    $("#spinner").hide();
+    //}
+        function loadDivTblPlanillon() {
+            //debugger;
+            var CallBy = "Asistencia";
+            var EstaFilt = $("#cmbCompVent_FilterPeriodo").val();
+            var url = "../Tareo/ListPlanillon?EstaFilt=" + EstaFilt;
+            $('#DivTblPlanillon').html('');
+            $('#DivTblPlanillon').load(url);
+            //$('#DivTblPlanillon').on('load', url, function() {
+            //    $("#spinner").hide();
+            //})
+
+        }
+    </script>
+}

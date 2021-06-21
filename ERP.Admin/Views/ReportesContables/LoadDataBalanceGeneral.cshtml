@@ -1,0 +1,122 @@
+﻿@model IEnumerable<ERP.Admin.Models.ReporteContable>
+@{
+    string itemPos1 = "";
+    string descPos1 = "";
+    decimal montPos1 = 0;
+    string itemPos2 = "";
+    string descPos2 = "";
+    string strMontPos1 = "";
+    string strMontPos2 = "";
+    decimal montPos2 = 0;
+    decimal SumaPosi1 = 0;
+    decimal SumaPosi2 = 0;
+    int CantRegi = Model.Count();
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="tableBalanceGeneral" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th colspan="7" style="font-size: 14px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                BALANCE GENERAL
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < CantRegi; i++)
+                        {
+                            itemPos1 = "";
+                            descPos1 = "";
+                            montPos1 = 0;
+                            itemPos2 = "";
+                            descPos2 = "";
+                            montPos2 = 0;
+                            strMontPos1 = "";
+                            strMontPos2 = "";
+                            //Bucamos uno con posision 1
+                            for (int j = 0; j < CantRegi; j++)
+                            {
+                                if (Model.ElementAt(j).posicion == "1")
+                                {
+                                    itemPos1 = Model.ElementAt(j).item;
+                                    descPos1 = Model.ElementAt(j).descripcion;
+                                    montPos1 = Model.ElementAt(j).monto;
+                                    SumaPosi1 = SumaPosi1 + montPos1;
+                                    if (montPos1 > 0)
+                                    {
+                                        strMontPos1 = montPos1.ToString("#,##0.00");
+                                    }
+                                    Model.ElementAt(j).posicion = "0";
+                                    break;
+                                }
+                            }
+                            //Bucamos uno con posision 2
+                            for (int j = 0; j < CantRegi; j++)
+                            {
+                                if (Model.ElementAt(j).posicion == "2")
+                                {
+                                    itemPos2 = Model.ElementAt(j).item;
+                                    descPos2 = Model.ElementAt(j).descripcion;
+                                    montPos2 = Model.ElementAt(j).monto;
+                                    SumaPosi2 = SumaPosi2 + montPos2;
+                                    if (montPos2 > 0)
+                                    {
+                                        strMontPos2 = montPos2.ToString("#,##0.00");
+                                    }
+                                    Model.ElementAt(j).posicion = "0";
+                                    break;
+                                }
+                            }
+                            if (!itemPos1.Trim().Equals("") || !itemPos2.Trim().Equals(""))
+                            {
+                                <tr>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @itemPos1
+                                    </td>
+                                    <td class="input-xs" style="text-align: left;">
+                                        @descPos1
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strMontPos1
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;"></td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @itemPos2
+                                    </td>
+                                    <td class="input-xs" style="text-align: left;">
+                                        @descPos2
+                                    </td>
+                                    <td class="input-xs" style="text-align: right;">
+                                        @strMontPos2
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        <tr>
+                            <td class="input-xs" style="text-align: right;"></td>
+                            <td class="input-xs" style="text-align: left; font-size: 14px; font-weight: bold;">
+                                TOTALES
+                            </td>
+                            <td class="input-xs" style="text-align: right; font-size: 14px; font-weight: bold;">
+                                @SumaPosi1
+                            </td>
+                            <td class="input-xs" style="text-align: right;"></td>
+                            <td class="input-xs" style="text-align: right;"></td>
+                            <td class="input-xs" style="text-align: left; font-size: 14px; font-weight: bold;">
+                                TOTALES
+                            </td>
+                            <td class="input-xs" style="text-align: right; font-size: 14px; font-weight: bold;">
+                                @SumaPosi2
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>

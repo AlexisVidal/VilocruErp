@@ -1,0 +1,1458 @@
+﻿@{
+    ViewBag.Title = "Registro de Prestamos";
+    ViewBag.Description = "prestamos";
+    Layout = "~/Views/Shared/_Default.cshtml";
+    ViewBag.LogoHorizontal = ViewBag.LogoHorizontals;
+}
+<script src="~/Scripts/exporter.js-master/export.min.js"></script>
+<script src="~/Scripts/exporter.js-master/export.js"></script>
+<script type="text/javascript">
+</script>
+@using System
+@model IEnumerable<ERP.Admin.Models.PersonalPrestamo>
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado de prestamos - @ViewBag.IdTrabajador </span>
+                <div class="widget-buttons">
+                    @if (Request.UrlReferrer != null)
+                    {
+                        <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                    }
+                    <a id="ResumenPrestamo" class="btn btn-danger ResumenPrestamo" style="padding-left: 10px;padding-right: 10px" onclick="ResumenPrestamo(@ViewBag.IdTrabajador)">
+                        Resumen
+                    </a>
+                    <a id="NewPrestamo" class="btn btn-primary NewPrestamo" style="padding-left: 10px;padding-right: 10px" onclick="NuevoPrestamo(@ViewBag.IdTrabajador)">
+                        Nuevo
+                    </a>
+                    <a href="#" onclick="DownloadExcel()">
+                        <img style="text-align: center; vertical-align: central; border: none !important;" src="~/img/Excel_32.ico" />
+                    </a>
+                    <a href="#" data-toggle="maximize">
+                        <i class="fa fa-expand"></i>
+                    </a>
+                    <a href="#" data-toggle="collapse">
+                        <i class="fa fa-minus"></i>
+                    </a>
+                    <a href="#" data-toggle="dispose">
+                        <i class="fa fa-times"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="widget-body">
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable2" style="font-size:11px">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                id_personal_prestamo
+                            </th>
+                            <th style="font-size:11px">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size:11px">
+                                NOMBRES
+                            </th>
+                            <th style="font-size:11px">
+                                CUOTAS
+                            </th>
+                            <th style="font-size:11px">
+                                FECHA INICIO
+                            </th>
+                            <th style="font-size:11px">
+                                FECHA FIN
+                            </th>
+                            <th style="font-size:11px">
+                                MONTO
+                            </th>
+                            <th style="font-size:11px">
+                                SALDO
+                            </th>
+                            <th style="font-size:11px">
+                                ESTADO
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+
+                            var idtrabajador = "TrTrab" + item.IDCODIGOGENERAL;
+
+                            <tr>
+                                <td id="@idtrabajador" style="display:none">
+                                    @Html.DisplayFor(modelItem => item.id_personal_prestamo)
+                                </td>
+                                <td class="input-xs">
+                                    @Html.DisplayFor(modelItem => item.IDCODIGOGENERAL)
+                                </td>
+                                <td class="input-xs" style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.NombresFull)
+                                </td>
+                                <td class="input-xs" style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.CUOTAS)
+                                </td>
+                                <td class="input-xs" style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.df_INICIO)
+                                </td>
+                                <td class="input-xs" style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.df_FIN)
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.MONTOTOTAL)
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.porcancelar)
+                                </td>
+                                <td style="text-align:center">
+                                    @Html.DisplayFor(modelItem => item.NEstado)
+                                </td>
+                                <td style="display: none;">
+                                    @Html.DisplayFor(modelItem => item.ESTADO)
+                                </td>
+                                <td style="text-align:center">
+                                    <a class="btn btn-success btn-sm" style="padding:2px;font-size:small;margin-top:-5px" onclick="ShowPrestamo(@item.id_personal_prestamo)">Detalles</a>
+                                    <a class="btn btn-danger btn-sm" style="padding:2px;font-size:small;margin-top:-5px" onclick="EditPrestamo(@item.id_personal_prestamo)">Editar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<div id='myModalNew' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:1050px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentNew'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalEdit' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:980px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentEdit'></div>
+        </div>
+    </div>
+</div>
+<div id='myModalShow' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:650px; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentShow'></div>
+        </div>
+    </div>
+</div>
+<div id="spinner" class="loading">
+    <img src="~/img/spinner2.gif" alt="Loading" />
+</div>
+@section PageScripts{
+    <style>
+        .loading {
+            position: fixed;
+            z-index: 999;
+            height: 2em;
+            width: 2em;
+            overflow: show;
+            margin: auto;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+        }
+            /* Transparent Overlay */
+            .loading:before {
+                content: '';
+                display: block;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.3);
+            }
+    </style>
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <link href="~/assets/css/pure-min.css" rel="stylesheet" />
+
+    <script src="~/assets/js/mindmup-editabletable.js"></script>
+
+    <script src="~/Scripts/fullcalendar39/divjs.js"></script>
+
+    <script src="~/Scripts/fullcalendar39/printThis.js"></script>
+    <script>
+    $(document).ready(function () {
+        $("#spinner").hide();
+        //Inicia();
+        $('#spinner').bind("ajaxSend", function () {
+            $(this).show();
+        }).bind("ajaxComplete", function () {
+            $(this).hide();
+        });
+        $('#loading').hide().ajaxStart(function () {
+            $(this).show();
+        }).ajaxStop(function () {
+            $(this).hide();
+        });
+            Inicia();
+        });
+        //InitiateEditableDataTable.init();
+        function Inicia() {
+            //Datatable Initiating
+            oTable = $('#editabledatatable2').dataTable({
+                "aLengthMenu": [
+                    [5, 15, 20, 100, -1],
+                    [5, 15, 20, 100, "All"]
+                ],
+                "retrieve": "true",
+                "iDisplayLength": 20,
+                "sPaginationType": "bootstrap",
+                "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+                "oTableTools": {
+                    "aButtons": [
+                        //"copy",
+                        "print"
+                    ],
+                    "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+                },
+                "language": {
+                    "search": "",
+                    "sLengthMenu": "_MENU_",
+                    "oPaginate": {
+                        "sPrevious": "Ant",
+                        "sNext": "Sig"
+                    }
+                },
+
+                "aoColumns": [
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    { "bSortable": false }
+                ]
+            });
+            //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable2')));
+            var isEditing = null;
+
+        }
+        function padLeft(nr, n, str) {
+            return Array(n - String(nr).length + 1).join(str || '0') + nr;
+        }
+        function ShowPrestamo(id_personal_prestamo) {
+            debugger;
+            //var idpadleft = padLeft(IdTrabajador, 8);
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetPrestamoById", "Personal")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_personal_prestamo: id_personal_prestamo },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentShow').html(response);
+                    $('#myModalShow').modal(options);
+                    $('#myModalShow').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        };
+        function EditPrestamo(id_personal_prestamo) {
+            debugger;
+            //var idpadleft = padLeft(IdTrabajador, 8);
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroPrestamoById", "Personal")',
+                contentType: "application/json; charset=utf-8",
+                data: { id_personal_prestamo: id_personal_prestamo },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentEdit').html(response);
+                    $('#myModalEdit').modal(options);
+                    $('#myModalEdit').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        };
+        function ResumenPrestamo(IdTrabajador) {
+            debugger;
+            var id_personal_prestamo = $("#id_personal_prestamox").val();
+            var url = '@Url.Action("ExportResumen", "Personal")?IdTrabajador=' + IdTrabajador;
+            window.open(url, "_blank");
+        }
+
+        function NuevoPrestamo(IdTrabajador) {
+            //debugger;
+            var idpadleft = padLeft(IdTrabajador, 8);
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("RegistroPrestamo", "Personal")',
+                contentType: "application/json; charset=utf-8",
+                data: { idcodigogeneral: idpadleft },
+                dataType: 'html',
+                success: function(response) {
+                    $('#myModalContentNew').html(response);
+                    $('#myModalNew').modal(options);
+                    $('#myModalNew').modal('show');
+                },
+                error: function(request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+        };
+  function FnChangeTipoCronograma2() {
+        var fk_tipo_check = $("#cmbfk_tipo").val();
+        fk_tipo_check = parseInt(fk_tipo_check, 10);
+        debugger;
+        if (fk_tipo_check === 1) {
+            $("#letrastablesbody").empty();
+            $('#stipocronograma').val(1);
+            $('#txtDias').val(0);
+            $('#txtDias').prop('disabled', true);
+        } else if (fk_tipo_check === 2) {
+            $("#letrastablesbody").empty();
+            $('#stipocronograma').val(2);
+            $('#txtDias').val(0);
+            //$('#txtInteres').val(0);
+            //$('#txtMontoCuotaInicial').val(0);
+            //$('#txtMontoCuota').val(0);
+            $('#txtDias').prop('disabled', true);
+        } else if (fk_tipo_check === 3) {
+            $("#letrastablesbody").empty();
+            $('#stipocronograma').val(3);
+            $('#txtDias').val(0);
+            $('#txtDias').prop('disabled', true);
+        } else if (fk_tipo_check === 4) {
+            $("#letrastablesbody").empty();
+            $('#stipocronograma').val(4);
+            $('#txtDias').val(0);
+            $('#txtDias').prop('disabled', true);
+        }
+        else {
+            $('#stipocronograma').val(0);
+            $('#txtDias').val("0");
+            $('#txtDias').prop('disabled', false);
+        }
+
+    }
+
+        function Getdayhabil(cuotas, dia, opcion) {
+            var result="";
+            $.ajax({
+                    type: 'POST',
+                url: '@Url.Action("GetPrimerDiaHabilErp", "Comercial")',
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    cuotas: cuotas, diab : dia,opcion:opcion
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function(data) {
+                    console.log(data);
+                    result = data;
+                }
+            });
+            return result;
+        };
+
+        function Getdayhabil2(cuotas, dia, opcion) {
+            var result="";
+            $.ajax({
+                    type: 'POST',
+                url: '@Url.Action("GetPrimerDiaHabilErpAgre", "Comercial")',
+                async: false,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    cuotas: cuotas, diab : dia,opcion:opcion
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function(data) {
+                    console.log(data);
+                    result = data;
+                }
+            });
+            return result;
+        };
+
+
+
+        function GeneraLetras() {
+            //debugger;
+            var tipocronograma = $('#stipocronograma').val();
+
+            var monto = $("#txtMonto").val();
+            if (monto === "" || monto === "0") {
+                swal("", "Ingrese monto correcto!", "error");
+                return;
+            }
+
+            var nro_letras = $("#txtNro_letras").val();
+            if ((nro_letras === '' || nro_letras === "0") ) {
+                swal("", "Debe ingresar monto de cuota!", "error");
+                $("#txtNro_letras").focus();
+                return false;
+            }
+
+            var segundacuota = $('#txtNro_letras2').val();
+            var chksegundacuota = $('#secondacuota').val();
+            if ((segundacuota === '' || segundacuota === "0") && (chksegundacuota === '1')) {
+                swal("", "Debe ingresar monto de segunda cuota!", "error");
+                $("#txtNro_letras").focus();
+                return false;
+            }
+            else if ((segundacuota != "0") && (chksegundacuota === '1')) {
+                //nro_letras = parseFloat(nro_letras) + parseFloat(segundacuota);
+            }
+
+            var emision = $("#txtInicio").val();
+            if (emision === "") {
+                swal("", "Seleccione fecha de emision correcta!", "error");
+                return;
+            }
+
+            monto = parseFloat(monto);
+            //nro_letras = parseInt(nro_letras, 10);
+            cuota = parseFloat(nro_letras);
+            var nro_letras = 0;
+            nro_letras = parseFloat(monto) / parseFloat(cuota);
+            var cuotasround = Math.ceil(nro_letras);
+            var extra = 1;
+            if (parseFloat(cuotasround) === parseFloat(nro_letras)) {
+                extra = 0;
+            }
+            nro_letras = cuotasround;
+            $('#cuotasprestamo').val(nro_letras);
+            $("#letrastablesbody").empty();
+            var acumulador = 0;
+            var xcuota = 0;
+            if (tipocronograma === '1') {   //DIA HABIL
+                //debugger;
+                var fvence = SumaDias(emision, dias * 1);
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                var dias = Getdayhabil(nro_letras, fvence, 'primer');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                for (var i = 0; i < diasleng; i++) {
+                    acumulador = parseFloat(acumulador) + parseFloat(cuota);
+                    if (i == (diasleng - 1)) {
+                        xcuota = parseFloat(acumulador) - parseFloat(monto);
+                    } else {
+                        xcuota = cuota;
+                    }
+                    var y = parseInt(i, 10) + parseInt(1, 10);
+                    //debugger;
+                    var IdTr = "IdTr" + y;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    sfecha_fin = dias[i];
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                        "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                        //"<td id='LetraNro" + IdTr + "' style='text-align: left; vertical-align: middle;display: none'></td>" +
+                        "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + xcuota.toFixed(2) + "</td>" +
+                        "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                        //"<td class='uneditable' style='text-align: center;'></td>" +
+                        "</tr>");
+                    $("#letrastablesbody").append(row);
+                }
+            } else if ((tipocronograma === '2') || (tipocronograma === '4')) {   //proyeccion quincena
+                //debugger;
+                if (tipocronograma === '4') {
+                    var fvence = SumaDias(emision, 0 * 1);
+                } else {
+                    var fvence = SumaDias(emision, 15 * 1);
+                }
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                if (tipocronograma === '2') {
+                    var dias = Getdayhabil(nro_letras, fvence, 'quince');
+                } else {
+                    var dias = Getdayhabil(nro_letras, fvence, 'quincefin');
+                }
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                if ((segundacuota === "0") && (chksegundacuota === '0')) {
+                    for (var i = 0; i < diasleng; i++) {
+                        var tempora = parseFloat(monto) - parseFloat(acumulador);
+                        if (parseFloat(tempora) < cuota) {
+
+                        } else {
+                            acumulador = parseFloat(acumulador) + parseFloat(cuota);
+                        }
+
+                        if (i == (diasleng - 1) && extra === 1) {
+                            xcuota = parseFloat(monto) - parseFloat(acumulador);
+                        } else {
+                            xcuota = cuota;
+                        }
+                        var y = parseInt(i, 10) + parseInt(1, 10);
+                        //debugger;
+                        var IdTr = "IdTr" + y;
+                        var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                        sfecha_fin = dias[i];
+                        var row = $("<tr id='" + IdTr + "'>" +
+                            "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                            "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                            //"<td id='LetraNro" + IdTr + "' style='text-align: left; vertical-align: middle;display: none'></td>" +
+                            "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + xcuota.toFixed(2) + "</td>" +
+                            "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                            //"<td class='uneditable' style='text-align: center;'></td>" +
+                            "</tr>");
+                        $("#letrastablesbody").append(row);
+                    }
+                } else {
+                    debugger;
+                    var m = parseFloat(monto);
+                    var p = parseFloat(cuota);
+                    var s = parseFloat(segundacuota);
+                    var d = parseFloat(m);
+                    var i = parseInt(0);
+
+                    do {
+                        var y = parseInt(i, 10) + parseInt(1, 10);
+                        var IdTr = "IdTr" + y;
+                        var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                        
+                        if (i%2==0) {
+                            if (d > p) {
+                                var row = $("<tr id='" + IdTr + "'>" +
+                                    "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                                    "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                                    "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + p.toFixed(2) + "</td>" +
+                                    "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                                    "</tr>");
+                                $("#letrastablesbody").append(row);
+                                d = parseFloat(d) - parseFloat(p);
+                            } else {
+                                var row = $("<tr id='" + IdTr + "'>" +
+                                    "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                                    "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                                    "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + d.toFixed(2) + "</td>" +
+                                    "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                                    "</tr>");
+                                $("#letrastablesbody").append(row);
+                                d = parseFloat(d) - parseFloat(d);
+                            }
+                        } else {
+                            if (d > s) {
+                                var row = $("<tr id='" + IdTr + "'>" +
+                                    "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                                    "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                                    "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + s.toFixed(2) + "</td>" +
+                                    "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                                    "</tr>");
+                                $("#letrastablesbody").append(row);
+                                d = parseFloat(d) - parseFloat(s);
+                            } else {
+                                var row = $("<tr id='" + IdTr + "'>" +
+                                    "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                                    "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                                    "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + d.toFixed(2) + "</td>" +
+                                    "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                                    "</tr>");
+                                $("#letrastablesbody").append(row);
+                                d = parseFloat(d) - parseFloat(d);
+                            }
+                        }
+                        i++;
+                    }
+                    while (d > 0);
+                    nro_letras = y;
+                    $("#txtNro_letras").val(nro_letras);
+                    $('#cuotasprestamo').val(nro_letras);
+                }
+            }
+            else if (tipocronograma === '3') {   //fin HABIL
+                //debugger;
+                var fvence = SumaDias(emision, 30 * 1);
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                var dias = Getdayhabil(nro_letras, fvence, 'fin');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                for (var i = 0; i < diasleng; i++) {
+                    acumulador = parseFloat(acumulador) + parseFloat(cuota);
+                    if (i == (diasleng - 1)) {
+                        xcuota = parseFloat(acumulador) - parseFloat(monto);
+                    } else {
+                        xcuota = cuota;
+                    }
+                    var y = parseInt(i, 10) + parseInt(1, 10);
+                    //debugger;
+                    var IdTr = "IdTr" + y;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    sfecha_fin = dias[i];
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                        "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                        //"<td id='LetraNro" + IdTr + "' style='text-align: left; vertical-align: middle;display: none'></td>" +
+                        "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + xcuota.toFixed(2) + "</td>" +
+                        "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                        //"<td class='uneditable' style='text-align: center;'></td>" +
+                        "</tr>");
+                    $("#letrastablesbody").append(row);
+                }
+            }
+            else {
+                var fvence = SumaDias(emision, 1 * 1);
+                var IdTr = "IdTr" + 1;
+                var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                sfecha_fin = fvence;
+                var row = $("<tr id='" + IdTr + "'>" +
+                    "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                    "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + y + "</td>" +
+                    "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + monto.toFixed(2) + "</td>" +
+                    "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[1] + "</td>" +
+                    "</tr>");
+                $("#letrastablesbody").append(row);
+            }
+
+
+            $('#letrastables').editableTableWidget();
+            $('#letrastables td.uneditable').on('change', function (evt, newValue) {
+                return false;
+            });
+            $('#letrastablesbody td').on('change', function (evt, newValue) {
+                debugger;
+                var indexcell = evt.currentTarget.cellIndex;
+                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                if (indexcell === 1) {
+                    return false;
+                }
+                else if (indexcell === 2) {
+                    try {
+                        var nuevo = parseFloat(newValue);
+                        if (Number.isNaN(nuevo)) {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                else if (indexcell === 4) {
+                    try {
+                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                        console.log(mydate.toDateString());
+                        if (mydate.toDateString() === 'Invalid Date') {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                sumaColumna2();
+            });
+        }
+        $('#letrastables td.uneditable').on('change', function (evt, newValue) {
+            return false;
+        });
+        $('#letrastablesbody td').on('change', function (evt, newValue) {
+            debugger;
+            var linea = "linea 601";
+            var indexcell = evt.currentTarget.cellIndex;
+            var indexrow = evt.currentTarget.parentElement.rowIndex;
+            if (indexcell === 1) {
+                return false;
+            }
+            else if (indexcell === 2) {
+                try {
+                    var nuevo = parseFloat(newValue);
+                    if (Number.isNaN(nuevo)) {
+                        return false;
+                    }
+                } catch (e) {
+                    return false;
+                }
+            }
+            else if (indexcell === 4) {
+                try {
+                    var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                    console.log(mydate.toDateString());
+                    if (mydate.toDateString() === 'Invalid Date') {
+                        return false;
+                    }
+                } catch (e) {
+                    return false;
+                }
+            }
+
+        });
+        function stringToDate(_date, _format, _delimiter) {
+            var formatLowerCase = _format.toLowerCase();
+            var formatItems = formatLowerCase.split(_delimiter);
+            var dateItems = _date.split(_delimiter);
+            var monthIndex = formatItems.indexOf("mm");
+            var dayIndex = formatItems.indexOf("dd");
+            var yearIndex = formatItems.indexOf("yyyy");
+            var month = parseInt(dateItems[monthIndex]);
+            month -= 1;
+            var formatedDate = new Date(dateItems[yearIndex], month, dateItems[dayIndex]);
+            return formatedDate;
+        }
+        function SumaDias2(emision, dias) {
+            debugger;
+            //var tt = document.getElementById('txtDate').value;
+            //debugger;
+            //var date = new Date(emision);
+            var date = stringToDate(emision, "dd/MM/yyyy", "/");
+            //var newdate = new Date(date);
+            var newdate = stringToDate(emision, "dd/MM/yyyy", "/");
+
+            //newdate.setDate(newdate.getDate() + dias);
+            var diasx = dias;
+            var xnewdate = stringToDate(emision, "dd/MM/yyyy", "/");
+            do {
+                xnewdate.setDate(newdate.getDate() + diasx);
+                var dd = ("00" + xnewdate.getDate()).slice(-2);
+                diasx = diasx + 1;
+            } while ((parseInt(dd) > 15) && (parseInt(dd) <= 31));
+            newdate = xnewdate;
+            //if (parseInt(dd)) {
+
+            //}
+            var mnm = newdate.getMonth();
+            mnm = mnm +1;
+            var mm = ("00" + mnm).slice(-2);
+            var y = newdate.getFullYear();
+
+            var someFormattedDate = dd + '/' + mm + '/' + y;
+            return someFormattedDate;
+        }
+        function SumaDias(emision, dias) {
+            debugger;
+            //var tt = document.getElementById('txtDate').value;
+            //debugger;
+            //var date = new Date(emision);
+            var date = stringToDate(emision, "dd/MM/yyyy", "/");
+            //var newdate = new Date(date);
+            var newdate = stringToDate(emision, "dd/MM/yyyy", "/");
+
+            newdate.setDate(newdate.getDate() + dias);
+
+            var dd = ("00" + newdate.getDate()).slice(-2);
+            var mnm = newdate.getMonth() + 1;
+            var mm = ("00" + mnm).slice(-2);
+            var y = newdate.getFullYear();
+
+            var someFormattedDate = dd + '/' + mm + '/' + y;
+            return someFormattedDate;
+        }
+
+        $('#myModalNew').on('hide.bs.modal',
+            function (e) {
+                window.location.reload();
+            });
+        $('#myModalShow').on('hide.bs.modal',
+            function (e) {
+                window.location.reload();
+            });
+        $('#myModalEdit').on('hide.bs.modal',
+            function (e) {
+                window.location.reload();
+            });
+
+
+        $('#myModalEdit').on('shown.bs.modal',
+            function (e) {
+                $('#letrastablesbody').editableTableWidget();
+                $('#letrastablesbody td.uneditable').on('change', function (evt, newValue) {
+                    return false;
+                });
+                $('#letrastablesbody td').on('change', function (evt, newValue) {
+                    debugger;
+                    var indexcell = evt.currentTarget.cellIndex;
+                    var indexrow = evt.currentTarget.parentElement.rowIndex;
+                    if (indexcell === 1) {
+                        return false;
+                    }
+                    else if (indexcell === 2) {
+                        try {
+                            var nuevo = parseFloat(newValue);
+                            if (Number.isNaN(nuevo)) {
+                                return false;
+                            }
+                        } catch (e) {
+                            return false;
+                        }
+                    }
+                    else if (indexcell === 4) {
+                        try {
+                            var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                            console.log(mydate.toDateString());
+                            if (mydate.toDateString() === 'Invalid Date') {
+                                return false;
+                            }
+                        } catch (e) {
+                            return false;
+                        }
+                    }
+                    sumaColumna();
+                });
+
+        $("#ActualizaEntidad").click(function() {
+            debugger;
+            var id_save = 0;
+            var cantfilas = 0;
+            try {
+                cantfilas = $("#letrastables td").closest("tr").length;
+
+            } catch (e) {
+
+            }
+            var idpersonalprestamo = $("#idpersonalprestamox").val();
+            var idcodigogeneral = $("#idcodigogeneralx").val();
+            var sfecha_inicio = $("#sfecha_inicio").val();
+
+            var montonuevo = $("#smontonuevo").val();
+            var txtMonto = $("#txtMonto").val();
+
+            if ((parseFloat(montonuevo) != parseFloat(txtMonto)) && parseFloat(montonuevo) != 0) {
+                txtMonto = montonuevo;
+            }
+
+            var txtNro_letras = cantfilas;
+            if (txtNro_letras === '') {
+                swal("", "Debe ingresar cuotas!", "error");
+                $("#txtNro_letras").focus();
+                return false;
+            }
+            if (cantfilas === 0 ) {
+                swal("", "No se ha generado cronograma de pagos!", "error");
+                $("#txtNro_letras").focus();
+                return false;
+            }
+            else if (cantfilas > 0 ) {
+                FnLlenaArrayLetras();
+            }
+            if (sfecha_inicio === '') {
+                swal("", "Datos Incompletos", "error");
+                $("#txtDocumento").focus();
+                return false;
+            }
+            if (txtMonto === '' || txtMonto === '0') {
+                swal("", "El monto no puede ser 0!", "error");
+                $("#txtMonto").focus();
+                return false;
+            }
+            var fk_tipo_check = $("#stipocronograma").val();
+
+        id_save = parseInt($("#idcodigogeneralx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaPrestamo", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            monto: txtMonto,
+                            nro_letras: txtNro_letras,
+                            fecha_inicio: sfecha_inicio,
+                            arrLetras: arrLetras,
+                            fk_tipo_check: fk_tipo_check,
+                            idpersonalprestamo: idpersonalprestamo
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_personal_prestamo = data;
+                            if (parseInt(id_personal_prestamo, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_personal_prestamo = 0;
+                            }
+                        }
+                    });
+
+        });
+
+                var arrLetras = new Array();
+                function FnLlenaArrayLetras() {
+                    debugger;
+                    arrLetras = [];
+                    var IndArr = 0;
+                    var table = document.getElementById('letrastablesbody');
+                    var cantRows = table.rows.length;
+                    var newTr = "";
+                    var Nro = "";
+                    var LetraNro = "";
+                    var Cuota = "";
+                    var Vence = "";
+                    if (cantRows > 0) {
+
+                        for (var i = 0; i < cantRows; i++) {
+                            //debugger;
+                            newTr = table.rows[i].id;
+                            if (newTr.trim() != "") {
+                                Nro = document.getElementById("Nro" + newTr).innerHTML;
+                                Nro = Nro.replace("<label>", "");
+                                Nro = Nro.replace("</label>", "");
+                                //LetraNro = document.getElementById("LetraNro" + newTr).innerHTML;
+                                Cuota = document.getElementById("Cuota" + newTr).innerHTML;
+                                Cuota = Cuota.replace("<label>", "");
+                                Cuota = Cuota.replace("</label>", "");
+                                Vence = document.getElementById("Vence" + newTr).innerHTML;
+                                Vence = Vence.replace("<label>", "");
+                                Vence = Vence.replace("</label>", "");
+                                arrLetras[IndArr] = new Array(5);
+                                arrLetras[IndArr][0] = Nro;
+                                arrLetras[IndArr][1] = "";
+                                arrLetras[IndArr][2] = Cuota;
+                                arrLetras[IndArr][3] = Vence;
+                                IndArr++;
+                            }
+                        }
+                    }
+                }
+
+            });
+        function DeleteDetallei() {
+            var table = document.getElementById("letrastablesbody");
+            table.deleteRow(-1);
+            sumaColumna();
+        }
+        function sumaColumna() {
+            debugger;
+            var table = document.getElementById("letrastablesbody");
+            var sumVal = 0;
+
+            for (var i = 0; i < table.rows.length; i++) {
+                var valorhtml = table.rows[i].cells[2].innerHTML;
+                valorhtml = valorhtml.replace('<label>','');
+                valorhtml = valorhtml.replace('</label>', '');
+                sumVal = sumVal + parseFloat(valorhtml);
+            }
+            document.getElementById("sumacuotas").style.display = 'inline';
+            document.getElementById("sumacuotas").innerHTML = "Nuevo monto total: S/. " + sumVal.toFixed(2);
+            $('#smontonuevo').val(sumVal.toFixed(2));
+        }
+
+        function sumaColumna2() {
+            debugger;
+            var table = document.getElementById("letrastablesbody");
+            var sumVal = 0;
+
+            for (var i = 0; i < table.rows.length; i++) {
+                var valorhtml = table.rows[i].cells[2].innerHTML;
+                valorhtml = valorhtml.replace('<label>', '');
+                valorhtml = valorhtml.replace('</label>', '');
+                sumVal = sumVal + parseFloat(valorhtml);
+            }
+            //$('#txtMonto').style.color = "#FF0000";
+            document.getElementById("txtMonto").style.color = "red";
+            $('#txtMonto').val(sumVal.toFixed(2));
+        }
+        function AgregaLetras() {
+            debugger;
+            var tipocronograma = $('#stipocronograma').val();
+
+            var monto = document.getElementById("txtMonto").textContent;
+            monto = monto.trim();
+            //$("#txtMonto").val();
+            var diassuma = 1;
+            var nro_letras = document.getElementById("txtNro_letras").textContent;
+            nro_letras = nro_letras.trim();
+
+            var emision = document.getElementById("txtInicio").textContent;
+            emision = emision.trim();
+
+            //var final = document.getElementById("txtFin").textContent;
+            var final = $('#sfecha_finactual').val();
+            final = final.trim();
+
+            emision = final;
+            monto = monto.replace(',', '');
+            monto = parseFloat(monto);
+            nro_letras = parseInt(nro_letras, 10);
+            var cuota = 0;
+            cuota = parseFloat(monto) / parseFloat(nro_letras);
+
+            var numerotoca = $("#letrastables tbody tr").length + 1;
+            if (tipocronograma === '1') {   //DIA HABIL
+                var fvence = SumaDias2(emision, diassuma * 1);
+                var dias = Getdayhabil2(nro_letras, fvence, 'primer');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                var y = numerotoca;
+                var i = 0;
+                    var IdTr = "IdTr" + y;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    sfecha_fin = dias[i];
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                        "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + numerotoca + "</td>" +
+                        "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                        "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'>POR GUARDAR</td>" +
+                        "<td class='uneditable' style='text-align: center;'><a href='#' class='btn btn-danger btn-xs' onclick='DeleteDetallei()'><i class='glyphicon glyphicon-minus'></i> </a></td>" +
+                        "</tr>");
+                $("#letrastablesbody").append(row);
+                $('#sfecha_finactual').val(dias[i])
+            } else if ((tipocronograma === '2') || (tipocronograma === '4')) {   //proyeccion quincena
+                //debugger;
+                var fvence = SumaDias2(emision, 15 * 1);
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                var dias = Getdayhabil2(nro_letras, fvence, 'quince');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                var y = numerotoca;
+                var i = 0;
+                    var IdTr = "IdTr" + y;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    sfecha_fin = dias[i];
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                        "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + numerotoca + "</td>" +
+                        "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                        "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'>POR GUARDAR</td>" +
+                        "<td class='uneditable' style='text-align: center;'><a href='#' class='btn btn-danger btn-xs' onclick='DeleteDetallei()'><i class='glyphicon glyphicon-minus'></i> </a></td>" +
+                        "</tr>");
+                $("#letrastablesbody").append(row);
+                $('#sfecha_finactual').val(dias[i])
+            }
+            else if (tipocronograma === '3') {   //fin HABIL
+                //debugger;
+                var fvence = SumaDias2(emision, 30 * 1);
+                //var fvence2 = SumaDias(emision, 30 * 1);
+                var dias = Getdayhabil2(nro_letras, fvence, 'fin');
+                var diasleng = dias.length;
+                console.log("dias: " + dias);
+                var y = numerotoca;
+                var i = 0;
+                    //debugger;
+                    var IdTr = "IdTr" + y;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    sfecha_fin = dias[i];
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + y + "</td>" +
+                        "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + numerotoca + "</td>" +
+                        "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                        "<td id='Vence" + IdTr + "' style='text-align: center;'>" + dias[i] + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'>POR GUARDAR</td>" +
+                        "<td class='uneditable' style='text-align: center;'><a href='#' class='btn btn-danger btn-xs' onclick='DeleteDetallei()'><i class='glyphicon glyphicon-minus'></i> </a></td>" +
+                        "</tr>");
+                $("#letrastablesbody").append(row);
+                $('#sfecha_finactual').val(dias[i])
+            }
+            else {
+                var y = numerotoca;
+                var i = 0;
+                var fvence = SumaDias2(emision, dias * i);
+                    var IdTr = "IdTr" + i;
+                    var TdIdLetraDetalle = "TdIdPago" + IdTr;
+                    sfecha_fin = fvence;
+                    var row = $("<tr id='" + IdTr + "'>" +
+                        "<td id='" + TdIdLetraDetalle + "' class='input-xs' style='display: none;'>" + i + "</td>" +
+                        "<td id='Nro" + IdTr + "' style='text-align: left; vertical-align: middle;'>" + i + "</td>" +
+                        "<td id='Cuota" + IdTr + "' style='text-align: center;'>" + cuota.toFixed(2) + "</td>" +
+                        "<td id='Vence" + IdTr + "' style='text-align: center;'>" + fvence + "</td>" +
+                        "<td class='uneditable' style='text-align: center;'>POR GUARDAR</td>" +
+                        "<td class='uneditable' style='text-align: center;'><a href='#' class='btn btn-danger btn-xs' onclick='DeleteDetallei()'><i class='glyphicon glyphicon-minus'></i> </a></td>" +
+                        "</tr>");
+                $("#letrastablesbody").append(row);
+                $('#sfecha_finactual').val(dias[i])
+            }
+            sumaColumna();
+
+            $('#letrastables').editableTableWidget();
+            $('#letrastables td.uneditable').on('change', function (evt, newValue) {
+                return false;
+            });
+            $('#letrastables td').on('change', function (evt, newValue) {
+                debugger;
+                var indexcell = evt.currentTarget.cellIndex;
+                var indexrow = evt.currentTarget.parentElement.rowIndex;
+                if (indexcell === 1) {
+                    return false;
+                }
+                else if (indexcell === 2) {
+                    try {
+                        var nuevo = parseFloat(newValue);
+                        if (Number.isNaN(nuevo)) {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                else if (indexcell === 4) {
+                    try {
+                        var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                        console.log(mydate.toDateString());
+                        if (mydate.toDateString() === 'Invalid Date') {
+                            return false;
+                        }
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                sumaColumna();
+            });
+        }
+
+
+
+
+
+
+
+
+        function DeleteDetalle(idtr) {
+            var id = idtr.trim();
+           //alert(id);
+
+            swal({
+                        title: '¿Está seguro?',
+                        text: "Se va a eliminar el registro!",
+                        type: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonText: 'Si!'
+                    }).then((result) => {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("EliminaDetallePrestamo", "Personal")',
+                            contentType: "application/json; charset=utf-8",
+                            data: JSON.stringify({
+                                id_personal_prestamo_detalle: id
+                            }),
+                            dataType: 'json',
+                            traditional: true,
+                            success: function(data) {
+                                console.log(data);
+                                id_personal_prestamo_detalle = data;
+                                if (parseInt(id_personal_prestamo_detalle, 10) > 0) {
+                                    swal({
+                                            title: 'Exito!',
+                                            text: 'Se eliminó correctamente',
+                                            type: 'success',
+                                            showCancelButton: false,
+                                            confirmButtonColor: '#3085d6',
+                                            cancelButtonColor: '#d33',
+                                            confirmButtonText: 'Ok'
+                                        },
+                                        function() {
+
+                                        });
+                                    console.log("salirs");
+                                    window.location.reload();
+                                } else {
+                                    sweetAlert("", "No se pudo eliminar!", "error");
+                                    id_personal_prestamo_detalle = 0;
+                                }
+                            }
+                        });
+                    }, function (dismiss) {
+                        if (dismiss === 'cancel' || dismiss === 'close') {
+                            // ignore
+                        }
+                    });
+
+        };
+
+        $('#myModalShow').on('shown.bs.modal',
+            function (e) {
+                $("#ImprimirListado").click(function () {
+                    debugger;
+                    var id_personal_prestamo = $("#id_personal_prestamox").val();
+                    var url = '@Url.Action("ExportCompromiso", "Personal")?id_personal_prestamo=' + id_personal_prestamo;
+                    window.open(url, "_blank")
+                });
+
+            });
+        function FnActivaSegunda(obj) {
+            if (obj.checked == true) {
+                $('#txtNro_letras2').val("0");
+                $('#txtNro_letras2').prop('disabled', false);
+                $('#secondacuota').val('1');
+            }
+            else {
+                $('#txtNro_letras2').val("0");
+                $('#txtNro_letras2').prop('disabled', true);
+                $('#secondacuota').val('0');
+            }
+        }
+        $('#myModalNew').on('shown.bs.modal',
+            function (e) {
+                $('#txtNro_letras2').val("0");
+                $('#txtNro_letras2').prop('disabled', true);
+                $("#txtDocumento").blur(function () {
+                    //FnCheckFactura();
+                });
+
+                $(document).ready(function () {
+                    //debugger;
+                   // $('#cmbfk_empresa').select2();
+                    $('.date-pickerIni').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                            function (ev) {
+                                $('#sfecha_inicio').val($(this).val());
+                            }).on('hide',
+                                function (event) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                                });
+
+                    $('.date-pickerFin').datepicker(
+                        {
+                            format: 'dd/mm/yyyy',
+                            dateFormat: 'dd/mm/yyyy',
+                            autoclose: true,
+                            todayHighlight: true
+                        }).on('changeDate',
+                            function (ev) {
+                                $('#sfecha_fin').val($(this).val());
+                            }).on('hide',
+                                function (event) {
+                                    event.preventDefault();
+                                    event.stopPropagation();
+                        });
+
+                    $('#letrastables').editableTableWidget();
+                    $('#letrastables td.uneditable').on('change', function (evt, newValue) {
+                        return false;
+                    });
+                    $('#letrastables td').on('change', function (evt, newValue) {
+                        debugger;
+                        var indexcell = evt.currentTarget.cellIndex;
+                        var indexrow = evt.currentTarget.parentElement.rowIndex;
+                        if (indexcell === 1) {
+                            return false;
+                        }
+                        else if (indexcell === 2) {
+                            try {
+                                var nuevo = parseFloat(newValue);
+                                if (Number.isNaN(nuevo)) {
+                                    return false;
+                                }
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+                        else if (indexcell === 4) {
+                            try {
+                                var mydate = stringToDate(newValue, "dd/MM/yyyy", "/");
+                                console.log(mydate.toDateString());
+                                if (mydate.toDateString() === 'Invalid Date') {
+                                    return false;
+                                }
+                            } catch (e) {
+                                return false;
+                            }
+                        }
+
+                    });
+
+                });
+
+
+
+
+    $("#GuardarEntidad").click(function() {
+        debugger;
+            var id_save = 0;
+        var cantfilas = 0;
+
+        var tipocronograma = $('#stipocronograma').val();
+            try {
+                cantfilas = $("#letrastables td").closest("tr").length;
+
+            } catch (e) {
+
+            }
+            var idcodigogeneral = $("#idcodigogeneralx").val();
+            var sfecha_inicio = $("#sfecha_inicio").val();
+            var txtMonto = $("#txtMonto").val();
+        var txtNro_letras = $("#cuotasprestamo").val();
+        
+            if (txtNro_letras === '') {
+                swal("", "Debe ingresar cuotas!", "error");
+                $("#txtNro_letras").focus();
+                return false;
+            }
+            if (cantfilas === 0 ) {
+                swal("", "No se ha generado cronograma de pagos!", "error");
+                $("#txtNro_letras").focus();
+                return false;
+            }
+            else if (cantfilas > 0 ) {
+                FnLlenaArrayLetras();
+            }
+            if (sfecha_inicio === '') {
+                swal("", "Datos Incompletos", "error");
+                $("#txtDocumento").focus();
+                return false;
+            }
+            if (txtMonto === '' || txtMonto === '0') {
+                swal("", "El monto no puede ser 0!", "error");
+                $("#txtMonto").focus();
+                return false;
+            }
+        debugger;
+        id_save = parseInt($("#idcodigogeneralx").val(), 10);
+                    $.ajax({
+                        type: 'POST',
+                        //url: "SaveTraslado",
+                        url: '@Url.Action("GuardaPrestamo", "Personal")',
+                        contentType: "application/json; charset=utf-8",
+                        data: JSON.stringify({
+                            id_save: id_save,
+                            monto: txtMonto,
+                            nro_letras: txtNro_letras,
+                            fecha_inicio: sfecha_inicio,
+                            arrLetras: arrLetras,
+                            fk_tipo_check: tipocronograma,
+                            idpersonalprestamo: 0
+                        }),
+                        dataType: 'json',
+                        traditional: true,
+                        success: function(data) {
+                            console.log(data);
+                            id_personal_prestamo = data;
+                            if (parseInt(id_personal_prestamo, 10) > 0) {
+                                swal({
+                                    title: 'Exito!',
+                                    text: 'Se registró correctamente',
+                                    type: 'success',
+                                    showCancelButton: false,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ok'
+                                }).then(function() {
+                                    console.log("salirs");
+                                    $("#btnCancel").click();
+                                });
+
+                            } else {
+                                sweetAlert("", "No se pudo registrar!", "error");
+                                id_personal_prestamo = 0;
+                            }
+                        }
+                    });
+
+                });
+
+                var arrLetras = new Array();
+                function FnLlenaArrayLetras() {
+                    debugger;
+                    arrLetras = [];
+                    var IndArr = 0;
+                    var table = document.getElementById('letrastablesbody');
+                    var cantRows = table.rows.length;
+                    var newTr = "";
+                    var Nro = "";
+                    var LetraNro = "";
+                    var Cuota = "";
+                    var Vence = "";
+                    if (cantRows > 0) {
+
+                        for (var i = 0; i < cantRows; i++) {
+                            //debugger;
+                            newTr = table.rows[i].id;
+                            if (newTr.trim() != "") {
+                                Nro = document.getElementById("Nro" + newTr).innerHTML;
+                                //LetraNro = document.getElementById("LetraNro" + newTr).innerHTML;
+                                Cuota = document.getElementById("Cuota" + newTr).innerHTML;
+                                Vence = document.getElementById("Vence" + newTr).innerHTML;
+                                arrLetras[IndArr] = new Array(5);
+                                arrLetras[IndArr][0] = Nro;
+                                arrLetras[IndArr][1] = "";
+                                arrLetras[IndArr][2] = Cuota;
+                                arrLetras[IndArr][3] = Vence;
+                                IndArr++;
+                            }
+                        }
+                    }
+                }
+            });
+
+
+
+        $(document).on('click', '.NewPersona', function () {
+            //debugger;
+
+            var url = '@Url.Action("GetTrabajadorById", "Personal")?IdTrabajador=' + "";
+            window.open(url, "_self")
+        });
+        $(document).on('click', '.edit', function () {
+            debugger;
+            var tableRow = $(this).closest("tr");
+            var IdTrabajador = tableRow.find("td:eq(0)").text();
+            IdTrabajador = IdTrabajador.trim();
+            var url = '@Url.Action("GetTrabajadorById", "Personal")?IdTrabajador=' + IdTrabajador;
+            window.open(url, "_self")
+        });
+        function DownloadExcel() {
+
+            $.ajax({
+                type: "POST",
+                url: "ExcelExportPersonal",
+                contentType: 'application/json; charset=utf-8',
+                dataType: "json",
+                //data: JSON.stringify({
+                //    Periodo: Periodo
+                //}),
+                cache: false,
+                success: function (data) {
+                    var urlx= '@Url.Action("Download", "Personal")'
+                    window.location = urlx;
+                },
+                error: function(data) {
+                    Materialize.toast("Something went wrong. ", 3000, 'rounded');
+                }
+            });
+        }
+    </script>
+}

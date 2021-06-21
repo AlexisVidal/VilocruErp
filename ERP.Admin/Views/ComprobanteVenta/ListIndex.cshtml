@@ -1,0 +1,347 @@
+﻿@model IEnumerable<ERP.Admin.Models.ComprobanteVenta>
+@{
+    string FechEmis = "";
+    string strFechEmis = "";
+    string strClie = "";
+    string CallBy = ViewBag.CallBy;
+    int ncaja = (int)ViewBag.Caja;
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-body">
+                <div class="table-toolbar">
+                    @if (CallBy == "ComprobanteVenta")
+                    {
+                        <a id="btnNewCompVenta" class="btn btn-danger">
+                            GENERAR VENTA
+                        </a>
+                        @*<a id="btnNewCobrCred" class="btn btn-danger">
+                            COBRAR CREDITOS
+                        </a>*@
+                    }
+                    @*<button class="btn btn-danger" id="btnWarningStocMinimo" onclick="javascript: Notify('Existen Productos con Stock por debajo del limite establecido!', 'top-right', '5000', 'danger', 'fa-bolt', true); return false;" style="display: none;">AVISO</button>*@
+                </div>
+                <table class="table table-striped table-hover table-bordered" id="editabledatatable">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+                                Id_COMPROBANTE_VENTA
+                            </th>
+                            <th>
+                                Tipo
+                            </th>
+                            <th>
+                                Nro
+                            </th>
+                            <th>
+                                F. Emisión
+                            </th>
+                            <th>
+                                Nro Venta
+                            </th>
+                            <th>
+                                Cliente
+                            </th>
+                            <th>
+                                Moneda
+                            </th>
+                            <th>
+                                Importe
+                            </th>
+                            <th>
+                                Inafecta
+                            </th>
+                            <th>
+                                Exonerada
+                            </th>
+                            <th>
+                                Gratuita
+                            </th>
+                            <th>
+                                Detraccion
+                            </th>
+                            <th>
+                                Estado
+                            </th>
+                            <th style="display: none;">
+                                HiddEstado
+                            </th>
+                            <th>
+                                ...
+                            </th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @if (Model !=null)
+                        {
+
+                        foreach (var item in Model)
+                        {
+                            FechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                            strFechEmis = item.f_emision.Substring(0, 19);
+                            strFechEmis = strFechEmis.Replace('T', ' ');
+
+                            /* if (!item.id_cliente_natural.Equals(0))
+                             {
+                                 strClie = item.dni_cliente_natural + " - " + item.nombre_cliente_natural + " " + item.apellido_paterno_cliente_natural + " " + item.apellido_materno_cliente_natural;
+                             }
+                             else if (!item.id_cliente_juridico.Equals(0))
+                             {
+                                 strClie = item.ruc_empresa_cliente_juridico + " " + item.razon_social;
+                             }*/
+                        <tr>
+                            <td style="display:none">
+                                @Html.DisplayFor(modelItem => item.id_comprobante_venta)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.descripcion)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.nro_comprobante)
+                            </td>
+                            <td class="input-xs">
+                                @FechEmis
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.n_venta)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.razon_social)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.descripcion_moneda)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.total_bruto)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.total_inafecto)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.total_exonerado)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.total_gratuito)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.detraccion)
+                            </td>
+                            <td class="input-xs">
+                                @Html.DisplayFor(modelItem => item.NEstado)
+                            </td>
+                            <td style="display: none;">
+                                @Html.DisplayFor(modelItem => item.estado)
+                            </td>
+                            <td>
+                                @if (CallBy == "ComprobanteVenta")
+                                {
+                                    if ((item.estado == "1" || item.estado == "2") && item.id_nota_credito == 0)
+                                    {
+                                        <a href="#" class="btn btn-danger btn-xs" onclick="FnAnularCV('@item.id_comprobante_venta', '@strFechEmis')"><i class="fa fa-trash-o"></i> Anular</a>
+                                        @*<a href="#" class="btn btn-warning btn-xs revertir"><i class="fa fa-recycle"></i> Cambiar Doc</a>*@
+                                        @*<a href="#" class="btn btn-info btn-xs" onclick="FnNotaEntrega('@item.fk_venta')" title="Generar Nota de Entrega"><i class="fa fa-file-archive-o"></i> NE</a>*@
+                                        <a href="#" class="btn btn-success btn-xs nota_credito" title="Generar Nota de Crédito"><i class="fa fa-file-archive-o"></i> NC</a>
+                                    }
+                                    if ((item.estado == "1" || item.estado == "2") && item.id_nota_debito == 0)
+                                    {
+                                        <a href="#" class="btn btn-warning btn-xs nota_debito" title="Generar Nota de Débito"><i class="fa fa-file-archive-o"></i> ND</a>
+                                    }
+                                    <a class="btn btn-default btn-xs ver" href="@Url.Action("ExportComprobante","ComprobanteVenta", new { FkCompVent = item.id_comprobante_venta})"><i class="fa fa-search"></i> Ver</a>
+                                    if ((item.estado == "1" || item.estado == "2") && item.id_nota_credito > 0)
+                                    {
+                                        <a class="btn btn-default btn-xs ver" href="@Url.Action("ExportComprobante","NotaCredito", new { IdNotaCredVent = item.id_nota_credito})"><i class="fa fa-search"></i> Ver NC</a>
+                                    }
+                                    if ((item.estado == "1" || item.estado == "2") && item.id_nota_debito > 0)
+                                    {
+                                        <a class="btn btn-default btn-xs ver" href="@Url.Action("ExportComprobante","NotaDebito", new { IdNotaDebVent = item.id_nota_debito})"><i class="fa fa-search"></i> Ver ND</a>
+                                    }
+                                }
+                                else if (CallBy == "ComprobanteVentaPorRegularizar")
+                                {
+                                    <a href="#" class="btn btn-danger btn-xs regularizar"><i class="fa fa-recycle"></i> Regularizar</a>
+                                }
+                            </td>
+                        </tr>
+                            }
+
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        Inicia();
+    });
+    $('#myModalCompVenta').on('shown.bs.modal',
+        function (e) {
+
+            $(document).ready(function () {
+                debugger;
+                var d = new Date();
+                //d.setDate(d.getDate() - 3);
+                var monthy = d.getMonth() + 1;
+                //var monthybefore = new Date().getMonth();
+                var yeary = d.getFullYear();
+                var datey = d.getDate();
+                var datestart = '';
+                datestart = yeary + ',' + monthy + ',' + datey;
+                //if (datey <= 15) {
+                //    //datestart = yeary + ',' + monthy + ',1';
+                //    datestart = yeary + ',' + monthybefore + ',' + (datey- 3);
+                //} else {
+                //    //datestart = yeary + ',' + monthy + ',16';  // habilitar fechas anteriores
+                //    datestart = yeary + ',' + monthy + ',13';  // habilitar fechas anteriores
+                //}
+                $('.date-pickerIni').datepicker(
+                    {
+                        format: 'dd/mm/yyyy',
+                        dateFormat: 'dd/mm/yyyy',
+                        autoclose: true,
+                        todayHighlight: true,
+                        onRender: function (date) {
+                            return date.valueOf() < new Date(datestart).valueOf() ? 'disabled' : '';
+                        }
+                    }).on('changeDate',
+                        function (ev) {
+                            $('#sfecha_ini').val($(this).val());
+                    }).on('hide',
+                        function (event) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        });
+
+                $('.date-pickerVenc').datepicker(
+                    {
+                        format: 'dd/mm/yyyy',
+                        dateFormat: 'dd/mm/yyyy',
+                        autoclose: true,
+                        todayHighlight: true,
+                        onRender: function (date) {
+                            return date.valueOf() < new Date(datestart).valueOf() ? 'disabled' : '';
+                        }
+                       
+                    }).on('changeDate',
+                        function (ev) {
+                            $('#sfecha_fin').val($(this).val());
+                        }).on('hide',
+                            function (event) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                            });
+
+            });
+        });
+
+    $("#btnNewCompVenta").click(function () {
+        if (@ncaja == 1) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Create", "ComprobanteVenta")',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCompVenta').html(response);
+                    $('#myModalCompVenta').modal(options);
+                    $('#myModalCompVenta').modal('show');
+                },
+                error: function (request, status, error) {
+
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        } else {
+            sweetAlert("", "NO EXISTE CAJA APERTURADA!", "error");
+        }
+
+
+    });
+
+    $("#btnNewCobrCred").click(function () {
+        //debugger;
+        if (@ncaja == 1) {
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("IndexByCaja", "CuentasPorCobrar")',
+                contentType: "application/json; charset=utf-8",
+                //data: JSON.stringify({
+                //    FkUsuaVent: FkUsuaVent
+                //}),
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentCtasPorCobrar').html(response);
+                    $('#myModalCtasPorCobrar').modal(options);
+                    $('#myModalCtasPorCobrar').modal('show');
+                },
+                error: function (request, status, error) {
+                    sweetAlert("", request.responseText, "error");
+                }
+            });
+        } else {
+            sweetAlert("", "NO EXISTE CAJA APERTURADA!", "error");
+        }
+    });
+
+    //InitiateEditableDataTable.init();
+    function Inicia() {
+        //Datatable Initiating
+        oTable = $('#editabledatatable').dataTable({
+            "aLengthMenu": [
+                [5, 10, 15, 20, 100, -1],
+                [5, 10, 15, 20, 100, "All"]
+            ],
+            "retrieve": "true",
+            "iDisplayLength": 10,
+            "sPaginationType": "bootstrap",
+            "sDom": "Tflt<'row DTTTFooter'<'col-sm-6'i><'col-sm-6'p>>",
+            "oTableTools": {
+                "aButtons": [
+                    //"copy",
+                    //"print"
+                    //,
+                    //{
+                    //    "sExtends": "collection",
+                    //    "sButtonText": "Save <i class=\"fa fa-angle-down\"></i>",
+                    //    "aButtons": ["csv", "xls", "pdf"]
+                    //}
+                ],
+                "sSwfPath": "assets/swf/copy_csv_xls_pdf.swf"
+            },
+            "language": {
+                "search": "",
+                "sLengthMenu": "_MENU_",
+                "oPaginate": {
+                    "sPrevious": "Ant",
+                    "sNext": "Sig"
+                }
+            },
+
+            "aoColumns": [
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                { "bSortable": false }
+            ],
+            "aaSorting": [[0, "desc"]]
+        });
+        //console.log("nRowoTable: " + JSON.stringify($('#editabledatatable')));
+        var isEditing = null;
+    }
+</script>

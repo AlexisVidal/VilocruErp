@@ -1,0 +1,59 @@
+﻿<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-1">
+            </div>
+            <div class="col-md-10">
+                <table class="table table-striped table-hover table-bordered" id="editabledataRegiRef" style="text-align: center;font-size:10px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th style="display:none">
+
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                NOMBRES
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                CARGO U OCUPACION
+                            </th>
+                            <th style="font-size: 10px; text-align: center">
+                                TELEFONO
+                            </th>
+                            <th>
+
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="display:none">
+                                    @item.IDPERSONALREFERENCIA
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center;padding-bottom:4px;padding-top:4px">
+                                    @item.NOMBRES
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center;padding-bottom:4px;padding-top:4px">
+                                    @item.CARGO
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center;padding-bottom:4px;padding-top:4px">
+                                    @item.TELEFONO
+                                </td>
+                                <td class="input-xs" style="font-size: 10px; text-align: center;padding-bottom:4px;padding-top:4px">
+                                    <button class="btn btn-sm btn-primary editaref" style="padding: 2px; font-size: small; margin-top: -5px">Editar</button>
+                                    <button class="btn btn-sm btn-danger eliminaref" style="padding: 2px; font-size: small; margin-top: -5px">Eliminar</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <div class="col-md-1">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    
+    </script>

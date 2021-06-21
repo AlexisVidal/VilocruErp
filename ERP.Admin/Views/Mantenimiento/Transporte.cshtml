@@ -1,0 +1,176 @@
+﻿@{
+    ViewBag.Title = "Registro de Transporte";
+    ViewBag.Description = "Transporte";
+    Layout = "~/Views/Shared/_Default.cshtml";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="widget-header ">
+                <span class="widget-caption">Listado </span>
+                Estado:
+                @Html.DropDownList("cmbTrans_FilterEstado", new SelectList(ViewBag.EstadosFilter, "estado", "Nestado", selectedValue: "-1"), new { id = "cmbTrans_FilterEstado" })
+            <div class="widget-buttons">
+                @if (Request.UrlReferrer != null)
+                {
+                    <a class="btn btn-danger" style="width:60px" onclick="history.go(-1); return false;" href="#">Atras</a>
+                }
+                <a href="#" data-toggle="maximize">
+                    <i class="fa fa-expand"></i>
+                </a>
+                <a href="#" data-toggle="collapse">
+                    <i class="fa fa-minus"></i>
+                </a>
+                <a href="#" data-toggle="dispose">
+                    <i class="fa fa-times"></i>
+                </a>
+            </div>
+            </div>
+            <div id="DivTblTransporte"></div>
+        </div>
+    </div>
+</div>
+<div id='myModalTransporte' class='modal fade in' role="dialog">
+    <div class="modal-dialog" style="width:20%; height:auto">
+        <div class="modal-content">
+            <div id='myModalContentTransporte'></div>
+        </div>
+    </div>
+</div>
+@section PageScripts{
+    <link href="~/assets/css/dataTables.bootstrap.css" rel="stylesheet" />
+    <script src="~/assets/js/datatable/jquery.dataTables.min.js"></script>
+    <script src="~/assets/js/datatable/ZeroClipboard.js"></script>
+    <script src="~/assets/js/datatable/dataTables.tableTools.min.js"></script>
+    <script src="~/assets/js/datatable/dataTables.bootstrap.min.js"></script>
+    <script src="~/assets/js/datatable/datatables-init.js"></script>
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script src="~/assets/js/inputmask/jasny-bootstrap.min.js"></script>
+    <script src="~/assets/js/select2/select2.js"></script>
+    <!--Bootstrap Tags Input-->
+    <script src="~/assets/js/tagsinput/bootstrap-tagsinput.js"></script>
+    <script src="~/assets/js/datetime/moment.js"></script>
+    <!--Bootstrap Date Picker-->
+    <script src="~/assets/js/datetime/bootstrap-datepicker.js"></script>
+    <script>
+        function isNumber(evt) {
+            evt = (evt) ? evt : window.event;
+            var charCode = (evt.which) ? evt.which : evt.keyCode;
+            if (charCode > 31 && (charCode < 48 || charCode > 57) && charCode != 46) {
+                return false;
+            }
+            return true;
+        }
+        function InputToUpper(obj) {
+            if (obj.value != "") {
+                obj.value = obj.value.toUpperCase();
+            }
+        }
+
+        $(document).ready(function () {
+            loadDivTblTransporte();
+            $("#cmbTrans_FilterEstado").change(function () {
+                loadDivTblTransporte();
+            });
+        });
+
+        function loadDivTblTransporte() {
+            var EstaFilt = $("#cmbTrans_FilterEstado").val();
+            var url = "../Transporte/Index?EstaFilt=" + EstaFilt;
+            $('#DivTblTransporte').html('');
+            $('#DivTblTransporte').load(url);
+        }
+
+        $(document).on('click', '.edita', function () {
+            var tableRow = $(this).closest("tr");
+            IdTran = tableRow.find("td:eq(0)").text();
+            IdTran = IdTran.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("Edit", "Transporte")',
+                contentType: "application/json; charset=utf-8",
+                data: { IdTran: IdTran },
+                dataType: 'html',
+                success: function (response) {
+                    $('#myModalContentTransporte').html(response);
+                    $('#myModalTransporte').modal(options);
+                    $('#myModalTransporte').modal('show');
+                },
+                error: function (request, status, error) {
+                    alert(request.responseText);
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.elimina', function () {
+            var tableRow = $(this).closest("tr");
+            var IdTran = tableRow.find("td:eq(0)").text();
+            IdTran = IdTran.trim();
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveDeleteTransporte", "Transporte")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdTran: IdTran
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: 'Exito!',
+                        text: data,
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ok'
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            });
+            return false;
+        });
+
+        $(document).on('click', '.activar', function () {
+            var tableRow = $(this).closest("tr");
+            var IdTran = tableRow.find("td:eq(0)").text();
+            IdTran = IdTran.trim();
+            var EstaOrdeComp = '1';
+            var options = { "backdrop": "static", keyboard: false };
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveActivarTransporte", "Transporte")',
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify({
+                    IdTran: IdTran
+                }),
+                dataType: 'json',
+                traditional: true,
+                success: function (data) {
+                    swal({
+                        title: 'Exito!',
+                        text: data,
+                        type: 'success',
+                        showCancelButton: false,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Ok'
+                    }).then(function () {
+                        window.location.reload();
+                    });
+                },
+                error: function (data) {
+                    sweetAlert("", data.responseText, "error");
+                }
+            });
+            return false;
+        });
+    </script>
+}

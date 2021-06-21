@@ -1,0 +1,95 @@
+﻿@model IEnumerable<ERP.Admin.Models.ComprobanteCompra>
+@{
+    string strFechEmis = "";
+    string strNeto = "";
+    string strIgv = "";
+    string strBrut = "";
+}
+<div class="row">
+    <div class="col-xs-12 col-md-12">
+        <div class="widget">
+            <div class="col-md-12">
+                <table class="table" id="editabledataRegiCompras" style="text-align: center;table-layout: auto;border: 1px solid black;font-size:11px;font-family:Arial, Helvetica, sans-serif">
+                    <thead>
+                        <tr role="row">
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                FECHA
+                            </th>
+                            <th rowspan="2" style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                TIPO_DOC
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                DOCUMENTO
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                RUC
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                NOMBRE
+                            </th>
+                            <th style="font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                AFECTO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                EXONERADO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                IMPUESTO
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black;">
+                                TOTAL
+                            </th>
+                            <th style="width: 80px; font-size: 11px; text-align: center; border-top: 1px solid black; border-bottom: 1px solid black; border-right: 1px solid black;">
+                                COD_MONEDA
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            strFechEmis = Convert.ToDateTime(item.f_emision).ToString("dd/MM/yyyy");
+                            strNeto = item.total_neto.ToString("#,##0.00");
+                            strIgv = item.total_igv.ToString("#,##0.00");
+                            strBrut = item.total_bruto.ToString("#,##0.00");
+                            <tr>
+                                <td class="input-xs">
+                                    @strFechEmis
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.codigo
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.nro_comprobante
+                                </td>
+                                <td class="input-xs" style="text-align: center;">
+                                    @item.ruc
+                                </td>
+                                <td class="input-xs" style="text-align: left;">
+                                    @item.razon_social
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strNeto
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @Convert.ToDecimal("0").ToString("#,##0.00")
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strIgv
+                                </td>
+                                <td class="input-xs" style="text-align: right;">
+                                    @strBrut
+                                </td>
+                                <td class="input-xs" style="text-align: right; border-right: 1px solid black;">
+                                    01
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+</script>
